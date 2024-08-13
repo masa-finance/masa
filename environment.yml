@@ -1,0 +1,39 @@
+name: masa
+channels:
+  - defaults
+  - conda-forge
+dependencies:
+  - python=3.12
+  - pip
+  - jupyter
+  - notebook
+  - ipykernel
+  - matplotlib
+  - numpy
+  - pandas
+  - scikit-learn
+  - streamlit
+  - requests
+  - python-dotenv
+  - feedparser
+  - pip:
+    - langchain
+    - tavily-python
+    - langgraph
+    - langchain_community
+    - langchain-openai
+    - langchainhub
+    - langchain-ollama
+    - "nomic[local]"
+    - openai
+    - tiktoken
+    - tqdm
+    - streamlit-extras
+    - "pinecone-client[grpc]"
+    - assemblyai
+    - pytube
+    - TikTokApi
+    - torch
+    - transformers
+    - ollama
+    - colorlog
