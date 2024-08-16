@@ -44,10 +44,12 @@ Thank you for your interest in contributing to the MASA Project! This guide will
 
 4. **Building docs**:
    - After making changes, rebuild the documentation:
-     ```
+
+     ```bash
      cd docs
      make html
      ```
+
    - Check the output in `docs/build/html` to ensure your changes appear correctly.
 
 ## Submitting Changes
