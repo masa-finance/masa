@@ -21,5 +21,8 @@ dependencies:
   - tqdm
   - colorlog
   - pip
+  - sphinx
+  - sphinx_rtd_theme
+  - recommonmark
   - pip:
     - -r requirements.txt

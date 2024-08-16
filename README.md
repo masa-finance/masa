@@ -1,50 +1,55 @@
-# MASA Project Setup
+# MASA Project
 
-This project uses a combination of Conda and pip to manage dependencies and create a virtual environment.
+MASA is a project for data retrieval, structuring, augmentation, and quality control.
 
-## Prerequisites
+## Quick Start
 
-Before setting up the project, ensure that you have the following installed:
-
-- Anaconda or Miniconda: The project relies on Conda for managing the virtual environment. You can download Anaconda or Miniconda from the official website: [https://www.anaconda.com/products/individual](https://www.anaconda.com/products/individual)
-
-## Setup Instructions
-
-1. Clone the repository to your local machine.
-
-2. Navigate to the project directory.
-
-3. Run the following command to initialize the project:
+1. Install the project:
 
    ```bash
    masa-init
    ```
 
-   This command will create the necessary folder structure, set up the Conda environment, and install the required dependencies.
-
-4. Once the initialization is complete, activate the Conda environment by running:
+2. Activate the environment:
 
    ```bash
    conda activate masa
    ```
 
-5. You are now ready to use the MASA package!
+3. Basic usage example:
+
+   ```python
+   from masa.retrieve import retrieve_twitter
+   from masa.structure import structure_to_json
+   from masa.augment import augment_summarize
+
+   # Retrieve data
+   tweets = retrieve_twitter.get_tweets(query="python", count=100)
+
+   # Structure data
+   structured_data = structure_to_json.convert(tweets)
+
+   # Augment data
+   summary = augment_summarize.summarize(structured_data)
+
+   print(summary)
+   ```
+
+## Documentation
+
+For detailed documentation, including installation instructions, usage guide, and API reference, please visit our [full documentation](link-to-your-hosted-sphinx-docs).
+
+## Contributing
+
+We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for more information on how to get started, including documentation best practices.
 
 ## Configuration Files
 
-The project setup is defined in the following configuration files:
+- `setup.py`: Package details and dependencies
+- `init_script.py`: Initialization script
+- `environment.yml`: Conda environment definition
+- `requirements.txt`: Additional Python packages
 
-- `setup.py`: Specifies the package details, dependencies, and entry points for the MASA package.
-- `init_script.py`: Contains the initialization script that sets up the project structure and creates the Conda environment.
-- `environment.yml`: Defines the Conda environment and its dependencies.
-- `requirements.txt`: Lists the additional Python packages required by the project.
+## Additional Information
 
-Make sure to review these files if you need to modify the project setup or dependencies.
-
-## Additional Notes
-
-- The project requires Python 3.12, which will be installed in the Conda environment.
-- The initialization script will create a Conda environment named `masa` based on the specifications in `environment.yml`.
-- The required Python packages listed in `requirements.txt` will be automatically installed during the initialization process.
-
-If you encounter any issues during the setup or have any questions, please refer to the project documentation or contact the project maintainers.
+For more detailed information about setup, configuration, and usage, please refer to our [full documentation](link-to-your-hosted-sphinx-docs).
