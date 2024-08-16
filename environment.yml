@@ -4,7 +4,7 @@ channels:
   - conda-forge
 dependencies:
   - python=3.12
-  - pip
+  - pyyaml
   - jupyter
   - notebook
   - ipykernel
@@ -16,24 +16,10 @@ dependencies:
   - requests
   - python-dotenv
   - feedparser
+  - openai
+  - tiktoken
+  - tqdm
+  - colorlog
+  - pip
   - pip:
-    - langchain
-    - tavily-python
-    - langgraph
-    - langchain_community
-    - langchain-openai
-    - langchainhub
-    - langchain-ollama
-    - "nomic[local]"
-    - openai
-    - tiktoken
-    - tqdm
-    - streamlit-extras
-    - "pinecone-client[grpc]"
-    - assemblyai
-    - pytube
-    - TikTokApi
-    - torch
-    - transformers
-    - ollama
-    - colorlog
+    - -r requirements.txt
