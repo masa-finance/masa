@@ -1,6 +1,6 @@
 import psycopg2
-from masa.qc.logging import Logger
-from masa.qc.error_handler import ErrorHandler
+from masa_tools.qc.logging import Logger
+from masa_tools.qc.error_handler import ErrorHandler
 
 class DatabaseConnection:
     """

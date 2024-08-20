@@ -1,0 +1,20 @@
+# API settings
+api_endpoint: 'https://api.twitter.com/2/tweets/search/recent'
+headers:
+  Authorization: 'Bearer ${TWITTER_BEARER_TOKEN}'
+  User-Agent: 'v2RecentSearchPython'
+
+# Query settings  
+query: '"Bitcoin Price"'
+max_results: 100
+
+# Add start_time and end_time
+start_time: '2024-01-01T00:00:00Z'
+end_time: '2024-08-14T00:00:00Z'
+
+
+# Timing settings
+retry_delay: 960
+request_delay: 15 
+max_retries: 3
+request_timeout: 30
