@@ -49,12 +49,12 @@ class XTwitterConfig(Config):
 
     def load_yaml_configs(self):
         """Load configurations from YAML files."""
-        self.twitter_config = self.load_yaml_file('twitter_retriever_config.yaml')
+        twitter_config_path = os.path.join(os.path.dirname(__file__), 'twitter_retriever_config.yaml')
+        self.twitter_config = self.load_yaml_file(twitter_config_path)
 
     def load_env_configs(self):
         """Load configurations from environment variables."""
         self.twitter_env_config = {
-            'TWITTER_BEARER_TOKEN': os.getenv('TWITTER_BEARER_TOKEN'),
             'TWITTER_TIMEOUT': int(os.getenv('TWITTER_TIMEOUT', 30)),
             'TWITTER_MAX_RETRIES': int(os.getenv('TWITTER_MAX_RETRIES', 3)),
             'TWITTER_RETRY_DELAY': int(os.getenv('TWITTER_RETRY_DELAY', 960))

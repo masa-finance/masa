@@ -1,6 +1,6 @@
 import requests
-from masa.qc.logging import Logger
-from masa.qc.error_handler import ErrorHandler
+from masa_tools.qc.logging import Logger
+from masa_tools.qc.error_handler import ErrorHandler
 
 class APIConnection:
     """
@@ -34,6 +34,7 @@ class APIConnection:
         :type data: dict
         :return: The response from the API.
         :rtype: requests.Response
+        :raises RequestException: If an error occurs during the request.
         """
         url = f"{self.base_url}/{endpoint}"
         try:

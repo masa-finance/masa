@@ -1,5 +1,7 @@
 from typing import Any, Dict, Optional
 from .logging import Logger
+import logging
+import functools
 from requests.exceptions import ReadTimeout, ConnectionError, RequestException
 
 class ErrorHandler:
@@ -13,14 +15,14 @@ class ErrorHandler:
         logger (Logger): An instance of the Logger class for logging errors.
     """
 
-    def __init__(self, logger: Logger):
+    def __init__(self, logger: None):
         """
         Initialize the ErrorHandler with a logger.
 
         Args:
             logger (Logger): An instance of the Logger class for logging errors.
         """
-        self.logger = logger
+        self.logger = logger or Logger("ErrorHandler").logger
 
     def raise_error(self, error_type: str, message: str, details: Optional[Dict[str, Any]] = None):
         """
@@ -45,7 +47,8 @@ class ErrorHandler:
         exception_class = globals().get(error_type, Exception)
         raise exception_class(message)
 
-    def handle_error(self, func):
+    @staticmethod
+    def handle_error(func):
         """
         A decorator for handling errors in functions.
 
@@ -57,29 +60,22 @@ class ErrorHandler:
         Returns:
             callable: The decorated function.
         """
+        @functools.wraps(func)
         def wrapper(*args, **kwargs):
             try:
                 return func(*args, **kwargs)
             except (ReadTimeout, ConnectionError, RequestException) as e:
-                # Log and re-raise specific request exceptions
-                error_info = {
-                    "type": type(e).__name__,
-                    "message": str(e),
-                    "function": func.__name__,
-                    "args": args,
-                    "kwargs": kwargs
-                }
-                self.logger.log_error(error_info)
+                # Log specific request exceptions using the provided logger
+                if hasattr(wrapper, 'logger'):
+                    wrapper.logger.error(f"A request error occurred in {func.__name__}: {e}")
+                else:
+                    logging.error(f"A request error occurred in {func.__name__}: {e}")
                 raise
             except Exception as e:
-                # Log and re-raise other exceptions
-                error_info = {
-                    "type": type(e).__name__,
-                    "message": str(e),
-                    "function": func.__name__,
-                    "args": args,
-                    "kwargs": kwargs
-                }
-                self.logger.log_error(error_info)
+                # Log other exceptions using the provided logger
+                if hasattr(wrapper, 'logger'):
+                    wrapper.logger.error(f"An error occurred in {func.__name__}: {e}")
+                else:
+                    logging.error(f"An error occurred in {func.__name__}: {e}")
                 raise
         return wrapper

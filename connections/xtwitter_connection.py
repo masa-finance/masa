@@ -1,7 +1,7 @@
-from masa.connections.api_connection import APIConnection
-from masa.configs.config import Config
-from masa.qc.error_handler import ErrorHandler
-from masa.utils.state_manager import StateManager  # Import the StateManager
+from connections.api_connection import APIConnection
+from configs.config import XTwitterConfig
+from masa_tools.qc.error_handler import ErrorHandler
+from masa_tools.utils.state_manager import StateManager  # Import the StateManager
 import time
 
 class XTwitterConnection(APIConnection):
@@ -15,8 +15,8 @@ class XTwitterConnection(APIConnection):
         
         :raises KeyError: If the 'BASE_URL' key is not found in the environment variables.
         """
-        config = Config()
-        twitter_config = config.get_twitter_config()
+        config = XTwitterConfig()
+        twitter_config = config.get_config()
         
         base_url = config.get_env_var('BASE_URL')  # Get the base URL from environment variables
         headers = twitter_config['headers']
@@ -26,7 +26,7 @@ class XTwitterConnection(APIConnection):
         
         super().__init__(base_url, headers)
         
-        self.state_manager = StateManager()  # Create an instance of StateManager
+        # self.state_manager = StateManager()  # Create an instance of StateManager
 
     @ErrorHandler.handle_error
     def make_request(self, endpoint, method='GET', data=None):
@@ -41,6 +41,8 @@ class XTwitterConnection(APIConnection):
         :type data: dict
         :return: The response from the MASA Oracle.
         :rtype: requests.Response
+        :raises UnexpectedStatusCode: If the response status code is not 200 after retries.
+        :raises MaxRetriesExceeded: If the maximum number of retries is exceeded.
         """
         url = f"{self.base_url}/{endpoint}"
         attempts = 0

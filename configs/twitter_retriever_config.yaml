@@ -11,3 +11,9 @@ retry_delay: 960
 request_delay: 15 
 max_retries: 3
 request_timeout: 30
+
+# Headers
+headers:
+  accept: 'application/json'
+  Content-Type: 'application/json'
+ 

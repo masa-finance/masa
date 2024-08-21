@@ -1,12 +1,13 @@
-from masa.connections.xtwitter_connection import XTwitterConnection
+from connections.xtwitter_connection import XTwitterConnection
 from masa_tools.utils.data_storage import DataStorage
+from masa_tools.qc.error_handler import ErrorHandler
 import os
 import json
 import time
 from datetime import datetime
 
 class XTwitterRetriever:
-    def __init__(self, logger, error_handler, config):
+    def __init__(self, logger, config):
         """
         Initialize the XTwitterRetriever with the necessary configurations.
 
@@ -15,16 +16,13 @@ class XTwitterRetriever:
         :param config: The configuration object.
         """
         self.logger = logger
-        self.error_handler = error_handler
         self.config = config
-        self.base_url = config.get('api_endpoint')
-        self.twitter_connection = XTwitterConnection(self.base_url, self.bearer_token)
-        self.data_directory = config.get('data_directory')
-        os.makedirs(self.data_directory, exist_ok=True)
+        self.error_handler = ErrorHandler(self.logger)
+        self.twitter_connection = XTwitterConnection()
         self.state_file = 'retriever_state.json'
-        self.data_storage = DataStorage(self.data_directory)
+        self.data_storage = DataStorage()
 
-    @error_handler.handle_error
+    @ErrorHandler.handle_error
     def retrieve_tweets(self, requests_list):
         """
         Retrieve tweets based on the provided list of requests.
@@ -39,8 +37,9 @@ class XTwitterRetriever:
                 self.logger.log_info(f"Skipping request {request} as it has already been completed.")
                 continue
 
-            query = request['query']
-            count = request['count']
+            params = request['params']  # Extract the 'params' dictionary from the request
+            query = params['query']
+            count = params['count']
 
             success = False
             attempts = 0
@@ -63,7 +62,7 @@ class XTwitterRetriever:
             if not success:
                 self.error_handler.raise_error("RetrievalError", f"Failed to process request {request} after {attempts} attempts.")
 
-    @error_handler.handle_error
+    @ErrorHandler.handle_error
     def _handle_response(self, response, query):
         """
         Handle the response from the Twitter API.

@@ -2,30 +2,27 @@ import os
 from datetime import datetime
 
 class DataStorage:
-    def __init__(self, base_directory):
+    def __init__(self):
         """
-        Initialize the DataStorage with the base directory.
-
-        :param base_directory: The base directory where the data will be stored.
+        Initialize the DataStorage.
         """
-        self.base_directory = base_directory
+        self.base_directory = 'data'
 
     def save_data(self, data, source, query):
         """
-        Save the retrieved data to a file in a structured directory.
+        Save the retrieved data to a file in a structured directory within the 'data' directory.
 
         :param data: The data to be saved.
         :param source: The source of the data (e.g., 'xtwitter').
         :param query: The query used to retrieve the data.
         """
-        # Create the directory structure
-        current_date = datetime.now().strftime('%Y-%m-%d')
-        directory = os.path.join(self.base_directory, source, query, current_date)
+        # Create the directory structure within the 'data' directory
+        directory = os.path.join(self.base_directory, source)
         os.makedirs(directory, exist_ok=True)
 
-        # Generate a unique filename based on the current timestamp
+        # Generate a unique filename based on the query and current timestamp
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-        filename = f"{timestamp}.json"
+        filename = f"{query}_{timestamp}.json"
 
         # Save the data to a file
         file_path = os.path.join(directory, filename)
