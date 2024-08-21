@@ -44,11 +44,11 @@ class XTwitterRetriever:
             success = False
             attempts = 0
             while not success and attempts < self.config.get('max_retries', 3):
-                params = {
+                data = {  # Use 'data' instead of 'json'
                     'query': query,
                     'count': count
                 }
-                response = self.twitter_connection.make_request('/data/tweets', method='POST', json=params)
+                response = self.twitter_connection.make_request('/data/twitter/tweets/recent', method='POST', data=data)
                 self._handle_response(response, query)
                 success = True
                 completed_requests.append(request)
@@ -72,9 +72,12 @@ class XTwitterRetriever:
         """
         if response.status_code == 200:
             data = response.json()
-            tweets = json.dumps(data['tweets'], indent=4)
-            self.data_storage.save_data(tweets, 'xtwitter', query)
-            self.logger.log_info(f"Successfully retrieved {len(data['tweets'])} tweets")
+            if 'data' in data:  # Check if 'data' key exists in the response
+                tweets = json.dumps(data['data'], indent=4)  # Access 'data' instead of 'tweets'
+                self.data_storage.save_data(tweets, 'xtwitter', query)
+                self.logger.log_info(f"Successfully retrieved {len(data['data'])} tweets")
+            else:
+                self.error_handler.raise_error("MissingDataError", "The 'data' key is missing in the response.")
         else:
             self.error_handler.raise_error("RequestError", f"Failed to retrieve tweets. Status code: {response.status_code}")
 

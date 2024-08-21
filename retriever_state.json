@@ -1,0 +1,21 @@
+{
+    "completed_requests": [
+        {
+            "retriever": "XTwitterRetriever",
+            "endpoint": "data/twitter/tweets/recent",
+            "params": {
+                "query": "#Bitcoin",
+                "count": 10
+            }
+        },
+        {
+            "retriever": "XTwitterRetriever",
+            "endpoint": "data/twitter/tweets/recent",
+            "params": {
+                "query": "@brendanplayford",
+                "count": 20
+            }
+        }
+    ],
+    "timestamp": "2024-08-21 18:31:20"
+}

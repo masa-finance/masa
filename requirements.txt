@@ -1,33 +1,18 @@
-assemblyai
-colorlog
-feedparser
-ipykernel
-jupyter
-langchain
-langchain-ollama
-langchain-openai
-langchain_community
-langchainhub
-langgraph
-matplotlib
-nomic[local]
-notebook
-numpy
-ollama
-openai
-pandas
-pinecone-client[grpc]
-psycopg2
-pytube
-python-dotenv
+assemblyai  # AssemblyAI API client library
+langchain  # Building applications with LLMs through composability
+langchain-ollama  # Langchain integration for Ollama
+langchain-openai  # Langchain integration for OpenAI
+langchain_community  # Community-driven Langchain extensions
+langchainhub  # Hub for Langchain resources and extensions
+langgraph  # Graph-based language understanding toolkit
+nomic[local]  # Nomic AI platform client library
+ollama  # Ollama language model
+pinecone-client[grpc]  # Pinecone vector database client with gRPC support
+psycopg2  # PostgreSQL database adapter
+pytube  # Python library for downloading YouTube videos
 pyyaml
-requests
-scikit-learn
-streamlit
-streamlit-extras
-tavily-python
-TikTokApi
-tiktoken
-torch
-tqdm
-transformers
+streamlit-extras  # Additional components for Streamlit
+tavily-python  # Tavily API client library
+TikTokApi  # Unofficial TikTok API wrapper
+torch  # PyTorch deep learning framework
+transformers  # State-of-the-art natural language processing library

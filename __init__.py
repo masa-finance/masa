@@ -9,12 +9,14 @@ from . import masa_tools
 from . import configs
 from . import connections
 from . import main
+from . import requests
 
 __all__ = [
     'masa_tools',
     'configs',
     'connections',
-    'main'
+    'main',
+    'requests'
 ]
 
 __version__ = '0.1.0'

@@ -55,6 +55,7 @@ class XTwitterConfig(Config):
     def load_env_configs(self):
         """Load configurations from environment variables."""
         self.twitter_env_config = {
+            'BASE_URL': os.getenv('BASE_URL', 'http://localhost:8080/api/v1/'),
             'TWITTER_TIMEOUT': int(os.getenv('TWITTER_TIMEOUT', 30)),
             'TWITTER_MAX_RETRIES': int(os.getenv('TWITTER_MAX_RETRIES', 3)),
             'TWITTER_RETRY_DELAY': int(os.getenv('TWITTER_RETRY_DELAY', 960))

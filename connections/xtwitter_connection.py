@@ -2,6 +2,7 @@ from connections.api_connection import APIConnection
 from configs.config import XTwitterConfig
 from masa_tools.qc.error_handler import ErrorHandler
 from masa_tools.utils.state_manager import StateManager  # Import the StateManager
+from urllib.parse import urlparse, urlunparse
 import time
 
 class XTwitterConnection(APIConnection):
@@ -44,7 +45,24 @@ class XTwitterConnection(APIConnection):
         :raises UnexpectedStatusCode: If the response status code is not 200 after retries.
         :raises MaxRetriesExceeded: If the maximum number of retries is exceeded.
         """
+
+        endpoint = endpoint.lstrip('/')
+        self.base_url = self.base_url.rstrip('/')
+        
         url = f"{self.base_url}/{endpoint}"
+        # Check if the URL is valid
+        if not self.is_valid_url(url):
+            # Attempt to fix the URL
+            url = self.fix_url(url)
+            if not self.is_valid_url(url):
+                error_details = {
+                    "url": url,
+                    "method": method,
+                    "data": data,
+                    "headers": self.headers
+                }
+                self.error_handler.raise_error("InvalidURL", f"Invalid URL: {url}", error_details)
+        
         attempts = 0
         while attempts < self.max_retries:
             response = super().make_request(endpoint, method, data)
@@ -73,3 +91,18 @@ class XTwitterConnection(APIConnection):
             "max_retries": self.max_retries
         }
         self.error_handler.raise_error("MaxRetriesExceeded", f"Failed to make request to {url} after {self.max_retries} attempts.", error_details)
+    
+    def is_valid_url(self, url):
+        """
+        Check if the given URL is valid.
+
+        :param url: The URL to check.
+        :type url: str
+        :return: True if the URL is valid, False otherwise.
+        :rtype: bool
+        """
+        try:
+            result = urlparse(url)
+            return all([result.scheme, result.netloc])
+        except ValueError:
+            return False

@@ -2,6 +2,8 @@ from masa_tools.retrieve.retrieve_xtwitter import XTwitterRetriever
 from masa_tools.qc.logging import Logger
 from masa_tools.qc.error_handler import ErrorHandler
 from configs.config import XTwitterConfig
+from masa_tools.utils.state_manager import StateManager
+from masa_tools.utils.request_router import RequestRouter
 
 def main(requests_list):
     """
@@ -13,33 +15,17 @@ def main(requests_list):
     # error_handler = ErrorHandler(logger)  # Initialize the error handler
     config = XTwitterConfig().get_config()  # Initialize the config
 
-    retrievers = {}  # Dictionary to store initialized retriever objects
+    router = RequestRouter(logger, config)  # Initialize the RequestRouter
 
     for request in requests_list:
-        retriever_name = request['retriever']
-        endpoint = request['endpoint']
-        params = request['params']
-
-        if retriever_name not in retrievers:
-            # Initialize the retriever if it hasn't been initialized yet
-            if retriever_name == 'XTwitterRetriever':
-                retrievers[retriever_name] = XTwitterRetriever(logger, config)
-            # Add more retriever initialization conditions as needed
-
-        retriever = retrievers[retriever_name]  # Get the initialized retriever object
-
-        if retriever_name == 'XTwitterRetriever':
-            if endpoint == '/data/tweets':
-                retriever.retrieve_tweets([request])  # Pass the entire request dictionary as a list
-            # Add more endpoint conditions as needed
-        # Add more retriever conditions as needed
+        router.route_request(request)  # Route each request using the RequestRouter
 
 if __name__ == '__main__':
     # Define the list of requests
     requests_list = [
         {
             'retriever': 'XTwitterRetriever',
-            'endpoint': '/data/tweets',
+            'endpoint': 'data/twitter/tweets/recent',
             'params': {
                 'query': '#Bitcoin',
                 'count': 10
@@ -47,7 +33,7 @@ if __name__ == '__main__':
         },
         {
             'retriever': 'XTwitterRetriever',
-            'endpoint': '/data/tweets',
+            'endpoint': 'data/twitter/tweets/recent',
             'params': {
                 'query': '@brendanplayford',
                 'count': 20

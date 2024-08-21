@@ -3,26 +3,26 @@ channels:
   - defaults
   - conda-forge
 dependencies:
+  - colorlog
+  - feedparser
+  - ipykernel
+  - jupyter
+  - matplotlib
+  - notebook
+  - numpy
+  - openai
+  - pandas
+  - pip
+  - python-dotenv
   - python=3.12
   - pyyaml
-  - jupyter
-  - notebook
-  - ipykernel
-  - matplotlib
-  - numpy
-  - pandas
-  - scikit-learn
-  - streamlit
+  - recommonmark
   - requests
-  - python-dotenv
-  - feedparser
-  - openai
-  - tiktoken
-  - tqdm
-  - colorlog
-  - pip
+  - scikit-learn
   - sphinx
   - sphinx_rtd_theme
-  - recommonmark
+  - streamlit
+  - tiktoken
+  - tqdm
   - pip:
     - -r requirements.txt

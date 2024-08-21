@@ -25,8 +25,8 @@ __all__ = [
     'utils',
     'qc', 
     'retrieve',
-    'main',
     # 'configs',
     # 'connections'
+    
 ]
 
