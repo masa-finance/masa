@@ -28,6 +28,21 @@ class Config:
         with open(file_path, 'r') as file:
             return yaml.safe_load(file)
 
+    def get_env_var(self, key):
+        """
+        Get the value of the specified environment variable.
+        
+        :param key: The name of the environment variable.
+        :type key: str
+        :return: The value of the environment variable.
+        :rtype: str
+        :raises KeyError: If the environment variable is not found.
+        """
+        value = os.getenv(key)
+        if value is None:
+            raise KeyError(f"Environment variable '{key}' not found.")
+        return value
+
 
 class XTwitterConfig(Config):
     """Configuration class for Twitter retriever."""
@@ -53,35 +68,11 @@ class XTwitterConfig(Config):
         return {**self.twitter_config, **self.twitter_env_config}
 
 
-class DatabaseConfig(Config):
-    """Configuration class for database."""
-
-    def load_yaml_configs(self):
-        """Load configurations from YAML files."""
-        self.database_config = self.load_yaml_file('database_config.yaml')
-
-    def load_env_configs(self):
-        """Load configurations from environment variables."""
-        self.database_env_config = {
-            'DB_HOST': os.getenv('DB_HOST'),
-            'DB_PORT': int(os.getenv('DB_PORT', 5432)),
-            # Load other database-related env configs
-        }
-
-    def get_config(self):
-        """Get the database configuration.
-
-        :return: Merged dictionary of YAML and environment configurations.
-        """
-        return {**self.database_config, **self.database_env_config}
-
-
 def load_configs():
     """Load all configurations.
 
     :return: Dictionary containing configurations for each retriever.
     """
     return {
-        'twitter': TwitterConfig().get_config(),
-        'database': DatabaseConfig().get_config()
+        'twitter': XTwitterConfig().get_config(),
     }

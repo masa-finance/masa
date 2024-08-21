@@ -13,5 +13,5 @@ Submodules
    :maxdepth: 1
 
    retrieve_base
-   retrieve_twitter
+   retrieve_xtwitter
    retrieve_file

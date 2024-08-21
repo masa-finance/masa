@@ -1,5 +1,6 @@
 from typing import Any, Dict, Optional
 from .logging import Logger
+from requests.exceptions import ReadTimeout, ConnectionError, RequestException
 
 class ErrorHandler:
     """
@@ -59,7 +60,19 @@ class ErrorHandler:
         def wrapper(*args, **kwargs):
             try:
                 return func(*args, **kwargs)
+            except (ReadTimeout, ConnectionError, RequestException) as e:
+                # Log and re-raise specific request exceptions
+                error_info = {
+                    "type": type(e).__name__,
+                    "message": str(e),
+                    "function": func.__name__,
+                    "args": args,
+                    "kwargs": kwargs
+                }
+                self.logger.log_error(error_info)
+                raise
             except Exception as e:
+                # Log and re-raise other exceptions
                 error_info = {
                     "type": type(e).__name__,
                     "message": str(e),
