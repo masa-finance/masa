@@ -5,5 +5,6 @@ from .request_manager import RequestManager
 from .queue import Queue
 from .state_manager import StateManager
 from .request_router import RequestRouter
+from .retry_policy import RetryPolicy
 
-__all__ = ['RequestManager', 'Queue', 'StateManager', 'RequestRouter']
+__all__ = ['RequestManager', 'Queue', 'StateManager', 'RequestRouter', 'RetryPolicy']

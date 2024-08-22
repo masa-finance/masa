@@ -3,7 +3,6 @@ from .logging import Logger
 import logging
 import functools
 from requests import ReadTimeout, ConnectionError, RequestException
-from tqdm import tqdm
 
 class ErrorHandler:
     """

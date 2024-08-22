@@ -1,6 +1,8 @@
 import os
 import json
 from datetime import datetime
+from ..qc.logging import Logger
+from ..qc.error_handler import ErrorHandler
 
 class DataStorage:
     def __init__(self):
@@ -8,6 +10,8 @@ class DataStorage:
         Initialize the DataStorage.
         """
         self.base_directory = 'data'
+        self.logger = Logger("DataStorage").logger
+        self.error_handler = ErrorHandler(self.logger)
 
     def get_file_path(self, source, query):
         """
@@ -16,12 +20,13 @@ class DataStorage:
         :param source: The source of the data (e.g., 'xtwitter').
         :param query: The query used to retrieve the data.
         :return: The file path for the data.
-        """
+        """ 
         directory = os.path.join(self.base_directory, source)
         os.makedirs(directory, exist_ok=True)
         filename = f"{query}.json"
         return os.path.join(directory, filename)
 
+    @ErrorHandler.handle_error
     def save_data(self, data, source, query):
         """
         Save the retrieved data to a file in a structured directory within the 'data' directory.
@@ -38,7 +43,8 @@ class DataStorage:
                 existing_data['tweets'].extend(json.loads(data))
                 file.seek(0)
                 json.dump(existing_data, file, indent=4)
-        except (FileNotFoundError, json.JSONDecodeError):
+        except (FileNotFoundError, json.JSONDecodeError) as e:
+            self.logger.log_warning(f"Creating new data file: {file_path}")
             initial_data = {
                 'tweets': json.loads(data),
                 'query': query,
@@ -49,4 +55,4 @@ class DataStorage:
             with open(file_path, 'w') as file:
                 json.dump(initial_data, file, indent=4)
 
-        print(f"Data saved to: {file_path}")
+        self.logger.log_info(f"Data saved to: {file_path}")
