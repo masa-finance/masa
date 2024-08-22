@@ -10,7 +10,7 @@ class DataStorage:
         Initialize the DataStorage.
         """
         self.base_directory = 'data'
-        self.logger = Logger("DataStorage").logger
+        self.logger = Logger("DataStorage")
         self.error_handler = ErrorHandler(self.logger)
 
     def get_file_path(self, source, query):

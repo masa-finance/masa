@@ -56,13 +56,13 @@ class StateManager:
                     'last_updated': datetime.now().isoformat()
                 }
             else:
-                self._state['requests'][request_id].update({
-                    'status': status,
-                    'progress': progress or self._state['requests'][request_id].get('progress', {}),
-                    'last_updated': datetime.now().isoformat()
-                })
+                current_state = self._state['requests'][request_id]
+                current_state['status'] = status
+                if progress:
+                    current_state['progress'].update(progress)
+                current_state['last_updated'] = datetime.now().isoformat()
                 if original_request:
-                    self._state['requests'][request_id]['original_request'] = original_request
+                    current_state['original_request'] = original_request
             self._state['last_updated'] = datetime.now().isoformat()
             self._save_state()
 

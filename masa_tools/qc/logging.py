@@ -1,18 +1,28 @@
 import logging
+import traceback
 from typing import Any, Dict
+from colorlog import ColoredFormatter
 
 class Logger:
     """
-    A class for handling logging in the MASA QC system.
+    A singleton class for handling logging in the MASA QC system.
 
     This class provides methods for logging various types of messages,
-    including errors, warnings, and general information.
+    including errors, warnings, and general information. It uses colorlog
+    to add color formatting to the log messages.
 
     Attributes:
         logger (logging.Logger): The underlying Python logger object.
     """
+    _instance = None
 
-    def __init__(self, name: str, level: int = logging.INFO):
+    def __new__(cls, name: str = "MASA_Logger", level: int = logging.INFO):
+        if cls._instance is None:
+            cls._instance = super(Logger, cls).__new__(cls)
+            cls._instance._initialize(name, level)
+        return cls._instance
+
+    def _initialize(self, name: str, level: int):
         """
         Initialize the Logger with a name and logging level.
 
@@ -27,8 +37,17 @@ class Logger:
         ch = logging.StreamHandler()
         ch.setLevel(level)
 
-        # Create a formatter
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        # Create a color formatter with a simpler format
+        formatter = ColoredFormatter(
+            "%(log_color)s%(levelname)s - %(message)s",
+            log_colors={
+                'DEBUG': 'cyan',
+                'INFO': 'green',
+                'WARNING': 'yellow',
+                'ERROR': 'red',
+                'CRITICAL': 'red,bg_white',
+            }
+        )
         ch.setFormatter(formatter)
 
         # Add the handler to the logger
@@ -36,14 +55,23 @@ class Logger:
 
     def log_error(self, error_info: Dict[str, Any]):
         """
-        Log an error message.
+        Log an error message with stack trace.
 
         Args:
             error_info (Dict[str, Any]): A dictionary containing error information.
+        
+        Raises:
+            TypeError: If the argument is not a dictionary.
         """
+        if not isinstance(error_info, dict):
+            raise TypeError("The argument 'error_info' must be a dictionary.")
+        
         self.logger.error(f"Error: {error_info['type']} - {error_info['message']}")
         if 'details' in error_info:
             self.logger.error(f"Details: {error_info['details']}")
+        
+        # Log the stack trace
+        self.logger.error("Stack trace: %s", traceback.format_exc())
 
     def log_warning(self, message: str):
         """

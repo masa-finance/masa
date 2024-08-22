@@ -1,0 +1,26 @@
+[
+  {
+    "retriever": "XTwitterRetriever",
+    "endpoint": "data/twitter/tweets/recent",
+    "params": {
+      "query": "#python",
+      "count": 100
+    }
+  },
+  {
+    "retriever": "XTwitterRetriever", 
+    "endpoint": "data/twitter/tweets/recent",
+    "params": {
+      "query": "from:elonmusk",
+      "count": 50
+    }
+  },
+  {
+    "retriever": "XTwitterRetriever",
+    "endpoint": "data/twitter/tweets/recent", 
+    "params": {
+      "query": "AI lang:en",
+      "count": 75
+    }
+  }
+]

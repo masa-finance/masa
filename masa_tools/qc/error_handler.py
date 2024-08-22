@@ -1,12 +1,11 @@
 from typing import Any, Dict, Optional
-from .logging import Logger
-import logging
+from .logging import Logger 
 import functools
-from requests import ReadTimeout, ConnectionError, RequestException
+from requests import ReadTimeout, ConnectionError, RequestException, HTTPError
 
 class ErrorHandler:
     """
-    A class for handling errors in the MASA QC system.
+    A singleton class for handling errors in the MASA QC system.
 
     This class provides methods for raising and handling various types of errors,
     as well as logging error information.
@@ -14,15 +13,22 @@ class ErrorHandler:
     Attributes:
         logger (Logger): An instance of the Logger class for logging errors.
     """
+    _instance = None
 
-    def __init__(self, logger: None):
+    def __new__(cls, logger: Logger = None):
+        if cls._instance is None:
+            cls._instance = super(ErrorHandler, cls).__new__(cls)
+            cls._instance._initialize(logger)
+        return cls._instance
+
+    def _initialize(self, logger: Logger):
         """
         Initialize the ErrorHandler with a logger.
 
         Args:
             logger (Logger): An instance of the Logger class for logging errors.
         """
-        self.logger = logger or Logger("ErrorHandler").logger
+        self.logger = logger or Logger()
 
     def raise_error(self, error_type: str, message: str, details: Optional[Dict[str, Any]] = None):
         """
@@ -64,18 +70,27 @@ class ErrorHandler:
         def wrapper(*args, **kwargs):
             try:
                 return func(*args, **kwargs)
+            except HTTPError as e:
+                # Log HTTPError using the Logger class
+                Logger().log_error({"type": "HTTPError", "message": str(e), "status_code": e.response.status_code})
+                if e.response.status_code == 504:  # Gateway Timeout
+                    raise GatewayTimeoutError(str(e))
+                else:
+                    raise RequestError(str(e))
             except (ReadTimeout, ConnectionError, RequestException) as e:
-                # Log specific request exceptions using the provided logger
-                if hasattr(wrapper, 'logger'):
-                    wrapper.logger.error(f"A request error occurred in {func.__name__}: {e}")
-                else:
-                    logging.error(f"A request error occurred in {func.__name__}: {e}")
-                raise
+                # Log specific request exceptions using the Logger class
+                Logger().log_error({"type": type(e).__name__, "message": str(e)})
+                raise RequestError(str(e))
             except Exception as e:
-                # Log other exceptions using the provided logger
-                if hasattr(wrapper, 'logger'):
-                    wrapper.logger.error(f"An error occurred in {func.__name__}: {e}")
-                else:
-                    logging.error(f"An error occurred in {func.__name__}: {e}")
+                # Log other exceptions using the Logger class
+                Logger().log_error({"type": type(e).__name__, "message": str(e)})
                 raise
         return wrapper
+
+class GatewayTimeoutError(Exception):
+    """Custom exception for gateway timeout errors."""
+    pass
+
+class RequestError(Exception):
+    """Custom exception for request errors."""
+    pass

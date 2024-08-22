@@ -3,9 +3,9 @@ import time
 from datetime import datetime, timedelta
 from connections.xtwitter_connection import XTwitterConnection
 from masa_tools.utils.data_storage import DataStorage
-from masa_tools.qc.error_handler import ErrorHandler
+from masa_tools.qc.logging import Logger
+from masa_tools.qc.error_handler import ErrorHandler, GatewayTimeoutError, RequestError
 from orchestration.retry_policy import RetryPolicy
-from requests.exceptions import HTTPError
 
 class XTwitterRetriever:
     """
@@ -20,25 +20,24 @@ class XTwitterRetriever:
     :param state_manager: A StateManager object for managing request states.
     """
 
-    def __init__(self, logger, config, state_manager):
+    def __init__(self, config, state_manager):
         """
         Initialize the XTwitterRetriever.
 
-        :param logger: A logger object for logging messages.
-        :type logger: logging.Logger
         :param config: A configuration object containing necessary settings.
         :type config: dict
         :param state_manager: A StateManager object for managing request states.
         :type state_manager: StateManager
         """
-        self.logger = logger
+        self.logger = Logger()
         self.config = config
-        self.error_handler = ErrorHandler(self.logger)
+        self.error_handler = ErrorHandler() 
         self.twitter_connection = XTwitterConnection()
         self.data_storage = DataStorage()
         self.state_manager = state_manager
-        self.retry_policy = RetryPolicy(max_retries=3, base_wait_time=60, max_wait_time=960)
+        self.retry_policy = RetryPolicy(max_retries=3, base_wait_time=60, max_wait_time=960, gateway_timeout_wait_time=960)
 
+    @ErrorHandler.handle_error
     def retrieve_tweets(self, request):
         """
         Retrieve tweets from Twitter based on the given request parameters.
@@ -78,7 +77,13 @@ class XTwitterRetriever:
 
                 break  # If successful, break the retry loop
 
-            except Exception as e:
+            except GatewayTimeoutError as e:
+                retry_count += 1
+                wait_time = self.retry_policy.gateway_timeout_wait_time
+                self.logger.log_warning(f"Gateway Timeout error retrieving tweets for request {request_id}. Retrying in {wait_time} seconds. Error: {str(e)}")
+                self.state_manager.update_request_state(request_id, 'retrying', progress={'error': str(e), 'retry_count': retry_count})
+                time.sleep(wait_time)
+            except RequestError as e:
                 retry_count += 1
                 wait_time = self.retry_policy.wait_time(retry_count)
                 self.logger.log_warning(f"Error retrieving tweets for request {request_id}. Retrying in {wait_time} seconds. Error: {str(e)}")
@@ -133,9 +138,13 @@ class XTwitterRetriever:
         :param current_time: The current time for the request.
         :type current_time: datetime
         """
-        tweets_json = json.dumps(tweets)
-        self.data_storage.save_data(tweets_json, 'xtwitter', query)
-        self.state_manager.update_request_state(request_id, 'in_progress', {
-            'last_processed_time': current_time.isoformat(),
-            'tweets_count': len(tweets)
-        })
+        try:
+            tweets_json = json.dumps(tweets)
+            self.data_storage.save_data(tweets_json, 'xtwitter', query)
+            self.state_manager.update_request_state(request_id, 'in_progress', {
+                'last_processed_time': current_time.isoformat(),
+                'tweets_count': len(tweets)
+            })
+        except Exception as e:
+            self.logger.log_error(f"Error occurred while saving tweets or updating state: {str(e)}")
+            raise
