@@ -163,3 +163,7 @@ cython_debug/
 
 # Ignore the data directory
 data/
+
+# ignore the orchestration files
+orchestration/request_queue.json
+orchestration/state_manager.json

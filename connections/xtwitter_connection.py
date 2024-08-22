@@ -1,7 +1,7 @@
 from connections.api_connection import APIConnection
 from configs.config import XTwitterConfig
 from masa_tools.qc.error_handler import ErrorHandler
-from masa_tools.utils.state_manager import StateManager  # Import the StateManager
+from orchestration.state_manager import StateManager  # Import the StateManager
 from urllib.parse import urlparse, urlunparse
 import time
 

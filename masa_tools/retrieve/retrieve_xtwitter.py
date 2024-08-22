@@ -6,7 +6,26 @@ from masa_tools.utils.data_storage import DataStorage
 from masa_tools.qc.error_handler import ErrorHandler
 
 class XTwitterRetriever:
+    """
+    A class to retrieve tweets from Twitter using the XTwitter API.
+
+    This class is responsible for making requests to the XTwitter API to retrieve tweets
+    based on a given query and count. It also handles error cases and saves the retrieved
+    tweets to a data storage.
+
+    :param logger: A logger object for logging messages.
+    :param config: A configuration object containing necessary settings.
+    :param state_manager: A StateManager object for managing request states.
+    """
+
     def __init__(self, logger, config, state_manager):
+        """
+        Initialize the XTwitterRetriever.
+
+        :param logger: A logger object for logging messages.
+        :param config: A configuration object containing necessary settings.
+        :param state_manager: A StateManager object for managing request states.
+        """
         self.logger = logger
         self.config = config
         self.error_handler = ErrorHandler(self.logger)
@@ -15,20 +34,12 @@ class XTwitterRetriever:
         self.state_manager = state_manager
 
     @ErrorHandler.handle_error
-    def retrieve_tweets(self, requests_list):
-        for request in requests_list:
-            request_id = request['id']
-            request_state = self.state_manager.get_request_state(request_id)
-            
-            if request_state.get('status') == 'completed':
-                self.logger.log_info(f"Skipping request {request_id} as it has already been completed.")
-                continue
+    def retrieve_tweets(self, request):
+        """
+        Retrieve tweets from Twitter based on the given request parameters.
 
-            self._process_request(request)
-            self.state_manager.update_request_state(request_id, 'completed')
-
-    @ErrorHandler.handle_error
-    def _process_request(self, request):
+        :param request: A dictionary containing the request parameters.
+        """
         request_id = request['id']
         params = request['params']
         query = params['query']
@@ -68,6 +79,15 @@ class XTwitterRetriever:
 
     @ErrorHandler.handle_error
     def _handle_response(self, response, request_id, query, current_time):
+        """
+        Handle the response from the XTwitter API.
+
+        :param response: The response object from the XTwitter API.
+        :param request_id: The ID of the request.
+        :param query: The query used for the request.
+        :param current_time: The current time for the request.
+        :return: True if the response was successful, False otherwise.
+        """
         if response.status_code == 200:
             data = response.json()
             if 'data' in data:
@@ -82,6 +102,14 @@ class XTwitterRetriever:
         return False
 
     def _save_tweets(self, tweets, request_id, query, current_time):
+        """
+        Save the retrieved tweets to the data storage.
+
+        :param tweets: A list of tweet objects.
+        :param request_id: The ID of the request.
+        :param query: The query used for the request.
+        :param current_time: The current time for the request.
+        """
         tweets_json = json.dumps(tweets)
         self.data_storage.save_data(tweets_json, 'xtwitter', query)
         self.state_manager.update_request_state(request_id, 'in_progress', {
