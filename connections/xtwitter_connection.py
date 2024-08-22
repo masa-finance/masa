@@ -47,7 +47,8 @@ class XTwitterConnection(APIConnection):
         """
 
         endpoint = endpoint.lstrip('/')
-        self.base_url = self.base_url.rstrip('/')
+        self.base_url = self.base_url.rstrip('/') # TODO: Make a more sophisticated URL builder
+
         
         url = f"{self.base_url}/{endpoint}"
         # Check if the URL is valid

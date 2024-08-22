@@ -12,10 +12,10 @@ def main(requests_list):
     :param requests_list: List of requests specifying the retriever, endpoint, and parameters.
     """
     logger = Logger(__name__)  # Initialize the logger
-    # error_handler = ErrorHandler(logger)  # Initialize the error handler
     config = XTwitterConfig().get_config()  # Initialize the config
+    state_manager = StateManager('data/state_manager.json')  # Initialize the StateManager
 
-    router = RequestRouter(logger, config)  # Initialize the RequestRouter
+    router = RequestRouter(logger, config, state_manager)  # Initialize the RequestRouter
 
     for request in requests_list:
         router.route_request(request)  # Route each request using the RequestRouter
@@ -27,8 +27,8 @@ if __name__ == '__main__':
             'retriever': 'XTwitterRetriever',
             'endpoint': 'data/twitter/tweets/recent',
             'params': {
-                'query': '#Bitcoin',
-                'count': 10
+                'query': '#KamalaHarris',
+                'count': 50
             }
         },
         {
@@ -36,7 +36,7 @@ if __name__ == '__main__':
             'endpoint': 'data/twitter/tweets/recent',
             'params': {
                 'query': '@brendanplayford',
-                'count': 20
+                'count': 50
             }
         }
         # Add more requests as needed
