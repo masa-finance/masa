@@ -41,10 +41,11 @@ class XTwitterConnection(APIConnection):
         self.qc_manager.debug("XTwitterConnection initialized successfully", context="XTwitterConnection")
         self.config = config
         self.retry_policy = RetryPolicy(
-            max_retries=config['TWITTER_MAX_RETRIES'],
-            base_wait_time=config['TWITTER_RETRY_DELAY'],
-            max_wait_time=config['TWITTER_RETRY_DELAY'],
-            timeout=config['TWITTER_TIMEOUT']
+            max_retries=config.get('TWITTER_MAX_RETRIES', 3),
+            base_wait_time=config.get('TWITTER_RETRY_DELAY', 960),
+            max_wait_time=config.get('TWITTER_RETRY_DELAY', 960),
+            timeout=config.get('TWITTER_TIMEOUT', 30),
+            success_interval=config.get('TWITTER_SUCCESS_INTERVAL', 7)
         )
 
     def get_headers(self):

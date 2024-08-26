@@ -37,20 +37,15 @@ class Config(metaclass=Singleton):
         with open(file_path, 'r') as file:
             return yaml.safe_load(file)
 
-    def get_env_var(self, key):
+    def get_env_var(self, key, default=None):
         """
         Get the value of the specified environment variable.
         
         :param key: The name of the environment variable.
-        :type key: str
-        :return: The value of the environment variable.
-        :rtype: str
-        :raises KeyError: If the environment variable is not found.
+        :param default: The default value to return if the environment variable is not found.
+        :return: The value of the environment variable or the default value.
         """
-        value = os.getenv(key)
-        if value is None:
-            raise KeyError(f"Environment variable '{key}' not found.")
-        return value
+        return os.getenv(key, default)
 
 
 class XTwitterConfig(Config):
@@ -70,13 +65,42 @@ class XTwitterConfig(Config):
             'TWITTER_RETRY_DELAY': int(os.getenv('TWITTER_RETRY_DELAY', 960))
         }
 
-    def get_config(self):
+    def get_config(self, key=None):
         """Get the Twitter configuration.
 
-        :return: Merged dictionary of YAML and environment configurations.
+        :param key: Optional key to retrieve a specific configuration value.
+        :return: Merged dictionary of YAML and environment configurations, or a specific value if key is provided.
         """
-        return {**self.twitter_config, **self.twitter_env_config}
+        merged_config = {**self.twitter_config, **self.twitter_env_config}
+        if key is not None:
+            return merged_config.get(key)
+        return merged_config
 
+    def set(self, key, value):
+        """Set a configuration value.
+
+        :param key: The configuration key.
+        :param value: The value to set.
+        """
+        if key in self.twitter_env_config:
+            self.twitter_env_config[key] = value
+        elif key in self.twitter_config:
+            self.twitter_config[key] = value
+        else:
+            raise KeyError(f"Configuration key '{key}' not found.")
+
+    def update(self, config_dict):
+        """Update multiple configuration values.
+
+        :param config_dict: A dictionary of configuration key-value pairs.
+        """
+        for key, value in config_dict.items():
+            self.set(key, value)
+
+    def reload_configs(self):
+        """Reload configurations from YAML files and environment variables."""
+        self.load_yaml_configs()
+        self.load_env_configs()
 
 def load_configs():
     """Load all configurations.
