@@ -21,6 +21,7 @@ dependencies:
   - scikit-learn
   - sphinx
   - sphinx_rtd_theme
+  - myst-parser
   - streamlit
   - tiktoken
   - tqdm
