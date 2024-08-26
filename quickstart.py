@@ -4,6 +4,11 @@ import sys
 import yaml
 
 def create_folder_structure(base_path):
+    """
+    Create the necessary folder structure for the MASA project.
+
+    :param base_path: The base path where the folders will be created.
+    """
     folders = [
         os.path.join(base_path, 'data'),
         os.path.join(base_path, 'logs'),
@@ -66,12 +71,23 @@ def create_folder_structure(base_path):
         print(f"Created file: {file}")
 
 def create_conda_environment(yaml_path):
+    """
+    Create a new conda environment using the provided YAML file.
+
+    :param yaml_path: The path to the YAML file containing the environment configuration.
+    :return: The name of the created conda environment.
+    """
     env_name = get_env_name(yaml_path)
     subprocess.run(['conda', 'env', 'create', '-f', yaml_path])
     print(f"Created conda environment: {env_name}")
     return env_name
 
 def install_requirements(env_name):
+    """
+    Install the required packages in the specified conda environment.
+
+    :param env_name: The name of the conda environment.
+    """
     # Activate the conda environment and update conda packages
     activate_cmd = f"conda activate {env_name} && conda env update -f environment.yml"
     if os.name == 'nt':  # Windows
@@ -84,11 +100,20 @@ def install_requirements(env_name):
     # due to the reference in environment.yml
 
 def get_env_name(yaml_path):
+    """
+    Get the name of the conda environment from the YAML file.
+
+    :param yaml_path: The path to the YAML file containing the environment configuration.
+    :return: The name of the conda environment.
+    """
     with open(yaml_path, 'r') as file:
         env_config = yaml.safe_load(file)
     return env_config['name']
 
 def main():
+    """
+    Main function to set up the MASA project.
+    """
     base_path = os.getcwd()
     yaml_path = os.path.join(base_path, 'environment.yml')
     

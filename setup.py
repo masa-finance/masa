@@ -41,7 +41,7 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'masa-init=masa.init_script:main',
+            'masa-init=masa.quickstart:main',
         ],
     },
 )
