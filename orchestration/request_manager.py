@@ -29,8 +29,8 @@ class RequestManager:
         self.state_file = os.path.join(os.path.dirname(__file__), 'state_manager.json')
         self.state_manager = StateManager(self.state_file)
         self.request_router = RequestRouter(self.qc_manager, self.state_manager)
-        self.queue_file = os.path.join(os.path.dirname(__file__), 'request_queue.json')  # Set the queue file path
-        self.queue = Queue(self.queue_file)  # Pass the queue file path to the Queue constructor
+        self.queue_file = os.path.join(os.path.dirname(__file__), 'request_queue.json')
+        self.queue = Queue(self.queue_file, self.state_manager)
 
     def prompt_user_for_queue_action(self, request_list_file):
         """
@@ -122,6 +122,8 @@ class RequestManager:
         in_progress_requests = self._get_in_progress_requests()
         self.qc_manager.debug(f"Found {len(in_progress_requests)} in-progress requests", context="RequestManager")
         for request in in_progress_requests:
+            query = request['params'].get('query', 'N/A')
+            self.qc_manager.debug(f"Resuming in-progress request: Query '{query}' (ID: {request['id']})", context="RequestManager")
             self.queue.add(request)
 
         self.qc_manager.debug(f"Total requests in queue: {len(self.queue.memory_queue)}", context="RequestManager")
@@ -131,6 +133,8 @@ class RequestManager:
             if not request:
                 self.qc_manager.debug("Queue.get() returned None despite non-empty queue", context="RequestManager")
                 continue
+            query = request['params'].get('query', 'N/A')
+            self.qc_manager.debug(f"Processing request: Query '{query}' (ID: {request['id']})", context="RequestManager")
             self._process_single_request(request)
 
         self.qc_manager.debug("All requests processed", context="RequestManager")

@@ -14,6 +14,7 @@ class Logger:
 
     Attributes:
         loggers (Dict[str, logging.Logger]): Dictionary of logger instances for different contexts.
+        debug_enabled (bool): Flag to enable or disable debug logging.
     """
     _instance = None
 
@@ -30,6 +31,7 @@ class Logger:
         self.loggers = {}
         self.default_level = logging.INFO
         self.default_context = "MASA_Logger"
+        self.debug_enabled = False  # Default to False
 
     def get_logger(self, name: str, level: int = None):
         """
@@ -120,18 +122,15 @@ class Logger:
             message (str): The debug message to be logged.
             context (str): The context (logger name) for this log entry.
         """
-        logger = self.get_logger(context)
-        logger.debug(message)
+        if self.debug_enabled:
+            logger = self.get_logger(context)
+            logger.debug(message)
 
-    def log_debug(self, message, context=None):
+    def set_debug(self, enabled: bool):
         """
-        Log a debug message.
+        Enable or disable debug logging.
 
         Args:
-            message (str): The debug message to log.
-            context (str, optional): The context or source of the debug message. Defaults to None.
+            enabled (bool): True to enable debug logging, False to disable.
         """
-        formatted_message = f"DEBUG - {message}"
-        if context:
-            formatted_message += f" - Context: {context}"
-        print(formatted_message)
+        self.debug_enabled = enabled

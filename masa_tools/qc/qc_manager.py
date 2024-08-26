@@ -34,3 +34,12 @@ class QCManager:
             context (str, optional): The context or source of the debug message. Defaults to None.
         """
         self.logger.log_debug(message, context)
+
+    def set_debug(self, enabled: bool):
+        """
+        Enable or disable debug logging.
+
+        Args:
+            enabled (bool): True to enable debug logging, False to disable.
+        """
+        self.logger.set_debug(enabled)

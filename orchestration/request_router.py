@@ -28,19 +28,19 @@ class RequestRouter:
         :param request: Dictionary containing the request parameters.
         """
         request_id = request['id']
-        self.qc_manager.debug(f"Routing request with ID: {request_id}", context="RequestRouter")
+        query = request['params'].get('query', 'N/A')
+        self.qc_manager.debug(f"Routing request: Query '{query}' (ID: {request_id})", context="RequestRouter")
         self.qc_manager.debug(f"Request details: {request}", context="RequestRouter")
 
         try:
             retriever_name = request['retriever']
             endpoint = request['endpoint']
 
-            self.qc_manager.debug(f"Routing request {request_id} to {retriever_name}")
+            self.qc_manager.debug(f"Routing request: Query '{query}' (ID: {request_id}) to {retriever_name}")
 
             if retriever_name not in self.retrievers:
                 self.qc_manager.debug(f"Initializing retriever: {retriever_name}", context="RequestRouter")
                 if retriever_name == 'XTwitterRetriever':
-                    # Pass the entire request to the XTwitterRetriever
                     self.retrievers[retriever_name] = XTwitterRetriever(self.state_manager, request)
                 else:
                     raise ValueError(f"Unknown retriever: {retriever_name}")
@@ -50,18 +50,18 @@ class RequestRouter:
 
             if retriever_name == 'XTwitterRetriever':
                 if endpoint == 'data/twitter/tweets/recent':
-                    self.qc_manager.debug(f"Calling retrieve_tweets for request {request_id}", context="RequestRouter")
+                    self.qc_manager.debug(f"Calling retrieve_tweets for request: Query '{query}' (ID: {request_id})", context="RequestRouter")
                     all_tweets, api_calls_count, records_fetched = retriever.retrieve_tweets(request)
-                    self.qc_manager.debug(f"Completed request {request_id}. API calls: {api_calls_count}, Records fetched: {records_fetched}")
+                    self.qc_manager.debug(f"Completed request: Query '{query}' (ID: {request_id}). API calls: {api_calls_count}, Records fetched: {records_fetched}")
                 else:
                     raise ValueError(f"Unknown endpoint for {retriever_name}: {endpoint}")
             else:
                 raise ValueError(f"Unknown retriever: {retriever_name}")
 
-            self.qc_manager.debug(f"Completed request {request_id} for {retriever_name}")
+            self.qc_manager.debug(f"Completed request: Query '{query}' (ID: {request_id}) for {retriever_name}")
             self.qc_manager.debug(f"------------------------------------------------")
         except Exception as e:
-            self.qc_manager.debug(f"Error in route_request for {request_id}: {str(e)}", context="RequestRouter")
+            self.qc_manager.debug(f"Error in route_request for Query '{query}' (ID: {request_id}): {str(e)}", context="RequestRouter")
             self.qc_manager.debug(f"Traceback: {traceback.format_exc()}", context="RequestRouter")
             raise
 

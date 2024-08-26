@@ -1,14 +1,7 @@
 from .api_connection import APIConnection
 from masa_tools.qc.qc_manager import QCManager
 from orchestration.retry_policy import RetryPolicy
-
-class RateLimitError(Exception):
-    """Exception raised when rate limit is exceeded."""
-    pass
-
-class ServerError(Exception):
-    """Exception raised when a server error occurs."""
-    pass
+from masa_tools.qc.error_handler import RateLimitError, ServerError, GatewayTimeoutError
 
 class XTwitterConnection(APIConnection):
     """
@@ -47,6 +40,8 @@ class XTwitterConnection(APIConnection):
             timeout=config.get('TWITTER_TIMEOUT', 30),
             success_interval=config.get('TWITTER_SUCCESS_INTERVAL', 7)
         )
+        self.current_wait_time = self.retry_policy.base_wait_time
+        self.consecutive_504_count = 0
 
     def get_headers(self):
         """
@@ -86,12 +81,18 @@ class XTwitterConnection(APIConnection):
             requests.HTTPError: For other HTTP errors.
         """
         if response.status_code == 200:
+            self.consecutive_504_count = 0
+            self.current_wait_time = self.retry_policy.base_wait_time
             return response.json()
         elif response.status_code == 429:
-            retry_after = response.headers.get('Retry-After', self.retry_policy.base_wait_time)
-            raise RateLimitError(f"Rate limit exceeded. Retry after {retry_after} seconds.")
+            retry_after = int(response.headers.get('Retry-After', self.retry_policy.max_wait_time))
+            raise RateLimitError(retry_after)
+        elif response.status_code == 504:
+            self.consecutive_504_count += 1
+            self.current_wait_time = min(self.current_wait_time * 2, self.retry_policy.max_wait_time)
+            raise GatewayTimeoutError(self.current_wait_time)
         elif response.status_code >= 500:
-            raise ServerError(f"Server error occurred: {response.status_code}")
+            raise ServerError(response.status_code)
         else:
             response.raise_for_status()
 

@@ -3,24 +3,24 @@
     "retriever": "XTwitterRetriever",
     "endpoint": "data/twitter/tweets/recent",
     "params": {
-      "query": "#MiamiHeat",
-      "count": 100
-    }
-  },
-  {
-    "retriever": "XTwitterRetriever", 
-    "endpoint": "data/twitter/tweets/recent",
-    "params": {
-      "query": "from:tombom",
-      "count": 50
+      "query": "#AI lang:en",
+      "count": 200 
     }
   },
   {
     "retriever": "XTwitterRetriever",
-    "endpoint": "data/twitter/tweets/recent", 
+    "endpoint": "data/twitter/tweets/recent",
     "params": {
-      "query": "meow lang:en",
-      "count": 75
+      "query": "from:elonmusk",
+      "count": 100 
+    }
+  },
+  {
+    "retriever": "XTwitterRetriever",
+    "endpoint": "data/twitter/tweets/recent",
+    "params": {
+      "query": "#yolo",
+      "count": 150 
     }
   }
 ]

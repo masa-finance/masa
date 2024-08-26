@@ -6,24 +6,63 @@ from .logging import Logger
 from tqdm import tqdm
 
 class RequestError(Exception):
-    def __init__(self, message: str, method: str, url: str, status_code: int = None):
-        self.message = message
-        self.method = method
-        self.url = url
-        self.status_code = status_code
-        super().__init__(self.message)
+    """
+    Base class for request-related errors.
 
-    def __str__(self):
-        status_info = f", Status Code: {self.status_code}" if self.status_code else ""
-        return f"RequestError: {self.message} (Method: {self.method}, URL: {self.url}{status_info})"
+    This class serves as a base for more specific request error classes.
+    """
+    pass
+
+class RateLimitError(RequestError):
+    """
+    Exception raised when the rate limit is exceeded.
+
+    Attributes:
+        retry_after (int): The number of seconds to wait before retrying the request.
+    """
+    def __init__(self, retry_after):
+        """
+        Initialize the RateLimitError.
+
+        Args:
+            retry_after (int): The number of seconds to wait before retrying the request.
+        """
+        self.retry_after = retry_after
+        super().__init__(f"Rate limit exceeded. Retry after {retry_after} seconds.")
+
+class ServerError(RequestError):
+    """
+    Exception raised when a server error occurs.
+
+    Attributes:
+        status_code (int): The HTTP status code of the server error.
+    """
+    def __init__(self, status_code):
+        """
+        Initialize the ServerError.
+
+        Args:
+            status_code (int): The HTTP status code of the server error.
+        """
+        self.status_code = status_code
+        super().__init__(f"Server error: {status_code}")
 
 class GatewayTimeoutError(RequestError):
-    def __init__(self, message: str, url: str, timeout: float):
-        super().__init__(message, "Unknown", url)
-        self.timeout = timeout
+    """
+    Exception raised when a gateway timeout occurs.
 
-    def __str__(self):
-        return f"GatewayTimeoutError: {self.message} (URL: {self.url}, Timeout: {self.timeout}s)"
+    Attributes:
+        wait_time (int): The number of seconds to wait before retrying the request.
+    """
+    def __init__(self, wait_time):
+        """
+        Initialize the GatewayTimeoutError.
+
+        Args:
+            wait_time (int): The number of seconds to wait before retrying the request.
+        """
+        self.wait_time = wait_time
+        super().__init__(f"Gateway timeout. Retrying after {wait_time} seconds.")
 
 class ErrorHandler:
     def __init__(self):
@@ -47,14 +86,26 @@ class ErrorHandler:
                 while attempts < retry_policy.max_retries:
                     try:
                         return func(*args, **kwargs)
+                    except GatewayTimeoutError as e:
+                        attempts += 1
+                        self.qc_manager.log_warning(f"Gateway timeout occurred. Retrying in {e.wait_time} seconds...", context=func.__qualname__)
+                        time.sleep(e.wait_time)
                     except (ReadTimeout, ConnectionError, Timeout) as e:
                         attempts += 1
-                        self.logger.log_warning(f"{type(e).__name__} occurred. Retrying in {config['TWITTER_RETRY_DELAY']} seconds...", context=func.__qualname__)
-                        time.sleep(config['TWITTER_RETRY_DELAY'])
-                    except RequestException as e:
-                        self.logger.log_error(f"An error occurred: {str(e)}", context=func.__qualname__)
+                        wait_time = retry_policy.base_wait_time
+                        self.qc_manager.log_warning(f"{type(e).__name__} occurred. Retrying in {wait_time} seconds...", context=func.__qualname__)
+                        time.sleep(wait_time)
+                    except ServerError as e:
+                        self.qc_manager.log_error(f"Server error occurred: {e.status_code}", context=func.__qualname__)
                         raise
-                self.logger.log_error(f"Max retries ({retry_policy.max_retries}) exceeded.", context=func.__qualname__)
+                    except RequestException as e:
+                        self.qc_manager.log_error(f"An error occurred: {str(e)}", context=func.__qualname__)
+                        raise
+                self.qc_manager.log_error(f"Max retries ({retry_policy.max_retries}) exceeded.", context=func.__qualname__)
                 raise Exception("Max retries exceeded")
             return wrapper
         return decorator
+
+    def _wait_with_progress(self, wait_time, desc):
+        for _ in tqdm(range(wait_time), desc=desc, unit="s", leave=False):
+            time.sleep(1)

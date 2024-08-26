@@ -143,8 +143,9 @@ class XTwitterRetriever:
         :param current_date: Current date being processed.
         """
         try:
-            tweets_json = json.dumps(tweets)
-            self.data_storage.save_data(tweets_json, 'xtwitter', query)
+            # Save tweets as JSON
+            self.data_storage.save_data(tweets, 'xtwitter', query, file_format='json')
+            
             self.state_manager.update_request_state(request_id, 'in_progress', {
                 'last_processed_time': current_date.isoformat(),
                 'tweets_count': len(tweets)

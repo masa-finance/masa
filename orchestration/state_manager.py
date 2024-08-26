@@ -68,10 +68,16 @@ class StateManager:
                 if original_request:
                     current_state['original_request'] = original_request
                 
+                # Update or remove specific fields based on status
                 if status == 'completed':
                     current_state['completed_at'] = datetime.now().isoformat()
+                    current_state.pop('failed_at', None)
                 elif status == 'failed':
                     current_state['failed_at'] = datetime.now().isoformat()
+                    current_state.pop('completed_at', None)
+                else:
+                    current_state.pop('completed_at', None)
+                    current_state.pop('failed_at', None)
 
             self._state['last_updated'] = datetime.now().isoformat()
             self._save_state()
