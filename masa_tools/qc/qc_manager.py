@@ -9,12 +9,18 @@ class QCManager:
     def __new__(cls):
         if cls._instance is None:
             cls._instance = super(QCManager, cls).__new__(cls)
-            cls._instance.logger = Logger()
-            cls._instance.error_handler = ErrorHandler()
+            cls._instance._initialize()
         return cls._instance
+
+    def _initialize(self):
+        self.logger = Logger()
+        self.error_handler = ErrorHandler(self)
 
     def log_error(self, message, error_info=None, context=None):
         self.logger.log_error(message, error_info, context)
+
+    def log_warning(self, message, context=None):
+        self.logger.log_warning(message, context)
 
     def log_info(self, message, context=None):
         self.logger.log_info(message, context)

@@ -4,6 +4,9 @@ from orchestration.request_manager import RequestManager
 from configs.config import XTwitterConfig
 from masa_tools.qc.qc_manager import QCManager
 
+qc_manager = QCManager()
+# Use qc_manager throughout the file
+
 def main(action, json_file_path=None):
     """
     Main function to process requests or get all requests statuses.
@@ -12,7 +15,6 @@ def main(action, json_file_path=None):
     :param json_file_path: Path to the JSON file containing requests (optional).
     """
     config = XTwitterConfig().get_config()
-    qc_manager = QCManager()
     qc_manager.debug(f"Config loaded: {config}", context="Main")
     request_manager = RequestManager(config)
 

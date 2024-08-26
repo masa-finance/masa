@@ -18,6 +18,7 @@ class RequestRouter:
         """
         self.qc_manager = qc_manager
         self.config = load_configs()  # Load configurations
+        self.qc_manager.debug(f"Loaded config in RequestRouter: {self.config}", context="RequestRouter")
         self.state_manager = state_manager
         self.retrievers = {}  # Dictionary to store initialized retriever objects
 
@@ -61,8 +62,8 @@ class RequestRouter:
             self.qc_manager.debug(f"Completed request: Query '{query}' (ID: {request_id}) for {retriever_name}")
             self.qc_manager.debug(f"------------------------------------------------")
         except Exception as e:
-            self.qc_manager.debug(f"Error in route_request for Query '{query}' (ID: {request_id}): {str(e)}", context="RequestRouter")
-            self.qc_manager.debug(f"Traceback: {traceback.format_exc()}", context="RequestRouter")
+            self.qc_manager.log_error(f"Error in route_request for Query '{query}' (ID: {request_id}): {str(e)}", context="RequestRouter")
+            self.qc_manager.log_error(f"Traceback: {traceback.format_exc()}", context="RequestRouter")
             raise
 
     def get_retriever(self, retriever_name):

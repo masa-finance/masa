@@ -6,24 +6,9 @@ from .request_router import RequestRouter
 from .queue import Queue
 from .state_manager import StateManager
 from masa_tools.qc.qc_manager import QCManager
-import time
-from tqdm import tqdm
-import traceback
 
 class RequestManager:
-    """
-    The RequestManager class is responsible for managing and processing requests.
-
-    It interacts with the RequestRouter, Queue, and StateManager to handle request
-    routing, queueing, and state management.
-    """
-
     def __init__(self, config):
-        """
-        Initialize the RequestManager.
-
-        :param config: The configuration for the RequestManager.
-        """
         self.qc_manager = QCManager()
         self.config = config
         self.state_file = os.path.join(os.path.dirname(__file__), 'state_manager.json')
@@ -31,6 +16,76 @@ class RequestManager:
         self.request_router = RequestRouter(self.qc_manager, self.state_manager)
         self.queue_file = os.path.join(os.path.dirname(__file__), 'request_queue.json')
         self.queue = Queue(self.queue_file, self.state_manager)
+
+    def process_requests(self, request_list_file=None):
+        """
+        Process all requests in the queue.
+
+        :param request_list_file: (Optional) The file path for the new requests to add.
+        """
+        self.qc_manager.debug(f"Starting process_requests with file: {request_list_file}", context="RequestManager")
+        
+        if request_list_file:
+            self.qc_manager.debug(f"Loading requests from file: {request_list_file}", context="RequestManager")
+            self.add_requests_from_file(request_list_file)
+
+        self.queue.resume_incomplete_requests()
+        
+        total_queue_length = len(self.queue.memory_queue)
+        processed_count = 0
+
+        while processed_count < total_queue_length:
+            current_queue_length = len(self.queue.memory_queue)
+            self.qc_manager.debug(f"Current queue length: {current_queue_length}", context="RequestManager")
+            
+            if current_queue_length == 0:
+                self.qc_manager.debug("Queue is empty. Exiting process_requests.", context="RequestManager")
+                break
+
+            request = self.queue.memory_queue[0]  # Get the first request in the queue
+            if isinstance(request, str):
+                request_id = request
+                request_state = self.state_manager.get_request_state(request_id)
+                if request_state and 'original_request' in request_state:
+                    request = request_state['original_request']
+                else:
+                    self.qc_manager.log_error(f"Invalid request ID in queue: {request_id}", context="RequestManager")
+                    self.queue.remove(request_id)
+                    processed_count += 1
+                    continue
+
+            query = request['params'].get('query', 'N/A')
+            self.qc_manager.log_info(f"Processing request {processed_count + 1}/{total_queue_length}: Query '{query}' (ID: {request['id']})", context="RequestManager")
+            
+            try:
+                self._process_single_request(request)
+                processed_count += 1
+            except Exception as e:
+                self.qc_manager.log_error(f"Error processing request {request['id']}: {str(e)}", context="RequestManager")
+                # Move the request to the end of the queue for retry
+                self.queue.memory_queue.rotate(-1)
+
+        self.qc_manager.debug("All requests processed", context="RequestManager")
+
+    def _process_single_request(self, request):
+        """
+        Process a single request.
+
+        :param request: The request dictionary to process.
+        """
+        request_id = request['id']
+        self.qc_manager.debug(f"Processing request {request_id}", context="RequestManager")
+        
+        
+        self.state_manager.update_request_state(request_id, 'in_progress', original_request=request)
+        self.qc_manager.debug(f"Updated state for request {request_id} to in_progress", context="RequestManager")
+        
+        self.request_router.route_request(request)
+        self.qc_manager.debug(f"Routing request {request_id}", context="RequestManager")
+        
+        self.queue.complete(request_id)
+        self.state_manager.update_request_state(request_id, 'completed', original_request=request)
+        self.qc_manager.debug(f"Request {request_id} completed successfully", context="RequestManager")
 
     def prompt_user_for_queue_action(self, request_list_file):
         """
@@ -102,43 +157,6 @@ class RequestManager:
                         continue
                 self.add_request(request)
 
-    def process_requests(self, request_list_file=None):
-        """
-        Process all requests in the queue.
-
-        It first processes any in-progress requests and then processes new requests
-        from the queue until the queue is empty.
-
-        :param request_list_file: (Optional) The file path for the new requests to add.
-        """
-        self.qc_manager.debug(f"Starting process_requests with file: {request_list_file}", context="RequestManager")
-        
-        if request_list_file:
-            self.qc_manager.debug(f"Loading requests from file: {request_list_file}", context="RequestManager")
-            self.add_requests_from_file(request_list_file)
-
-        self.queue.resume_incomplete_requests()
-        
-        in_progress_requests = self._get_in_progress_requests()
-        self.qc_manager.debug(f"Found {len(in_progress_requests)} in-progress requests", context="RequestManager")
-        for request in in_progress_requests:
-            query = request['params'].get('query', 'N/A')
-            self.qc_manager.debug(f"Resuming in-progress request: Query '{query}' (ID: {request['id']})", context="RequestManager")
-            self.queue.add(request)
-
-        self.qc_manager.debug(f"Total requests in queue: {len(self.queue.memory_queue)}", context="RequestManager")
-
-        while self.queue.memory_queue:
-            request = self.queue.get()
-            if not request:
-                self.qc_manager.debug("Queue.get() returned None despite non-empty queue", context="RequestManager")
-                continue
-            query = request['params'].get('query', 'N/A')
-            self.qc_manager.debug(f"Processing request: Query '{query}' (ID: {request['id']})", context="RequestManager")
-            self._process_single_request(request)
-
-        self.qc_manager.debug("All requests processed", context="RequestManager")
-
     def _get_in_progress_requests(self):
         all_requests = self.state_manager.get_all_requests_state()
         in_progress = []
@@ -160,7 +178,7 @@ class RequestManager:
         :return: The generated request ID.
         """
         request_copy = request.copy()
-        request_copy.pop('id', None)  # Remove id if it exists to ensure consistent hashing
+        request_copy.pop('id', None) 
         request_json = json.dumps(request_copy, sort_keys=True).encode('utf-8')
         return hashlib.sha256(request_json).hexdigest()
 
@@ -176,36 +194,6 @@ class RequestManager:
         self.queue.add(request)
         self.state_manager.update_request_state(request_id, 'queued', original_request=request)
         self.qc_manager.debug(f"Request {request_id} added to queue and state updated", context="RequestManager")
-
-    def _process_single_request(self, request):
-        """
-        Process a single request.
-
-        :param request: The request dictionary to process.
-        """
-        request_id = request['id']
-        self.qc_manager.debug(f"Processing request {request_id}", context="RequestManager")
-        try:
-            self.state_manager.update_request_state(request_id, 'in_progress', original_request=request)
-            self.qc_manager.debug(f"Updated state for request {request_id} to in_progress", context="RequestManager")
-            
-            self.qc_manager.debug(f"Routing request {request_id}", context="RequestManager")
-            self.request_router.route_request(request)
-            
-            self.queue.complete(request_id)
-            self.state_manager.update_request_state(request_id, 'completed', original_request=request)
-            self.qc_manager.debug(f"Request {request_id} completed successfully", context="RequestManager")
-        except Exception as e:
-            self.qc_manager.debug(f"Error processing request {request_id}: {str(e)}", context="RequestManager")
-            self.qc_manager.debug(f"Traceback: {traceback.format_exc()}", context="RequestManager")
-            self.queue.fail(request_id, str(e))
-            self.state_manager.update_request_state(request_id, 'failed', progress={'error': str(e)}, original_request=request)
-            
-            retry_delay = self.config.get('retry_delay', 60)
-            for _ in tqdm(range(retry_delay), desc=f"Retrying request {request_id} in", unit="s", leave=False):
-                time.sleep(1)
-            
-            self.add_request(request)
 
     def get_request_status(self, request_id):
         """

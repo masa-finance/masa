@@ -1,72 +1,33 @@
 import functools
-import traceback
 import time
 from requests.exceptions import RequestException, HTTPError, ConnectionError, Timeout, ReadTimeout
-from .logging import Logger
-from tqdm import tqdm
 
-class RequestError(Exception):
-    """
-    Base class for request-related errors.
-
-    This class serves as a base for more specific request error classes.
-    """
-    pass
-
-class RateLimitError(RequestError):
-    """
-    Exception raised when the rate limit is exceeded.
-
-    Attributes:
-        retry_after (int): The number of seconds to wait before retrying the request.
-    """
-    def __init__(self, retry_after):
-        """
-        Initialize the RateLimitError.
-
-        Args:
-            retry_after (int): The number of seconds to wait before retrying the request.
-        """
-        self.retry_after = retry_after
-        super().__init__(f"Rate limit exceeded. Retry after {retry_after} seconds.")
-
-class ServerError(RequestError):
-    """
-    Exception raised when a server error occurs.
-
-    Attributes:
-        status_code (int): The HTTP status code of the server error.
-    """
-    def __init__(self, status_code):
-        """
-        Initialize the ServerError.
-
-        Args:
-            status_code (int): The HTTP status code of the server error.
-        """
-        self.status_code = status_code
-        super().__init__(f"Server error: {status_code}")
-
-class GatewayTimeoutError(RequestError):
-    """
-    Exception raised when a gateway timeout occurs.
-
-    Attributes:
-        wait_time (int): The number of seconds to wait before retrying the request.
-    """
+class GatewayTimeoutError(Exception):
+    """Exception raised for gateway timeout errors."""
     def __init__(self, wait_time):
         """
         Initialize the GatewayTimeoutError.
 
         Args:
-            wait_time (int): The number of seconds to wait before retrying the request.
+            wait_time (int): The time to wait before retrying.
         """
         self.wait_time = wait_time
-        super().__init__(f"Gateway timeout. Retrying after {wait_time} seconds.")
+        super().__init__(f"Gateway timeout occurred. Wait for {wait_time} seconds before retrying.")
+
+class RequestError(Exception):
+    """Exception raised for general request errors."""
+    def __init__(self, message):
+        """
+        Initialize the RequestError.
+
+        Args:
+            message (str): The error message.
+        """
+        super().__init__(message)
 
 class ErrorHandler:
-    def __init__(self):
-        self.logger = Logger()
+    def __init__(self, qc_manager):
+        self.qc_manager = qc_manager
 
     def handle_error(self, func):
         @functools.wraps(func)
@@ -74,7 +35,7 @@ class ErrorHandler:
             try:
                 return func(*args, **kwargs)
             except Exception as e:
-                self.logger.log_error(f"{type(e).__name__}: {str(e)}", context=func.__qualname__)
+                self.qc_manager.log_error(f"{type(e).__name__}: {str(e)}", context=func.__qualname__)
                 raise
         return wrapper
 
@@ -95,6 +56,24 @@ class ErrorHandler:
                         wait_time = retry_policy.base_wait_time
                         self.qc_manager.log_warning(f"{type(e).__name__} occurred. Retrying in {wait_time} seconds...", context=func.__qualname__)
                         time.sleep(wait_time)
+                    except HTTPError as e:
+                        """
+                        Handle HTTPError exceptions.
+
+                        If the status code is in the 5xx range (server errors), retry the request.
+                        Otherwise, log the error and raise the exception.
+
+                        Args:
+                            e (HTTPError): The HTTPError exception object.
+                        """
+                        if 500 <= e.response.status_code < 600:
+                            attempts += 1
+                            wait_time = retry_policy.base_wait_time
+                            self.qc_manager.log_warning(f"HTTP {e.response.status_code} error occurred. Retrying in {wait_time} seconds...", context=func.__qualname__)
+                            time.sleep(wait_time)
+                        else:
+                            self.qc_manager.log_error(f"HTTP error occurred: {e.response.status_code}", context=func.__qualname__)
+                            raise
                     except ServerError as e:
                         self.qc_manager.log_error(f"Server error occurred: {e.status_code}", context=func.__qualname__)
                         raise
@@ -107,5 +86,12 @@ class ErrorHandler:
         return decorator
 
     def _wait_with_progress(self, wait_time, desc):
+        """
+        Wait for a specified time with a progress bar using tqdm.
+
+        Args:
+            wait_time (int): The number of seconds to wait.
+            desc (str): The description to display on the progress bar.
+        """
         for _ in tqdm(range(wait_time), desc=desc, unit="s", leave=False):
             time.sleep(1)

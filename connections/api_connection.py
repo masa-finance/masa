@@ -81,11 +81,11 @@ class APIConnection(ABC):
         Raises:
             requests.RequestException: If there's an error in making the request.
         """
-        url = f"{self.base_url}/{endpoint.lstrip('/')}"
-        headers = self.get_headers()
-        timeout = self.get_timeout()
-
         try:
+            url = f"{self.base_url}/{endpoint.lstrip('/')}"
+            headers = self.get_headers()
+            timeout = self.get_timeout()
+
             response = requests.request(
                 method, 
                 url, 

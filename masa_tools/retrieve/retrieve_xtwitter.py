@@ -27,6 +27,7 @@ class XTwitterRetriever:
         self.qc_manager.debug(f"API Endpoint from request: {api_endpoint}", context="XTwitterRetriever")
         
         self.config = XTwitterConfig().get_config()  # Get the Twitter configuration
+        self.qc_manager.debug(f"XTwitterRetriever config: {self.config}", context="XTwitterRetriever")
         full_config = {**self.config, 'api_endpoint': api_endpoint}
         
         self.qc_manager.debug(f"Creating XTwitterConnection with config: {full_config}", context="XTwitterRetriever")
@@ -53,54 +54,56 @@ class XTwitterRetriever:
         request_id = request['id']
         self.qc_manager.debug(f"Starting retrieve_tweets for request {request_id}", context="XTwitterRetriever")
         try:
-            @self.qc_manager.handle_error_with_retry(self.retry_policy, self.config)
-            def _retrieve_tweets_with_retry(request):
-                request_id = request['id']
-                params = request.get('params', {})
-                query = params.get('query')
-                count = params.get('count')
-                api_endpoint = request.get('endpoint')
-
-                if not all([query, count, api_endpoint]):
-                    raise ValueError("Missing required parameters in request")
-
-                start_date = datetime.strptime(self.config['start_time'], '%Y-%m-%dT%H:%M:%SZ').date()
-                end_date = datetime.strptime(self.config['end_time'], '%Y-%m-%dT%H:%M:%SZ').date()
-                days_per_iteration = 1  # Fetch tweets for 1 day at a time
-
-                request_state = self.state_manager.get_request_state(request_id)
-                current_date = datetime.fromisoformat(request_state.get('progress', {}).get('last_processed_time', end_date.isoformat())).date()
-
-                all_tweets = []
-                api_calls_count = 0
-                records_fetched = 0
-
-                while current_date >= start_date:
-                    iteration_start_date = current_date - timedelta(days=days_per_iteration)
-                    day_before = max(iteration_start_date, start_date - timedelta(days=1))
-
-                    data = {
-                        'query': f"{query} since:{day_before.strftime('%Y-%m-%dT%H:%M:%SZ')} until:{current_date.strftime('%Y-%m-%dT%H:%M:%SZ')}",
-                        'count': count
-                    }
-                    
-                    response = self.twitter_connection.get_tweets(api_endpoint, query, count)
-                    api_calls_count += 1
-
-                    records_fetched = self._handle_response(response, request_id, query, current_date, all_tweets, records_fetched)
-
-                    current_date -= timedelta(days=days_per_iteration)
-                    self.state_manager.update_request_state(request_id, 'in_progress', {'last_processed_time': current_date.isoformat()})
-                    
-                    # The success interval wait is now handled by RetryPolicy
-
-                return all_tweets, api_calls_count, records_fetched
-
-            return _retrieve_tweets_with_retry(request)
+            return self._retrieve_tweets_with_retry(request)
         except Exception as e:
-            self.qc_manager.debug(f"Error in retrieve_tweets for request {request_id}: {str(e)}", context="XTwitterRetriever")
+            self.qc_manager.log_error(f"Error in retrieve_tweets for request {request_id}: {str(e)}", context="XTwitterRetriever")
             self.qc_manager.debug(f"Traceback: {traceback.format_exc()}", context="XTwitterRetriever")
             raise
+
+    def _retrieve_tweets_with_retry(self, request):
+        request_id = request['id']
+        params = request.get('params', {})
+        query = params.get('query')
+        count = params.get('count')
+        api_endpoint = request.get('endpoint')
+
+        if not all([query, count, api_endpoint]):
+            raise ValueError("Missing required parameters in request")
+
+        start_date = datetime.strptime(self.config['start_time'], '%Y-%m-%dT%H:%M:%SZ').date()
+        end_date = datetime.strptime(self.config['end_time'], '%Y-%m-%dT%H:%M:%SZ').date()
+        days_per_iteration = 1  # Fetch tweets for 1 day at a time
+
+        request_state = self.state_manager.get_request_state(request_id)
+        current_date = datetime.fromisoformat(request_state.get('progress', {}).get('last_processed_time', end_date.isoformat())).date()
+
+        all_tweets = []
+        api_calls_count = 0
+        records_fetched = 0
+
+        while current_date >= start_date:
+            iteration_start_date = current_date - timedelta(days=days_per_iteration)
+            day_before = max(iteration_start_date, start_date - timedelta(days=1))
+
+            data = {
+                'query': f"{query} since:{day_before.strftime('%Y-%m-%dT%H:%M:%SZ')} until:{current_date.strftime('%Y-%m-%dT%H:%M:%SZ')}",
+                'count': count
+            }
+            
+            response = self.twitter_connection.get_tweets(api_endpoint, query, count)
+            api_calls_count += 1
+
+            records_fetched = self._handle_response(response, request_id, query, current_date, all_tweets, records_fetched)
+
+            # Add this line to wait after a successful API call
+            self.retry_policy.wait_after_success()
+
+            current_date -= timedelta(days=days_per_iteration)
+            self.state_manager.update_request_state(request_id, 'in_progress', {'last_processed_time': current_date.isoformat()})
+            
+            # The success interval wait is now handled by RetryPolicy
+
+        return all_tweets, api_calls_count, records_fetched
 
     def _handle_response(self, response, request_id, query, current_date, all_tweets, records_fetched):
         """

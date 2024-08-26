@@ -1,7 +1,6 @@
 from .api_connection import APIConnection
 from masa_tools.qc.qc_manager import QCManager
 from orchestration.retry_policy import RetryPolicy
-from masa_tools.qc.error_handler import RateLimitError, ServerError, GatewayTimeoutError
 
 class XTwitterConnection(APIConnection):
     """
@@ -23,7 +22,9 @@ class XTwitterConnection(APIConnection):
             config (dict): Configuration dictionary for the XTwitter API.
         """
         self.qc_manager = QCManager()
+        self.qc_manager.debug(f"XTwitterConnection received config: {config}", context="XTwitterConnection")
         base_url = config.get('BASE_URL')
+        self.qc_manager.debug(f"BASE_URL from config: {base_url}", context="XTwitterConnection")
         self.qc_manager.debug(f"Initializing XTwitterConnection with config: {config}", context="XTwitterConnection")
         
         if not base_url:
@@ -76,9 +77,7 @@ class XTwitterConnection(APIConnection):
             dict: The processed response data.
 
         Raises:
-            RateLimitError: If the rate limit is exceeded.
-            ServerError: If a server error occurs.
-            requests.HTTPError: For other HTTP errors.
+            Exception: For various HTTP errors, to be handled by QCManager.
         """
         if response.status_code == 200:
             self.consecutive_504_count = 0

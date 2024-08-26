@@ -29,9 +29,9 @@ class Logger:
         Initialize the Logger with a dictionary to store loggers for different contexts.
         """
         self.loggers = {}
-        self.default_level = logging.INFO
+        self.default_level = logging.DEBUG
         self.default_context = "MASA_Logger"
-        self.debug_enabled = False  # Default to False
+        self.debug_enabled = True  # Set to True to enable debug logging by default
 
     def get_logger(self, name: str, level: int = None):
         """
@@ -49,25 +49,27 @@ class Logger:
             level = level or self.default_level
             logger.setLevel(level)
 
-            # Create a console handler and set its level
-            ch = logging.StreamHandler()
-            ch.setLevel(level)
+            # Only add a handler if the logger doesn't already have one
+            if not logger.handlers:
+                ch = logging.StreamHandler()
+                ch.setLevel(level)
 
-            # Create a color formatter with a format that includes the logger name
-            formatter = ColoredFormatter(
-                "%(log_color)s%(levelname)s - [%(name)s] %(message)s",
-                log_colors={
-                    'DEBUG': 'cyan',
-                    'INFO': 'green',
-                    'WARNING': 'yellow',
-                    'ERROR': 'red',
-                    'CRITICAL': 'red,bg_white',
-                }
-            )
-            ch.setFormatter(formatter)
+                formatter = ColoredFormatter(
+                    "%(log_color)s%(levelname)s - [%(name)s] %(message)s",
+                    log_colors={
+                        'DEBUG': 'cyan',
+                        'INFO': 'green',
+                        'WARNING': 'yellow',
+                        'ERROR': 'red',
+                        'CRITICAL': 'red,bg_white',
+                    }
+                )
+                ch.setFormatter(formatter)
 
-            # Add the handler to the logger
-            logger.addHandler(ch)
+                logger.addHandler(ch)
+
+            # Prevent propagation to avoid duplicate logs
+            logger.propagate = False
 
             self.loggers[name] = logger
 

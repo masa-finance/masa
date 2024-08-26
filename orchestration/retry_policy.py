@@ -1,5 +1,6 @@
 import time
 from masa_tools.qc.qc_manager import QCManager
+from tqdm import tqdm
 
 class RetryPolicy:
     def __init__(self, max_retries=3, base_wait_time=60, max_wait_time=960, timeout=30, success_interval=7):
@@ -33,7 +34,10 @@ class RetryPolicy:
         Wait for the success interval.
         """
         self.qc_manager.debug(f"Waiting for {self.success_interval} seconds after successful retrieval", context="RetryPolicy")
-        time.sleep(self.success_interval)
+        with tqdm(total=self.success_interval, desc="Waiting", unit="s") as pbar:
+            for _ in range(self.success_interval):
+                time.sleep(1)
+                pbar.update(1)
 
     def execute_with_retry(self, func, *args, **kwargs):
         """
@@ -57,4 +61,16 @@ class RetryPolicy:
                     raise
                 wait_time = self.wait_time(retries)
                 self.qc_manager.log_warning(f"Retry {retries}/{self.max_retries}. Waiting for {wait_time} seconds.", context="RetryPolicy")
-                time.sleep(wait_time)
+                
+                # Create a tqdm progress bar
+                with tqdm(total=wait_time, desc="Waiting", unit="s") as pbar:
+                    for _ in range(wait_time):
+                        time.sleep(1)
+                        pbar.update(1)
+                        # Log the remaining time every 10 seconds
+                        if pbar.n % 10 == 0:
+                            remaining_time = wait_time - pbar.n
+                            self.qc_manager.log_info(f"Remaining wait time: {remaining_time} seconds", context="RetryPolicy")
+
+    def get_retry_count(self):
+        return self.current_retry_count
