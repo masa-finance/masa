@@ -1,78 +1,100 @@
 import requests
-from masa_tools.qc.logging import Logger
-from masa_tools.qc.error_handler import ErrorHandler
+from abc import ABC, abstractmethod
+from masa_tools.qc.qc_manager import QCManager
 
-class APIConnection:
+class APIConnection(ABC):
     """
-    A class for handling generic API connections and requests.
+    Abstract base class for API connections.
+
+    This class defines the interface for making API requests and handling responses.
+    Subclasses should implement the abstract methods to provide specific behavior
+    for different APIs.
+
+    Attributes:
+        base_url (str): The base URL for the API.
+        qc_manager (QCManager): Quality control manager for logging and error handling.
     """
 
-    def __init__(self, base_url, headers=None):
+    def __init__(self, base_url):
         """
-        Initialize the APIConnection instance.
+        Initialize the APIConnection.
 
-        :param base_url: The base URL of the API.
-        :type base_url: str
-        :param headers: The headers to include in the requests (optional).
-        :type headers: dict
+        Args:
+            base_url (str): The base URL for the API.
         """
-        self.base_url = base_url
-        self.headers = headers
-        self.logger = Logger("APIConnection")
-        self.error_handler = ErrorHandler(self.logger)
+        self.qc_manager = QCManager()
+        self.qc_manager.debug(f"Initializing APIConnection with base_url: {base_url}", context="APIConnection")
+        if not base_url:
+            raise ValueError("base_url cannot be None or empty")
+        self.base_url = base_url.rstrip('/')
+        self.qc_manager = QCManager()
 
-    @ErrorHandler.handle_error
-    def make_request(self, endpoint, method='GET', data=None):
+    @abstractmethod
+    def get_headers(self):
         """
-        Make an API request to the specified endpoint.
+        Return headers for the API request.
 
-        :param endpoint: The endpoint of the API.
-        :type endpoint: str
-        :param method: The HTTP method to use for the request (default is 'GET').
-        :type method: str
-        :param data: The data to send with the request (optional).
-        :type data: dict
-        :return: The response from the API.
-        :rtype: requests.Response
-        :raises RequestException: If an error occurs during the request.
+        Returns:
+            dict: A dictionary of headers to be used in the API request.
         """
-        url = f"{self.base_url}/{endpoint}"
+        pass
+
+    @abstractmethod
+    def get_timeout(self):
+        """
+        Return timeout for the API request.
+
+        Returns:
+            int: The timeout value in seconds for the API request.
+        """
+        pass
+
+    @abstractmethod
+    def handle_response(self, response):
+        """
+        Handle the API response.
+
+        Args:
+            response (requests.Response): The response object from the API request.
+
+        Returns:
+            dict: The processed response data.
+
+        Raises:
+            Exception: If there's an error in processing the response.
+        """
+        pass
+
+    def _make_request(self, method, endpoint, data=None, params=None):
+        """
+        Make an API request.
+
+        Args:
+            method (str): The HTTP method for the request (e.g., 'GET', 'POST').
+            endpoint (str): The API endpoint to request.
+            data (dict, optional): The data to send in the request body.
+            params (dict, optional): The query parameters for the request.
+
+        Returns:
+            dict: The processed response data.
+
+        Raises:
+            requests.RequestException: If there's an error in making the request.
+        """
+        url = f"{self.base_url}/{endpoint.lstrip('/')}"
+        headers = self.get_headers()
+        timeout = self.get_timeout()
+
         try:
-            response = requests.request(method, url, json=data, headers=self.headers)
-            response.raise_for_status()  # Raise an exception for 4xx or 5xx status codes
-            self.logger.log_info(f"API request successful: {method} {url}")
-            return response
-        except requests.exceptions.RequestException as e:
-            error_details = {
-                "url": url,
-                "method": method,
-                "data": data,
-                "headers": self.headers
-            }
-            self.error_handler.raise_error(type(e).__name__, str(e), error_details)
-
-    def get(self, endpoint, params=None):
-        """
-        Make a GET request to the specified endpoint.
-
-        :param endpoint: The endpoint of the API.
-        :type endpoint: str
-        :param params: The query parameters to include in the request (optional).
-        :type params: dict
-        :return: The response from the API.
-        :rtype: requests.Response
-        """
-        return self.make_request(endpoint, method='GET', data=params)
-
-    def post(self, endpoint, data):
-        """
-        Make a POST request to the specified endpoint.
-
-        :param endpoint: The endpoint of the API.
-        :type endpoint: str
-        :param data: The data to send with the request.
-        :type data: dict
-        :return: The response from the API.
-        :rtype: requests.Response
-        """
-        return self.make_request(endpoint, method='POST', data=data)
+            response = requests.request(
+                method, 
+                url, 
+                json=data,
+                params=params,
+                headers=headers, 
+                timeout=timeout
+            )
+            return self.handle_response(response)
+        except requests.RequestException as e:
+            self.qc_manager.log_error(f"API request failed: {str(e)}", context=self.__class__.__name__)
+            raise

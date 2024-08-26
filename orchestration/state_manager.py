@@ -1,6 +1,7 @@
 import json
 import threading
 from datetime import datetime
+from masa_tools.qc.qc_manager import QCManager
 
 class StateManager:
     """
@@ -17,6 +18,7 @@ class StateManager:
         self._state_file = state_file
         self._lock = threading.Lock()
         self._state = self._load_state()
+        self.qc_manager = QCManager()
 
     def _load_state(self):
         """
@@ -34,8 +36,10 @@ class StateManager:
         """
         Save the current state data to the state file.
         """
+        self.qc_manager.debug("Saving state to file", context="StateManager")
         with open(self._state_file, 'w') as file:
             json.dump(self._state, file, indent=4)
+        self.qc_manager.debug("State saved successfully", context="StateManager")
 
     def update_request_state(self, request_id, status, progress=None, original_request=None):
         """
@@ -63,8 +67,15 @@ class StateManager:
                 current_state['last_updated'] = datetime.now().isoformat()
                 if original_request:
                     current_state['original_request'] = original_request
+                
+                if status == 'completed':
+                    current_state['completed_at'] = datetime.now().isoformat()
+                elif status == 'failed':
+                    current_state['failed_at'] = datetime.now().isoformat()
+
             self._state['last_updated'] = datetime.now().isoformat()
             self._save_state()
+            self.qc_manager.debug(f"State updated and saved for request {request_id}", context="StateManager")
 
     def get_request_state(self, request_id):
         """

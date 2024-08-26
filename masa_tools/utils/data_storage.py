@@ -1,58 +1,39 @@
 import os
 import json
 from datetime import datetime
-from ..qc.logging import Logger
-from ..qc.error_handler import ErrorHandler
+from masa_tools.qc.qc_manager import QCManager
 
 class DataStorage:
-    def __init__(self):
-        """
-        Initialize the DataStorage.
-        """
-        self.base_directory = 'data'
-        self.logger = Logger("DataStorage")
-        self.error_handler = ErrorHandler(self.logger)
+    def __init__(self, base_directory='data'):
+        self.base_directory = base_directory
+        self.qc_manager = QCManager()
 
-    def get_file_path(self, source, query):
-        """
-        Get the file path for a specific source and query.
-
-        :param source: The source of the data (e.g., 'xtwitter').
-        :param query: The query used to retrieve the data.
-        :return: The file path for the data.
-        """ 
+    def get_file_path(self, source, query, file_format='json'):
         directory = os.path.join(self.base_directory, source)
         os.makedirs(directory, exist_ok=True)
-        filename = f"{query}.json"
+        filename = f"{query}.{file_format}"
         return os.path.join(directory, filename)
 
-    @ErrorHandler.handle_error
-    def save_data(self, data, source, query):
-        """
-        Save the retrieved data to a file in a structured directory within the 'data' directory.
-
-        :param data: The data to be saved.
-        :param source: The source of the data (e.g., 'xtwitter').
-        :param query: The query used to retrieve the data.
-        """
-        file_path = self.get_file_path(source, query)
+    def save_data(self, data, source, query, file_format='json'):
+        file_path = self.get_file_path(source, query, file_format)
         
         try:
-            with open(file_path, 'r+') as file:
-                existing_data = json.load(file)
-                existing_data['tweets'].extend(json.loads(data))
-                file.seek(0)
-                json.dump(existing_data, file, indent=4)
-        except (FileNotFoundError, json.JSONDecodeError) as e:
-            self.logger.log_warning(f"Creating new data file: {file_path}")
-            initial_data = {
-                'tweets': json.loads(data),
-                'query': query,
-                'source': source,
-                'created_at': datetime.now().isoformat(),
-                'last_updated': datetime.now().isoformat()
-            }
-            with open(file_path, 'w') as file:
-                json.dump(initial_data, file, indent=4)
+            if file_format == 'json':
+                self._save_json(file_path, data)
+            elif file_format == 'csv':
+                self._save_csv(file_path, data)
+            else:
+                raise ValueError(f"Unsupported file format: {file_format}")
 
-        self.logger.log_info(f"Data saved to: {file_path}")
+            self.qc_manager.log_info(f"Data saved to: {file_path}", context="DataStorage")
+        except Exception as e:
+            self.qc_manager.log_error(f"Error saving data: {str(e)}", context="DataStorage")
+            raise
+
+    def _save_json(self, file_path, data):
+        with open(file_path, 'w') as file:
+            json.dump(data, file, indent=4)
+
+    def _save_csv(self, file_path, data):
+        # Implement CSV saving logic here
+        pass

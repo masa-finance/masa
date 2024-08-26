@@ -1,107 +1,130 @@
-from connections.api_connection import APIConnection
-from configs.config import XTwitterConfig
-from masa_tools.qc.error_handler import ErrorHandler
-from masa_tools.qc.logging import Logger
-from urllib.parse import urlparse
-import time
+from .api_connection import APIConnection
+from masa_tools.qc.qc_manager import QCManager
+from orchestration.retry_policy import RetryPolicy
+
+class RateLimitError(Exception):
+    """Exception raised when rate limit is exceeded."""
+    pass
+
+class ServerError(Exception):
+    """Exception raised when a server error occurs."""
+    pass
 
 class XTwitterConnection(APIConnection):
     """
-    A class for handling connections to the Twitter API through the MASA Oracle.
+    XTwitter API connection class.
 
-    This class extends the APIConnection class and provides specific functionality
-    for interacting with the Twitter API, including request retries and error handling.
+    This class implements the APIConnection interface for the XTwitter API.
+    It handles XTwitter-specific configuration, headers, timeouts, and response handling.
 
-    :param APIConnection: The base class for API connections.
+    Attributes:
+        config (dict): Configuration dictionary for the XTwitter API.
+        retry_policy (RetryPolicy): Retry policy for handling request failures.
     """
 
-    def __init__(self):
+    def __init__(self, config):
         """
-        Initialize the XTwitterConnection instance.
+        Initialize the XTwitterConnection.
 
-        This method sets up the connection parameters using the XTwitterConfig,
-        initializes the base APIConnection, and sets up the error handler.
-
-        :raises KeyError: If the 'BASE_URL' key is not found in the environment variables.
+        Args:
+            config (dict): Configuration dictionary for the XTwitter API.
         """
-        config = XTwitterConfig()
-        twitter_config = config.get_config()
-        self.logger = Logger("XTwitterConnection")
+        self.qc_manager = QCManager()
+        base_url = config.get('BASE_URL')
+        self.qc_manager.debug(f"Initializing XTwitterConnection with config: {config}", context="XTwitterConnection")
         
-        base_url = config.get_env_var('BASE_URL')
-        headers = twitter_config['headers']
-        self.timeout = twitter_config['request_timeout']
-        self.max_retries = twitter_config['max_retries']
-        self.retry_delay = twitter_config['retry_delay']
+        if not base_url:
+            self.qc_manager.debug("Base URL is None or empty", context="XTwitterConnection")
+            raise ValueError("Base URL cannot be None or empty")
         
-        super().__init__(base_url, headers)
-        
-        self.error_handler = ErrorHandler(self.logger)
+        super().__init__(base_url=base_url)
+        self.qc_manager.debug("XTwitterConnection initialized successfully", context="XTwitterConnection")
+        self.config = config
+        self.retry_policy = RetryPolicy(
+            max_retries=config['TWITTER_MAX_RETRIES'],
+            base_wait_time=config['TWITTER_RETRY_DELAY'],
+            max_wait_time=config['TWITTER_RETRY_DELAY'],
+            timeout=config['TWITTER_TIMEOUT']
+        )
 
-    @ErrorHandler.handle_error
-    def make_request(self, endpoint, method='GET', data=None):
+    def get_headers(self):
         """
-        Make a request to the specified endpoint of the MASA Oracle for Twitter data.
+        Get headers for XTwitter API requests.
 
-        This method handles request retries and error checking.
-
-        :param endpoint: The endpoint of the MASA Oracle.
-        :type endpoint: str
-        :param method: The HTTP method to use for the request, defaults to 'GET'.
-        :type method: str, optional
-        :param data: The data to send with the request, defaults to None.
-        :type data: dict, optional
-        :return: The response from the MASA Oracle.
-        :rtype: requests.Response
-        :raises InvalidURL: If the constructed URL is invalid.
-        :raises UnexpectedStatusCode: If the response status code is unexpected.
-        :raises MaxRetriesExceeded: If the maximum number of retries is exceeded.
+        Returns:
+            dict: A dictionary of headers to be used in the API request.
         """
-        endpoint = endpoint.lstrip('/')
-        self.base_url = self.base_url.rstrip('/')
-        
-        url = f"{self.base_url}/{endpoint}"
-        if not self.is_valid_url(url):
-            url = self.fix_url(url)
-            if not self.is_valid_url(url):
-                self.error_handler.raise_error("InvalidURL", f"Invalid URL: {url}")
-        
-        attempts = 0
-        while attempts < self.max_retries:
-            response = super().make_request(endpoint, method, data)
-            if response.status_code == 200:
-                return response
-            elif response.status_code == 504:
-                time.sleep(self.retry_delay)
-                attempts += 1
-            else:
-                self.error_handler.raise_error("UnexpectedStatusCode", f"Unexpected status code: {response.status_code}")
-        
-        self.error_handler.raise_error("MaxRetriesExceeded", f"Failed to make request to {url} after {self.max_retries} attempts.")
+        return {
+            **self.config.get('headers', {}),
+            'accept': 'application/json',
+            'Content-Type': 'application/json'
+        }
 
-    def is_valid_url(self, url):
+    def get_timeout(self):
         """
-        Check if the given URL is valid.
+        Get timeout for XTwitter API requests.
 
-        :param url: The URL to check.
-        :type url: str
-        :return: True if the URL is valid, False otherwise.
-        :rtype: bool
+        Returns:
+            int: The timeout value in seconds for the API request.
         """
-        try:
-            result = urlparse(url)
-            return all([result.scheme, result.netloc])
-        except ValueError:
-            return False
+        return self.config.get('request_timeout', 30)
 
-    def fix_url(self, url):
+    def handle_response(self, response):
         """
-        Attempt to fix an invalid URL.
+        Handle the XTwitter API response.
 
-        :param url: The URL to fix.
-        :type url: str
-        :return: The fixed URL.
-        :rtype: str
+        Args:
+            response (requests.Response): The response object from the API request.
+
+        Returns:
+            dict: The processed response data.
+
+        Raises:
+            RateLimitError: If the rate limit is exceeded.
+            ServerError: If a server error occurs.
+            requests.HTTPError: For other HTTP errors.
         """
-        # Implement URL fixing logic here
-        pass
+        if response.status_code == 200:
+            return response.json()
+        elif response.status_code == 429:
+            retry_after = response.headers.get('Retry-After', self.retry_policy.base_wait_time)
+            raise RateLimitError(f"Rate limit exceeded. Retry after {retry_after} seconds.")
+        elif response.status_code >= 500:
+            raise ServerError(f"Server error occurred: {response.status_code}")
+        else:
+            response.raise_for_status()
+
+    def make_request(self, endpoint, method='POST', data=None):
+        """
+        Make a request to the XTwitter API.
+
+        This method is decorated with error handling and retry logic.
+
+        Args:
+            endpoint (str): The API endpoint to request.
+            method (str, optional): The HTTP method for the request. Defaults to 'POST'.
+            data (dict, optional): The data to send in the request body.
+
+        Returns:
+            requests.Response: The raw response object from the API request.
+        """
+        @self.qc_manager.handle_error_with_retry(self.retry_policy, self.config)
+        def _make_request_with_retry():
+            return self._make_request(method, endpoint, data=data)
+
+        return _make_request_with_retry()
+
+    def get_tweets(self, endpoint, query, count):
+        """
+        Get tweets from the XTwitter API.
+
+        Args:
+            endpoint (str): The API endpoint to request.
+            query (str): The search query for tweets.
+            count (int): The number of tweets to retrieve.
+
+        Returns:
+            requests.Response: The raw response object from the API request.
+        """
+        data = {'query': query, 'count': count}
+        return self.make_request(endpoint, method='POST', data=data)

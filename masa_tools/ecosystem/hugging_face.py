@@ -5,8 +5,8 @@ from typing import Dict, List
 from huggingface_hub import HfApi, create_collection, list_collections, add_collection_item, delete_collection, metadata_update
 from tqdm import tqdm
 
-from masa.qc.logging import Logger
-from masa.qc.error_handler import ErrorHandler
+from masa_tools.qc.logging import Logger
+from masa_tools.qc.error_handler import ErrorHandler
 
 class HuggingFaceManager:
     """
@@ -34,8 +34,8 @@ class HuggingFaceManager:
         self.org_name = org_name
         self.token = token
         self.api = HfApi()
-        self.logger = Logger(__name__)
-        self.error_handler = ErrorHandler(self.logger)
+        self.logger = Logger()
+        self.error_handler = ErrorHandler()
 
     @property
     def datasets(self) -> List[str]:
@@ -58,21 +58,21 @@ class HuggingFaceManager:
             str: The slug of the collection.
         """
         try:
-            self.logger.log_info(f"Checking for existing collection: {collection_name}")
+            self.logger.log_info(f"Checking for existing collection: {collection_name}", context="HuggingFaceManager")
             collections = list_collections(owner=self.org_name)
             for collection in collections:
                 if collection.title == collection_name:
-                    self.logger.log_info(f"Found existing collection: {collection_name}")
+                    self.logger.log_info(f"Found existing collection: {collection_name}", context="HuggingFaceManager")
                     return collection.slug
             
-            self.logger.log_info(f"Creating new collection: {collection_name}")
+            self.logger.log_info(f"Creating new collection: {collection_name}", context="HuggingFaceManager")
             collection = create_collection(
                 title=collection_name,
                 namespace=self.org_name,
                 description=f"Collection for {collection_name}",
                 private=False
             )
-            self.logger.log_info(f"Created new collection: {collection_name}")
+            self.logger.log_info(f"Created new collection: {collection_name}", context="HuggingFaceManager")
             return collection.slug
         except Exception as e:
             self.error_handler.handle_error(self.get_or_create_collection)(e)
@@ -96,7 +96,7 @@ class HuggingFaceManager:
             item_type="dataset",
             exists_ok=True
         )
-        self.logger.log_info(f"Successfully uploaded {file_path} to {collection_slug}")
+        self.logger.log_info(f"Successfully uploaded {file_path} to {collection_slug}", context="HuggingFaceManager")
         hf_upload_record[file_path] = file_mod_time
         time.sleep(5)  # Sleep for 5 seconds to avoid overloading the API
 
@@ -112,7 +112,7 @@ class HuggingFaceManager:
         """
         try:
             self.api.repo_info(repo_id=repo_id)
-            self.logger.log_info(f"Repository {repo_id} already exists. Skipping upload.")
+            self.logger.log_info(f"Repository {repo_id} already exists. Skipping upload.", context="HuggingFaceManager")
             return True
         except Exception as e:
             if "404 Client Error" in str(e):
@@ -131,7 +131,7 @@ class HuggingFaceManager:
         try:
             collections = list_collections(owner=self.org_name)
             if not collections:
-                self.logger.log_info(f"No collections found for organization: {self.org_name}")
+                self.logger.log_info(f"No collections found for organization: {self.org_name}", context="HuggingFaceManager")
                 return
 
             print(f"Collections for organization: {self.org_name}")
@@ -149,22 +149,22 @@ class HuggingFaceManager:
                 confirm = input("Are you sure you want to delete all collections? (yes/no): ")
                 if confirm.lower() == 'yes':
                     for collection in collections:
-                        self.logger.log_info(f"Deleting collection: {collection.slug}")
+                        self.logger.log_info(f"Deleting collection: {collection.slug}", context="HuggingFaceManager")
                         delete_collection(collection_slug=collection.slug, missing_ok=True)
-                        self.logger.log_info(f"Successfully deleted collection: {collection.slug}")
+                        self.logger.log_info(f"Successfully deleted collection: {collection.slug}", context="HuggingFaceManager")
                 else:
-                    self.logger.log_info("Deletion of all collections cancelled.")
+                    self.logger.log_info("Deletion of all collections cancelled.", context="HuggingFaceManager")
             elif 1 <= choice <= len(collections):
                 collection_slug = collections[choice - 1].slug
                 confirm = input(f"Are you sure you want to delete the collection {collection_slug}? (yes/no): ")
                 if confirm.lower() == 'yes':
-                    self.logger.log_info(f"Deleting collection: {collection_slug}")
+                    self.logger.log_info(f"Deleting collection: {collection_slug}", context="HuggingFaceManager")
                     delete_collection(collection_slug=collection_slug, missing_ok=True)
-                    self.logger.log_info(f"Successfully deleted collection: {collection_slug}")
+                    self.logger.log_info(f"Successfully deleted collection: {collection_slug}", context="HuggingFaceManager")
                 else:
-                    self.logger.log_info(f"Deletion of collection {collection_slug} cancelled.")
+                    self.logger.log_info(f"Deletion of collection {collection_slug} cancelled.", context="HuggingFaceManager")
             else:
-                self.logger.log_error("Invalid choice.")
+                self.logger.log_error("Invalid choice.", context="HuggingFaceManager")
         except Exception as e:
             self.error_handler.handle_error(self.delete_collection_by_slug)(e)
 
@@ -178,7 +178,7 @@ class HuggingFaceManager:
         the deletion process.
         """
         try:
-            self.logger.log_info(f"Deleting {len(self.datasets)} datasets for organization: {self.org_name}")
+            self.logger.log_info(f"Deleting {len(self.datasets)} datasets for organization: {self.org_name}", context="HuggingFaceManager")
             
             confirm = input(f"Are you sure you want to delete all {len(self.datasets)} datasets? (yes/no): ")
             if confirm.lower() == 'yes':
@@ -190,12 +190,12 @@ class HuggingFaceManager:
                             repo_type="dataset",
                             missing_ok=True
                         )
-                        self.logger.log_info(f"Successfully deleted dataset: {dataset_name} from organization: {self.org_name}")
+                        self.logger.log_info(f"Successfully deleted dataset: {dataset_name} from organization: {self.org_name}", context="HuggingFaceManager")
                         time.sleep(2)  # Sleep for the specified delay to avoid overloading the API
                     except Exception as e:
                         self.error_handler.handle_error(self.delete_datasets)(e)
             else:
-                self.logger.log_info("Deletion of all datasets cancelled.")
+                self.logger.log_info("Deletion of all datasets cancelled.", context="HuggingFaceManager")
         except Exception as e:
             self.error_handler.handle_error(self.delete_datasets)(e)
 
@@ -209,7 +209,7 @@ class HuggingFaceManager:
         progress and handles any exceptions that occur during the update process.
         """
         try:
-            self.logger.log_info(f"Updating dataset cards for organization: {self.org_name}")
+            self.logger.log_info(f"Updating dataset cards for organization: {self.org_name}", context="HuggingFaceManager")
             
             for dataset in tqdm(self.datasets, desc="Updating dataset cards"):
                 repo_id = dataset.id
@@ -230,12 +230,11 @@ class HuggingFaceManager:
                     token=self.token
                 )
                 
-                self.logger.log_info(f"Updated metadata for dataset: {repo_id}")
-                self.logger.log_info(f"Updated metadata URL: {url}")
+                self.logger.log_info(f"Updated metadata for dataset: {repo_id}", context="HuggingFaceManager")
+                self.logger.log_info(f"Updated metadata URL: {url}", context="HuggingFaceManager")
                 time.sleep(1)  # Sleep to avoid rate limiting
             
-            self.logger.log_info(f"Finished updating metadata for {len(self.datasets)} datasets")
+            self.logger.log_info(f"Finished updating metadata for {len(self.datasets)} datasets", context="HuggingFaceManager")
 
         except Exception as e:
             self.error_handler.handle_error(self.update_dataset_cards)(e)
-

@@ -3,7 +3,7 @@
     "retriever": "XTwitterRetriever",
     "endpoint": "data/twitter/tweets/recent",
     "params": {
-      "query": "#python",
+      "query": "#MiamiHeat",
       "count": 100
     }
   },
@@ -11,7 +11,7 @@
     "retriever": "XTwitterRetriever", 
     "endpoint": "data/twitter/tweets/recent",
     "params": {
-      "query": "from:elonmusk",
+      "query": "from:tombom",
       "count": 50
     }
   },
@@ -19,7 +19,7 @@
     "retriever": "XTwitterRetriever",
     "endpoint": "data/twitter/tweets/recent", 
     "params": {
-      "query": "AI lang:en",
+      "query": "meow lang:en",
       "count": 75
     }
   }

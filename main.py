@@ -2,6 +2,7 @@ import json
 import sys
 from orchestration.request_manager import RequestManager
 from configs.config import XTwitterConfig
+from masa_tools.qc.qc_manager import QCManager
 
 def main(action, json_file_path=None):
     """
@@ -11,11 +12,15 @@ def main(action, json_file_path=None):
     :param json_file_path: Path to the JSON file containing requests (optional).
     """
     config = XTwitterConfig().get_config()
+    qc_manager = QCManager()
+    qc_manager.debug(f"Config loaded: {config}", context="Main")
     request_manager = RequestManager(config)
 
     if action == 'process':
         # Process all requests (both resumed and new)
+        qc_manager.debug(f"Processing requests from file: {json_file_path}", context="Main")
         request_manager.process_requests(json_file_path)
+        qc_manager.log_info("Processing all requests", context="Main")
     elif action == 'request_history':
         # Get the status of all requests
         all_requests_status = request_manager.get_all_requests_status()

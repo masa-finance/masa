@@ -1,5 +1,6 @@
 import logging
 import traceback
+from datetime import datetime
 from typing import Any, Dict
 from colorlog import ColoredFormatter
 
@@ -12,90 +13,125 @@ class Logger:
     to add color formatting to the log messages.
 
     Attributes:
-        logger (logging.Logger): The underlying Python logger object.
+        loggers (Dict[str, logging.Logger]): Dictionary of logger instances for different contexts.
     """
     _instance = None
 
-    def __new__(cls, name: str = "MASA_Logger", level: int = logging.INFO):
+    def __new__(cls):
         if cls._instance is None:
             cls._instance = super(Logger, cls).__new__(cls)
-            cls._instance._initialize(name, level)
+            cls._instance._initialize()
         return cls._instance
 
-    def _initialize(self, name: str, level: int):
+    def _initialize(self):
         """
-        Initialize the Logger with a name and logging level.
+        Initialize the Logger with a dictionary to store loggers for different contexts.
+        """
+        self.loggers = {}
+        self.default_level = logging.INFO
+        self.default_context = "MASA_Logger"
+
+    def get_logger(self, name: str, level: int = None):
+        """
+        Get or create a logger for a specific context.
 
         Args:
-            name (str): The name of the logger.
-            level (int): The logging level (default: logging.INFO).
+            name (str): The name of the logger (context).
+            level (int): The logging level (default: self.default_level).
+
+        Returns:
+            logging.Logger: The logger for the specified context.
         """
-        self.logger = logging.getLogger(name)
-        self.logger.setLevel(level)
+        if name not in self.loggers:
+            logger = logging.getLogger(name)
+            level = level or self.default_level
+            logger.setLevel(level)
 
-        # Create a console handler and set its level
-        ch = logging.StreamHandler()
-        ch.setLevel(level)
+            # Create a console handler and set its level
+            ch = logging.StreamHandler()
+            ch.setLevel(level)
 
-        # Create a color formatter with a simpler format
-        formatter = ColoredFormatter(
-            "%(log_color)s%(levelname)s - %(message)s",
-            log_colors={
-                'DEBUG': 'cyan',
-                'INFO': 'green',
-                'WARNING': 'yellow',
-                'ERROR': 'red',
-                'CRITICAL': 'red,bg_white',
-            }
-        )
-        ch.setFormatter(formatter)
+            # Create a color formatter with a format that includes the logger name
+            formatter = ColoredFormatter(
+                "%(log_color)s%(levelname)s - [%(name)s] %(message)s",
+                log_colors={
+                    'DEBUG': 'cyan',
+                    'INFO': 'green',
+                    'WARNING': 'yellow',
+                    'ERROR': 'red',
+                    'CRITICAL': 'red,bg_white',
+                }
+            )
+            ch.setFormatter(formatter)
 
-        # Add the handler to the logger
-        self.logger.addHandler(ch)
+            # Add the handler to the logger
+            logger.addHandler(ch)
 
-    def log_error(self, error_info: Dict[str, Any]):
-        """
-        Log an error message with stack trace.
+            self.loggers[name] = logger
 
-        Args:
-            error_info (Dict[str, Any]): A dictionary containing error information.
+        return self.loggers[name]
+
+    def get_timestamp(self):
+        return datetime.now().isoformat()
+
+    def log_error(self, message, error_info=None, context=None):
+        if error_info is None:
+            error_info = {}
+        elif not isinstance(error_info, dict):
+            error_info = {'error': str(error_info)}
         
-        Raises:
-            TypeError: If the argument is not a dictionary.
-        """
-        if not isinstance(error_info, dict):
-            raise TypeError("The argument 'error_info' must be a dictionary.")
-        
-        self.logger.error(f"Error: {error_info['type']} - {error_info['message']}")
-        if 'details' in error_info:
-            self.logger.error(f"Details: {error_info['details']}")
-        
-        # Log the stack trace
-        self.logger.error("Stack trace: %s", traceback.format_exc())
+        log_entry = {
+            'level': 'ERROR',
+            'message': message,
+            'context': context or self.default_context,
+            'timestamp': self.get_timestamp(),
+            'error_info': error_info
+        }
+        logger = self.get_logger(log_entry['context'])
+        logger.error(f"{log_entry['message']} - Error Info: {log_entry['error_info']}")
 
-    def log_warning(self, message: str):
+    def log_warning(self, message: str, context: str = "MASA_Logger"):
         """
         Log a warning message.
 
         Args:
             message (str): The warning message to be logged.
+            context (str): The context (logger name) for this log entry.
         """
-        self.logger.warning(f"Warning: {message}")
+        logger = self.get_logger(context)
+        logger.warning(f"Warning: {message}")
 
-    def log_info(self, message: str):
+    def log_info(self, message: str, context: str = "MASA_Logger"):
         """
         Log an informational message.
 
         Args:
             message (str): The informational message to be logged.
+            context (str): The context (logger name) for this log entry.
         """
-        self.logger.info(message)
+        logger = self.get_logger(context)
+        logger.info(message)
 
-    def log_debug(self, message: str):
+    def log_debug(self, message: str, context: str = "MASA_Logger"):
         """
         Log a debug message.
 
         Args:
             message (str): The debug message to be logged.
+            context (str): The context (logger name) for this log entry.
         """
-        self.logger.debug(message)
+        logger = self.get_logger(context)
+        logger.debug(message)
+
+    def log_debug(self, message, context=None):
+        """
+        Log a debug message.
+
+        Args:
+            message (str): The debug message to log.
+            context (str, optional): The context or source of the debug message. Defaults to None.
+        """
+        formatted_message = f"DEBUG - {message}"
+        if context:
+            formatted_message += f" - Context: {context}"
+        print(formatted_message)
