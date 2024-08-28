@@ -2,7 +2,7 @@ import uuid
 from masa_tools.retrieve.retrieve_xtwitter import XTwitterRetriever
 from masa_tools.qc.qc_manager import QCManager
 import traceback
-from configs.config import load_configs
+from configs.config import global_settings
 
 class RequestRouter:
     """
@@ -17,8 +17,7 @@ class RequestRouter:
         :param state_manager: StateManager object for managing request states.
         """
         self.qc_manager = qc_manager
-        self.config = load_configs()  # Load configurations
-        self.qc_manager.log_debug(f"Loaded config in RequestRouter: {self.config}", context="RequestRouter")
+        self.config = global_settings
         self.state_manager = state_manager
         self.retrievers = {}  # Dictionary to store initialized retriever objects
 

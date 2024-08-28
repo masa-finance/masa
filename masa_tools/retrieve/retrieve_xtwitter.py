@@ -3,10 +3,8 @@ import time
 from datetime import datetime, timedelta
 from connections.xtwitter_connection import XTwitterConnection
 from masa_tools.utils.data_storage import DataStorage
-from orchestration.retry_policy import RetryPolicy
-import traceback
 from masa_tools.qc.qc_manager import QCManager
-from configs.config import XTwitterConfig
+from configs.config import settings
 
 class XTwitterRetriever:
     def __init__(self, state_manager, request):
@@ -20,13 +18,13 @@ class XTwitterRetriever:
         self.qc_manager.log_debug(f"Initializing XTwitterRetriever with request: {request}", context="XTwitterRetriever")
         
         if 'endpoint' not in request:
-            self.qc_manager.log_debug("Request does not contain 'endpoint'", context="XTwitterRetriever")
+            self.qc_manager.log_error("Request does not contain 'endpoint'", context="XTwitterRetriever")
             raise ValueError("Request must contain 'endpoint'")
         
         api_endpoint = request['endpoint']
         self.qc_manager.log_debug(f"API Endpoint from request: {api_endpoint}", context="XTwitterRetriever")
         
-        self.config = XTwitterConfig().get_config()  # Get the Twitter configuration
+        self.config = settings.twitter  # Get the Twitter configuration from settings
         self.qc_manager.log_debug(f"XTwitterRetriever config: {self.config}", context="XTwitterRetriever")
         full_config = {**self.config, 'api_endpoint': api_endpoint}
         
@@ -37,13 +35,8 @@ class XTwitterRetriever:
         self.state_manager = state_manager
         self.qc_manager.log_debug("XTwitterRetriever initialized successfully", context="XTwitterRetriever")
         self.data_storage = DataStorage()
-        self.retry_policy = RetryPolicy(
-            max_retries=self.config['TWITTER_MAX_RETRIES'],
-            max_wait_time=self.config.get('TWITTER_RETRY_DELAY', 960),
-            timeout=self.config.get('TWITTER_TIMEOUT', 30),
-            success_interval=self.config.get('TWITTER_SUCCESS_INTERVAL', 7)
-        )
 
+    @QCManager().handle_error_with_retry('twitter')
     def retrieve_tweets(self, request):
         """
         Retrieve tweets based on the given request parameters.
@@ -53,14 +46,9 @@ class XTwitterRetriever:
         """
         request_id = request['id']
         self.qc_manager.log_debug(f"Starting retrieve_tweets for request {request_id}", context="XTwitterRetriever")
-        try:
-            return self._retrieve_tweets_with_retry(request)
-        except Exception as e:
-            self.qc_manager.log_error(f"Error in retrieve_tweets for request {request_id}: {str(e)}", error_info=e, context="XTwitterRetriever")
-            self.qc_manager.log_debug(f"Traceback: {traceback.format_exc()}", context="XTwitterRetriever")
-            raise
+        return self._retrieve_tweets(request)
 
-    def _retrieve_tweets_with_retry(self, request):
+    def _retrieve_tweets(self, request):
         request_id = request['id']
         params = request.get('params', {})
         query = params.get('query')
@@ -70,9 +58,9 @@ class XTwitterRetriever:
         if not all([query, count, api_endpoint]):
             raise ValueError("Missing required parameters in request")
 
-        start_date = datetime.strptime(self.config['start_time'], '%Y-%m-%dT%H:%M:%SZ').date()
-        end_date = datetime.strptime(self.config['end_time'], '%Y-%m-%dT%H:%M:%SZ').date()
-        days_per_iteration = 1  # Fetch tweets for 1 day at a time
+        start_date = datetime.strptime(self.config['START_DATE'], '%Y-%m-%d').date()
+        end_date = datetime.strptime(self.config['END_DATE'], '%Y-%m-%d').date()
+        days_per_iteration = self.config['DAYS_PER_ITERATION']
 
         request_state = self.state_manager.get_request_state(request_id)
         current_date = datetime.fromisoformat(request_state.get('progress', {}).get('last_processed_time', end_date.isoformat())).date()
@@ -95,13 +83,8 @@ class XTwitterRetriever:
 
             records_fetched = self._handle_response(response, request_id, query, current_date, all_tweets, records_fetched)
 
-            # Add this line to wait after a successful API call
-            self.retry_policy.wait_after_success()
-
             current_date -= timedelta(days=days_per_iteration)
             self.state_manager.update_request_state(request_id, 'in_progress', {'last_processed_time': current_date.isoformat()})
-            
-            # The success interval wait is now handled by RetryPolicy
 
         return all_tweets, api_calls_count, records_fetched
 
@@ -125,12 +108,6 @@ class XTwitterRetriever:
             records_fetched += num_tweets
             self.qc_manager.log_info(f"Fetched {num_tweets} tweets for {current_date.strftime('%Y-%m-%d')}.", context="XTwitterRetriever")
             self._save_tweets(tweets, request_id, query, current_date)
-        elif 'errors' in response:
-            for error in response['errors']:
-                if error.get('code') == 88:  # Rate limit exceeded
-                    self.qc_manager.log_warning(f"Rate limit exceeded for {current_date.strftime('%Y-%m-%d')}.", context="XTwitterRetriever")
-                else:
-                    self.qc_manager.log_error(f"API error: {error.get('message', 'Unknown error')}", context="XTwitterRetriever")
         else:
             self.qc_manager.log_warning(f"No tweets fetched for {current_date.strftime('%Y-%m-%d')}. Possibly rate limited or no results.", context="XTwitterRetriever")
 
@@ -145,14 +122,10 @@ class XTwitterRetriever:
         :param query: Search query used for retrieving tweets.
         :param current_date: Current date being processed.
         """
-        try:
-            # Save tweets as JSON
-            self.data_storage.save_data(tweets, 'xtwitter', query, file_format='json')
-            
-            self.state_manager.update_request_state(request_id, 'in_progress', {
-                'last_processed_time': current_date.isoformat(),
-                'tweets_count': len(tweets)
-            })
-        except Exception as e:
-            self.qc_manager.log_error(f"Error occurred while saving tweets or updating state: {str(e)}", error_info=e, context="XTwitterRetriever")
-            raise
+        # Save tweets as JSON
+        self.data_storage.save_data(tweets, 'xtwitter', query, file_format='json')
+        
+        self.state_manager.update_request_state(request_id, 'in_progress', {
+            'last_processed_time': current_date.isoformat(),
+            'tweets_count': len(tweets)
+        })

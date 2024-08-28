@@ -1,6 +1,8 @@
 import requests
 from abc import ABC, abstractmethod
+from configs.config import global_settings
 from masa_tools.qc.qc_manager import QCManager
+from masa_tools.qc.exceptions import APIException
 
 class APIConnection(ABC):
     """
@@ -15,14 +17,12 @@ class APIConnection(ABC):
         qc_manager (QCManager): Quality control manager for logging and error handling.
     """
 
-    def __init__(self, base_url):
+    def __init__(self):
         """
         Initialize the APIConnection.
-
-        :param base_url: The base URL for the API.
-        :type base_url: str
         """
         self.qc_manager = QCManager()
+        base_url = global_settings.get('twitter.BASE_URL')  # Get base URL from global settings
         self.qc_manager.debug(f"Initializing APIConnection with base_url: {base_url}", context="APIConnection")
         if not base_url:
             raise ValueError("base_url cannot be None or empty")
@@ -57,10 +57,11 @@ class APIConnection(ABC):
         :type response: requests.Response
         :return: The processed response data.
         :rtype: dict
-        :raises Exception: If there's an error in processing the response.
+        :raises APIException: If there's an error in processing the response.
         """
         pass
 
+    @QCManager().handle_error_with_retry('request_manager.retry_config')
     def _make_request(self, method, endpoint, data=None, params=None):
         """
         Make an API request.
@@ -75,22 +76,18 @@ class APIConnection(ABC):
         :type params: dict, optional
         :return: The processed response data.
         :rtype: dict
-        :raises requests.RequestException: If there's an error in making the request.
+        :raises APIException: If there's an error in making the request or processing the response.
         """
-        try:
-            url = f"{self.base_url}/{endpoint.lstrip('/')}"
-            headers = self.get_headers()
-            timeout = self.get_timeout()
+        url = f"{self.base_url}/{endpoint.lstrip('/')}"
+        headers = self.get_headers()
+        timeout = self.get_timeout()
 
-            response = requests.request(
-                method, 
-                url, 
-                json=data,
-                params=params,
-                headers=headers, 
-                timeout=timeout
-            )
-            return self.handle_response(response)
-        except requests.RequestException as e:
-            self.qc_manager.log_error(f"API request failed: {str(e)}", error_info=e, context=self.__class__.__name__)
-            raise
+        response = requests.request(
+            method, 
+            url, 
+            json=data,
+            params=params,
+            headers=headers, 
+            timeout=timeout
+        )
+        return self.handle_response(response)

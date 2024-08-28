@@ -4,6 +4,7 @@ channels:
   - conda-forge
 dependencies:
   - colorlog
+  - dynaconf
   - feedparser
   - ipykernel
   - jupyter

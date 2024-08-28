@@ -12,5 +12,6 @@ Submodules:
 from .error_handler import ErrorHandler, GatewayTimeoutError, RequestError
 from .logging_config import Logger
 from .qc_manager import QCManager
+from .exceptions import *
 
-__all__ = ["ErrorHandler", "Logger", "QCManager", "GatewayTimeoutError", "RequestError"]
+__all__ = ["ErrorHandler", "Logger", "QCManager", "GatewayTimeoutError", "RequestError", "APIException", "NetworkException", "RateLimitException", "AuthenticationException", "DataProcessingException", "ConfigurationException"]

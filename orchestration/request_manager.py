@@ -6,15 +6,19 @@ from .request_router import RequestRouter
 from .queue import Queue
 from .state_manager import StateManager
 from masa_tools.qc.qc_manager import QCManager
+from configs.config import global_settings
 
 class RequestManager:
-    def __init__(self, config):
+    def __init__(self):
+        """
+        Initialize the RequestManager.
+        """
         self.qc_manager = QCManager()
-        self.config = config
-        self.state_file = os.path.join(os.path.dirname(__file__), 'state_manager.json')
+        self.config = global_settings
+        self.state_file = self.config.get('request_manager.STATE_FILE')
         self.state_manager = StateManager(self.state_file)
         self.request_router = RequestRouter(self.qc_manager, self.state_manager)
-        self.queue_file = os.path.join(os.path.dirname(__file__), 'request_queue.json')
+        self.queue_file = self.config.get('request_manager.QUEUE_FILE')
         self.queue = Queue(self.queue_file, self.state_manager)
 
     def process_requests(self, request_list_file=None):

@@ -2,6 +2,7 @@
 
 from .logging_config import setup_logger
 from .error_handler import ErrorHandler
+from .retry_manager import RetryManager
 
 class QCManager:
     _instance = None
@@ -20,6 +21,7 @@ class QCManager:
         if not hasattr(self, 'logger'):
             self.logger = setup_logger("QCManager")
             self.error_handler = ErrorHandler(self)
+            self.retry_manager = RetryManager(self)
 
     def log_error(self, message, error_info=None, context=None):
         """
@@ -57,3 +59,12 @@ class QCManager:
         :param context: The context of the debug message (default: None).
         """
         self.logger.debug(f"{context or ''}: {message}")
+
+    def handle_error(self, func):
+        return self.error_handler.handle_error(func)
+
+    def handle_error_with_retry(self, config_key):
+        return self.error_handler.handle_error_with_retry(config_key)
+
+    def execute_with_retry(self, func, config_key, *args, **kwargs):
+        return self.retry_manager.execute_with_retry(func, config_key, *args, **kwargs)
