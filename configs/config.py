@@ -19,7 +19,7 @@ class Config(metaclass=Singleton):
         """Initialize the Config class."""
         self.qc_manager = QCManager()
         load_dotenv(override=True)
-        self.qc_manager.debug(f"Loaded environment variables: {dict(os.environ)}", context="Config")
+        self.qc_manager.log_debug(f"Loaded environment variables: {dict(os.environ)}", context="Config")
         self.load_yaml_configs()
         self.load_env_configs()
 
@@ -57,7 +57,7 @@ class XTwitterConfig(Config):
     def __init__(self):
         self.qc_manager = QCManager()
         super().__init__()
-        self.qc_manager.debug("XTwitterConfig initialized", context="XTwitterConfig")
+        self.qc_manager.log_debug("XTwitterConfig initialized", context="XTwitterConfig")
 
     def load_env_configs(self):
         """Load configurations from environment variables."""
@@ -67,13 +67,13 @@ class XTwitterConfig(Config):
             'TWITTER_MAX_RETRIES': int(os.getenv('TWITTER_MAX_RETRIES', 3)),
             'TWITTER_RETRY_DELAY': int(os.getenv('TWITTER_RETRY_DELAY', 960))
         }
-        self.qc_manager.debug(f"Loaded env config: {self.twitter_env_config}", context="XTwitterConfig")
+        self.qc_manager.log_debug(f"Loaded env config: {self.twitter_env_config}", context="XTwitterConfig")
 
     def load_yaml_configs(self):
         """Load configurations from YAML files."""
         twitter_config_path = os.path.join(os.path.dirname(__file__), 'twitter_retriever_config.yaml')
         self.twitter_config = self.load_yaml_file(twitter_config_path)
-        self.qc_manager.debug(f"Loaded YAML config: {self.twitter_config}", context="XTwitterConfig")
+        self.qc_manager.log_debug(f"Loaded YAML config: {self.twitter_config}", context="XTwitterConfig")
 
     def get_config(self, key=None):
         """Get the Twitter configuration.
@@ -82,7 +82,7 @@ class XTwitterConfig(Config):
         :return: Merged dictionary of environment and YAML configurations, or a specific value if key is provided.
         """
         merged_config = {**self.twitter_env_config, **self.twitter_config}
-        self.qc_manager.debug(f"Merged config: {merged_config}", context="XTwitterConfig")
+        self.qc_manager.log_debug(f"Merged config: {merged_config}", context="XTwitterConfig")
 
         if key is not None:
             return merged_config.get(key)
@@ -118,5 +118,5 @@ def load_configs():
     """Load all configurations."""
     qc_manager = QCManager()
     config = XTwitterConfig().get_config()
-    qc_manager.debug(f"Loaded Twitter config: {config}", context="load_configs")
+    qc_manager.log_debug(f"Loaded Twitter config: {config}", context="load_configs")
     return {'twitter': config}

@@ -39,13 +39,13 @@ class Queue:
         """
         Save the queue to the file.
         """
-        self.qc_manager.debug("Saving queue to file", context="Queue")
+        self.qc_manager.log_debug("Saving queue to file", context="Queue")
         with open(self.file_path, 'w') as f:
             json.dump({
                 'queue': list(self.memory_queue),
                 'requests': self.request_data
             }, f, indent=2)
-        self.qc_manager.debug(f"Queue saved. Current queue size: {len(self.memory_queue)}", context="Queue")
+        self.qc_manager.log_debug(f"Queue saved. Current queue size: {len(self.memory_queue)}", context="Queue")
 
     def add(self, request):
         """
@@ -77,7 +77,7 @@ class Queue:
         
         self.qc_manager.log_info(log_message, context="Queue")
         self._save_queue()
-        self.qc_manager.debug(f"Queue size after adding request: {len(self.memory_queue)}", context="Queue")
+        self.qc_manager.log_debug(f"Queue size after adding request: {len(self.memory_queue)}", context="Queue")
 
     def get(self):
         """
@@ -86,17 +86,17 @@ class Queue:
         :return: The next request or None if the queue is empty.
         """
         if not self.memory_queue:
-            self.qc_manager.debug("Attempted to get request from empty queue", context="Queue")
+            self.qc_manager.log_debug("Attempted to get request from empty queue", context="Queue")
             return None
 
         request_id = self.memory_queue.popleft()
-        self.qc_manager.debug(f"Getting request {request_id} from queue", context="Queue")
+        self.qc_manager.log_debug(f"Getting request {request_id} from queue", context="Queue")
         request_info = self.request_data.get(request_id)
         if request_info:
             request_info['status'] = 'in_progress'
             self._save_queue()
-            self.qc_manager.debug(f"Request {request_id} removed from queue. New queue size: {len(self.memory_queue)}", context="Queue")
-            self.qc_manager.debug(f"Updating state for request {request_id} to 'in_progress'", context="Queue")
+            self.qc_manager.log_debug(f"Request {request_id} removed from queue. New queue size: {len(self.memory_queue)}", context="Queue")
+            self.qc_manager.log_debug(f"Updating state for request {request_id} to 'in_progress'", context="Queue")
             self.state_manager.update_request_state(request_id, 'in_progress') 
             return request_info['request']
         else:
@@ -109,12 +109,12 @@ class Queue:
 
         :param request_id: The ID of the request to mark as completed.
         """
-        self.qc_manager.debug(f"Marking request {request_id} as completed", context="Queue")
+        self.qc_manager.log_debug(f"Marking request {request_id} as completed", context="Queue")
         if request_id in self.request_data:
             self.request_data[request_id]['status'] = 'completed'
             self.memory_queue.remove(request_id) 
             self._save_queue()
-            self.qc_manager.debug(f"Request {request_id} marked as completed and removed from queue", context="Queue")
+            self.qc_manager.log_debug(f"Request {request_id} marked as completed and removed from queue", context="Queue")
         else:
             self.qc_manager.log_warning(f"Request {request_id} not found for completion", context="Queue")
 
@@ -125,12 +125,12 @@ class Queue:
         :param request_id: The ID of the request to mark as failed.
         :param error: The error message.
         """
-        self.qc_manager.debug(f"Marking request {request_id} as failed", context="Queue")
+        self.qc_manager.log_debug(f"Marking request {request_id} as failed", context="Queue")
         if request_id in self.request_data:
             self.request_data[request_id]['status'] = 'failed'
             self.request_data[request_id]['error'] = str(error)
             self._save_queue()
-            self.qc_manager.debug(f"Request {request_id} marked as failed", context="Queue")
+            self.qc_manager.log_debug(f"Request {request_id} marked as failed", context="Queue")
             self.state_manager.update_request_state(request_id, 'failed', {'error': str(error)})
         else:
             self.qc_manager.log_warning(f"Request {request_id} not found for failure logging", context="Queue")

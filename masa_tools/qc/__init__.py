@@ -10,7 +10,7 @@ Submodules:
 """
 
 from .error_handler import ErrorHandler, GatewayTimeoutError, RequestError
-from .logging import Logger
+from .logging_config import Logger
 from .qc_manager import QCManager
 
 __all__ = ["ErrorHandler", "Logger", "QCManager", "GatewayTimeoutError", "RequestError"]

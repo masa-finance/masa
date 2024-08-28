@@ -18,7 +18,7 @@ class RequestRouter:
         """
         self.qc_manager = qc_manager
         self.config = load_configs()  # Load configurations
-        self.qc_manager.debug(f"Loaded config in RequestRouter: {self.config}", context="RequestRouter")
+        self.qc_manager.log_debug(f"Loaded config in RequestRouter: {self.config}", context="RequestRouter")
         self.state_manager = state_manager
         self.retrievers = {}  # Dictionary to store initialized retriever objects
 
@@ -30,39 +30,39 @@ class RequestRouter:
         """
         request_id = request['id']
         query = request['params'].get('query', 'N/A')
-        self.qc_manager.debug(f"Routing request: Query '{query}' (ID: {request_id})", context="RequestRouter")
-        self.qc_manager.debug(f"Request details: {request}", context="RequestRouter")
+        self.qc_manager.log_debug(f"Routing request: Query '{query}' (ID: {request_id})", context="RequestRouter")
+        self.qc_manager.log_debug(f"Request details: {request}", context="RequestRouter")
 
         try:
             retriever_name = request['retriever']
             endpoint = request['endpoint']
 
-            self.qc_manager.debug(f"Routing request: Query '{query}' (ID: {request_id}) to {retriever_name}")
+            self.qc_manager.log_debug(f"Routing request: Query '{query}' (ID: {request_id}) to {retriever_name}")
 
             if retriever_name not in self.retrievers:
-                self.qc_manager.debug(f"Initializing retriever: {retriever_name}", context="RequestRouter")
+                self.qc_manager.log_debug(f"Initializing retriever: {retriever_name}", context="RequestRouter")
                 if retriever_name == 'XTwitterRetriever':
                     self.retrievers[retriever_name] = XTwitterRetriever(self.state_manager, request)
                 else:
                     raise ValueError(f"Unknown retriever: {retriever_name}")
 
             retriever = self.retrievers[retriever_name]
-            self.qc_manager.debug(f"Retrieved retriever object for {retriever_name}", context="RequestRouter")
+            self.qc_manager.log_debug(f"Retrieved retriever object for {retriever_name}", context="RequestRouter")
 
             if retriever_name == 'XTwitterRetriever':
                 if endpoint == 'data/twitter/tweets/recent':
-                    self.qc_manager.debug(f"Calling retrieve_tweets for request: Query '{query}' (ID: {request_id})", context="RequestRouter")
+                    self.qc_manager.log_debug(f"Calling retrieve_tweets for request: Query '{query}' (ID: {request_id})", context="RequestRouter")
                     all_tweets, api_calls_count, records_fetched = retriever.retrieve_tweets(request)
-                    self.qc_manager.debug(f"Completed request: Query '{query}' (ID: {request_id}). API calls: {api_calls_count}, Records fetched: {records_fetched}")
+                    self.qc_manager.log_debug(f"Completed request: Query '{query}' (ID: {request_id}). API calls: {api_calls_count}, Records fetched: {records_fetched}")
                 else:
                     raise ValueError(f"Unknown endpoint for {retriever_name}: {endpoint}")
             else:
                 raise ValueError(f"Unknown retriever: {retriever_name}")
 
-            self.qc_manager.debug(f"Completed request: Query '{query}' (ID: {request_id}) for {retriever_name}")
-            self.qc_manager.debug(f"------------------------------------------------")
+            self.qc_manager.log_debug(f"Completed request: Query '{query}' (ID: {request_id}) for {retriever_name}")
+            self.qc_manager.log_debug(f"------------------------------------------------")
         except Exception as e:
-            self.qc_manager.log_error(f"Error in route_request for Query '{query}' (ID: {request_id}): {str(e)}", context="RequestRouter")
+            self.qc_manager.log_error(f"Error in route_request for Query '{query}' (ID: {request_id}): {str(e)}", error_info=e, context="RequestRouter")
             self.qc_manager.log_error(f"Traceback: {traceback.format_exc()}", context="RequestRouter")
             raise
 

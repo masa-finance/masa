@@ -17,25 +17,25 @@ class XTwitterRetriever:
         :param request: Dictionary containing the request parameters.
         """
         self.qc_manager = QCManager()
-        self.qc_manager.debug(f"Initializing XTwitterRetriever with request: {request}", context="XTwitterRetriever")
+        self.qc_manager.log_debug(f"Initializing XTwitterRetriever with request: {request}", context="XTwitterRetriever")
         
         if 'endpoint' not in request:
-            self.qc_manager.debug("Request does not contain 'endpoint'", context="XTwitterRetriever")
+            self.qc_manager.log_debug("Request does not contain 'endpoint'", context="XTwitterRetriever")
             raise ValueError("Request must contain 'endpoint'")
         
         api_endpoint = request['endpoint']
-        self.qc_manager.debug(f"API Endpoint from request: {api_endpoint}", context="XTwitterRetriever")
+        self.qc_manager.log_debug(f"API Endpoint from request: {api_endpoint}", context="XTwitterRetriever")
         
         self.config = XTwitterConfig().get_config()  # Get the Twitter configuration
-        self.qc_manager.debug(f"XTwitterRetriever config: {self.config}", context="XTwitterRetriever")
+        self.qc_manager.log_debug(f"XTwitterRetriever config: {self.config}", context="XTwitterRetriever")
         full_config = {**self.config, 'api_endpoint': api_endpoint}
         
-        self.qc_manager.debug(f"Creating XTwitterConnection with config: {full_config}", context="XTwitterRetriever")
+        self.qc_manager.log_debug(f"Creating XTwitterConnection with config: {full_config}", context="XTwitterRetriever")
         self.twitter_connection = XTwitterConnection(full_config)
-        self.qc_manager.debug("XTwitterConnection created successfully", context="XTwitterRetriever")
+        self.qc_manager.log_debug("XTwitterConnection created successfully", context="XTwitterRetriever")
         
         self.state_manager = state_manager
-        self.qc_manager.debug("XTwitterRetriever initialized successfully", context="XTwitterRetriever")
+        self.qc_manager.log_debug("XTwitterRetriever initialized successfully", context="XTwitterRetriever")
         self.data_storage = DataStorage()
         self.retry_policy = RetryPolicy(
             max_retries=self.config['TWITTER_MAX_RETRIES'],
@@ -52,12 +52,12 @@ class XTwitterRetriever:
         :return: Tuple containing all retrieved tweets, API call count, and records fetched count.
         """
         request_id = request['id']
-        self.qc_manager.debug(f"Starting retrieve_tweets for request {request_id}", context="XTwitterRetriever")
+        self.qc_manager.log_debug(f"Starting retrieve_tweets for request {request_id}", context="XTwitterRetriever")
         try:
             return self._retrieve_tweets_with_retry(request)
         except Exception as e:
-            self.qc_manager.log_error(f"Error in retrieve_tweets for request {request_id}: {str(e)}", context="XTwitterRetriever")
-            self.qc_manager.debug(f"Traceback: {traceback.format_exc()}", context="XTwitterRetriever")
+            self.qc_manager.log_error(f"Error in retrieve_tweets for request {request_id}: {str(e)}", error_info=e, context="XTwitterRetriever")
+            self.qc_manager.log_debug(f"Traceback: {traceback.format_exc()}", context="XTwitterRetriever")
             raise
 
     def _retrieve_tweets_with_retry(self, request):
@@ -116,7 +116,7 @@ class XTwitterRetriever:
         :param all_tweets: List to store all retrieved tweets.
         :param records_fetched: Count of records fetched so far.
         """
-        self.qc_manager.debug(f"Handling response for request {request_id}", context="XTwitterRetriever")
+        self.qc_manager.log_debug(f"Handling response for request {request_id}", context="XTwitterRetriever")
         
         if 'data' in response and response['data'] is not None:
             tweets = response['data']
@@ -154,5 +154,5 @@ class XTwitterRetriever:
                 'tweets_count': len(tweets)
             })
         except Exception as e:
-            self.qc_manager.log_error(f"Error occurred while saving tweets or updating state: {str(e)}", context="XTwitterRetriever")
+            self.qc_manager.log_error(f"Error occurred while saving tweets or updating state: {str(e)}", error_info=e, context="XTwitterRetriever")
             raise

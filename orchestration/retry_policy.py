@@ -33,7 +33,7 @@ class RetryPolicy:
         """
         Wait for the success interval.
         """
-        self.qc_manager.debug(f"Waiting for {self.success_interval} seconds after successful retrieval", context="RetryPolicy")
+        self.qc_manager.log_debug(f"Waiting for {self.success_interval} seconds after successful retrieval", context="RetryPolicy")
         with tqdm(total=self.success_interval, desc="Waiting", unit="s") as pbar:
             for _ in range(self.success_interval):
                 time.sleep(1)

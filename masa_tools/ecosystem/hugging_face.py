@@ -5,7 +5,7 @@ from typing import Dict, List
 from huggingface_hub import HfApi, create_collection, list_collections, add_collection_item, delete_collection, metadata_update
 from tqdm import tqdm
 
-from masa_tools.qc.logging import Logger
+from masa_tools.qc.logging_config import Logger
 from masa_tools.qc.error_handler import ErrorHandler
 
 class HuggingFaceManager:

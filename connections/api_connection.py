@@ -19,23 +19,22 @@ class APIConnection(ABC):
         """
         Initialize the APIConnection.
 
-        Args:
-            base_url (str): The base URL for the API.
+        :param base_url: The base URL for the API.
+        :type base_url: str
         """
         self.qc_manager = QCManager()
         self.qc_manager.debug(f"Initializing APIConnection with base_url: {base_url}", context="APIConnection")
         if not base_url:
             raise ValueError("base_url cannot be None or empty")
         self.base_url = base_url.rstrip('/')
-        self.qc_manager = QCManager()
 
     @abstractmethod
     def get_headers(self):
         """
         Return headers for the API request.
 
-        Returns:
-            dict: A dictionary of headers to be used in the API request.
+        :return: A dictionary of headers to be used in the API request.
+        :rtype: dict
         """
         pass
 
@@ -44,8 +43,8 @@ class APIConnection(ABC):
         """
         Return timeout for the API request.
 
-        Returns:
-            int: The timeout value in seconds for the API request.
+        :return: The timeout value in seconds for the API request.
+        :rtype: int
         """
         pass
 
@@ -54,14 +53,11 @@ class APIConnection(ABC):
         """
         Handle the API response.
 
-        Args:
-            response (requests.Response): The response object from the API request.
-
-        Returns:
-            dict: The processed response data.
-
-        Raises:
-            Exception: If there's an error in processing the response.
+        :param response: The response object from the API request.
+        :type response: requests.Response
+        :return: The processed response data.
+        :rtype: dict
+        :raises Exception: If there's an error in processing the response.
         """
         pass
 
@@ -69,17 +65,17 @@ class APIConnection(ABC):
         """
         Make an API request.
 
-        Args:
-            method (str): The HTTP method for the request (e.g., 'GET', 'POST').
-            endpoint (str): The API endpoint to request.
-            data (dict, optional): The data to send in the request body.
-            params (dict, optional): The query parameters for the request.
-
-        Returns:
-            dict: The processed response data.
-
-        Raises:
-            requests.RequestException: If there's an error in making the request.
+        :param method: The HTTP method for the request (e.g., 'GET', 'POST').
+        :type method: str
+        :param endpoint: The API endpoint to request.
+        :type endpoint: str
+        :param data: The data to send in the request body.
+        :type data: dict, optional
+        :param params: The query parameters for the request.
+        :type params: dict, optional
+        :return: The processed response data.
+        :rtype: dict
+        :raises requests.RequestException: If there's an error in making the request.
         """
         try:
             url = f"{self.base_url}/{endpoint.lstrip('/')}"
@@ -96,5 +92,5 @@ class APIConnection(ABC):
             )
             return self.handle_response(response)
         except requests.RequestException as e:
-            self.qc_manager.log_error(f"API request failed: {str(e)}", context=self.__class__.__name__)
+            self.qc_manager.log_error(f"API request failed: {str(e)}", error_info=e, context=self.__class__.__name__)
             raise

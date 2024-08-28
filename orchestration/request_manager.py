@@ -23,10 +23,10 @@ class RequestManager:
 
         :param request_list_file: (Optional) The file path for the new requests to add.
         """
-        self.qc_manager.debug(f"Starting process_requests with file: {request_list_file}", context="RequestManager")
+        self.qc_manager.log_debug(f"Starting process_requests with file: {request_list_file}", context="RequestManager")
         
         if request_list_file:
-            self.qc_manager.debug(f"Loading requests from file: {request_list_file}", context="RequestManager")
+            self.qc_manager.log_debug(f"Loading requests from file: {request_list_file}", context="RequestManager")
             self.add_requests_from_file(request_list_file)
 
         self.queue.resume_incomplete_requests()
@@ -36,10 +36,10 @@ class RequestManager:
 
         while processed_count < total_queue_length:
             current_queue_length = len(self.queue.memory_queue)
-            self.qc_manager.debug(f"Current queue length: {current_queue_length}", context="RequestManager")
+            self.qc_manager.log_debug(f"Current queue length: {current_queue_length}", context="RequestManager")
             
             if current_queue_length == 0:
-                self.qc_manager.debug("Queue is empty. Exiting process_requests.", context="RequestManager")
+                self.qc_manager.log_debug("Queue is empty. Exiting process_requests.", context="RequestManager")
                 break
 
             request = self.queue.memory_queue[0]  # Get the first request in the queue
@@ -61,11 +61,11 @@ class RequestManager:
                 self._process_single_request(request)
                 processed_count += 1
             except Exception as e:
-                self.qc_manager.log_error(f"Error processing request {request['id']}: {str(e)}", context="RequestManager")
+                self.qc_manager.log_error(f"Error processing request {request['id']}: {str(e)}", error_info=e, context="RequestManager")
                 # Move the request to the end of the queue for retry
                 self.queue.memory_queue.rotate(-1)
 
-        self.qc_manager.debug("All requests processed", context="RequestManager")
+        self.qc_manager.log_debug("All requests processed", context="RequestManager")
 
     def _process_single_request(self, request):
         """
@@ -74,18 +74,18 @@ class RequestManager:
         :param request: The request dictionary to process.
         """
         request_id = request['id']
-        self.qc_manager.debug(f"Processing request {request_id}", context="RequestManager")
+        self.qc_manager.log_debug(f"Processing request {request_id}", context="RequestManager")
         
         
         self.state_manager.update_request_state(request_id, 'in_progress', original_request=request)
-        self.qc_manager.debug(f"Updated state for request {request_id} to in_progress", context="RequestManager")
+        self.qc_manager.log_debug(f"Updated state for request {request_id} to in_progress", context="RequestManager")
         
         self.request_router.route_request(request)
-        self.qc_manager.debug(f"Routing request {request_id}", context="RequestManager")
+        self.qc_manager.log_debug(f"Routing request {request_id}", context="RequestManager")
         
         self.queue.complete(request_id)
         self.state_manager.update_request_state(request_id, 'completed', original_request=request)
-        self.qc_manager.debug(f"Request {request_id} completed successfully", context="RequestManager")
+        self.qc_manager.log_debug(f"Request {request_id} completed successfully", context="RequestManager")
 
     def prompt_user_for_queue_action(self, request_list_file):
         """
@@ -135,7 +135,7 @@ class RequestManager:
             self.qc_manager.log_error(f"Request list file not found: {request_list_file}", context="RequestManager")
             return []
         except json.JSONDecodeError as e:
-            self.qc_manager.log_error(f"Error decoding request list JSON: {str(e)}", context="RequestManager")
+            self.qc_manager.log_error(f"Error decoding request list JSON: {str(e)}", error_info=e, context="RequestManager")
             return []
 
     def add_requests_from_file(self, request_list_file, check_existing=False):
@@ -166,8 +166,8 @@ class RequestManager:
                 if original_request:
                     in_progress.append(original_request)
                 else:
-                    self.qc_manager.debug(f"Invalid in-progress request state: {request_state}", context="RequestManager")
-        self.qc_manager.debug(f"Found {len(in_progress)} in-progress or queued requests", context="RequestManager")
+                    self.qc_manager.log_debug(f"Invalid in-progress request state: {request_state}", context="RequestManager")
+        self.qc_manager.log_debug(f"Found {len(in_progress)} in-progress or queued requests", context="RequestManager")
         return in_progress
 
     def _generate_request_id(self, request):
@@ -189,11 +189,11 @@ class RequestManager:
         :param request: The request dictionary to add.
         """
         request_id = request['id']
-        self.qc_manager.debug(f"Adding request {request_id} to system", context="RequestManager")
+        self.qc_manager.log_debug(f"Adding request {request_id} to system", context="RequestManager")
         
         self.queue.add(request)
         self.state_manager.update_request_state(request_id, 'queued', original_request=request)
-        self.qc_manager.debug(f"Request {request_id} added to queue and state updated", context="RequestManager")
+        self.qc_manager.log_debug(f"Request {request_id} added to queue and state updated", context="RequestManager")
 
     def get_request_status(self, request_id):
         """

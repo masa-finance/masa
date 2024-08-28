@@ -36,10 +36,10 @@ class StateManager:
         """
         Save the current state data to the state file.
         """
-        self.qc_manager.debug("Saving state to file", context="StateManager")
+        self.qc_manager.log_debug("Saving state to file", context="StateManager")
         with open(self._state_file, 'w') as file:
             json.dump(self._state, file, indent=4)
-        self.qc_manager.debug("State saved successfully", context="StateManager")
+        self.qc_manager.log_debug("State saved successfully", context="StateManager")
 
     def update_request_state(self, request_id, status, progress=None, original_request=None):
         """
@@ -81,7 +81,7 @@ class StateManager:
 
             self._state['last_updated'] = datetime.now().isoformat()
             self._save_state()
-            self.qc_manager.debug(f"State updated and saved for request {request_id}", context="StateManager")
+            self.qc_manager.log_debug(f"State updated and saved for request {request_id}", context="StateManager")
 
     def get_request_state(self, request_id):
         """
