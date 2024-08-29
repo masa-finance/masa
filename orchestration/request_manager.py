@@ -16,39 +16,54 @@ class RequestManager:
         self.state_file = self.config.get('request_manager.STATE_FILE')
         self.state_manager = StateManager(self.state_file)
         self.request_router = RequestRouter(self.qc_manager, self.state_manager)
-        self.queue_file = self.config.get('request_manager.QUEUE_FILE')
-        self.queue = Queue(self.queue_file, self.state_manager)
+        self.queue = Queue(self.state_manager)
 
     def process_requests(self, request_list_file=None):
         if request_list_file:
             self.add_requests_from_file(request_list_file)
-
-        self.queue.resume_incomplete_requests()
-        
+    
         while True:
             request = self.queue.get()
             if request is None:
                 self.qc_manager.log_debug("Queue is empty. Exiting process_requests.", context="RequestManager")
                 break
 
-            self.qc_manager.log_debug(f"Retrieved request from queue: {request}", context="RequestManager")
+            # Get the most up-to-date state from StateManager
+            request_id = request['id']
+            current_state = self.state_manager.get_request_state(request_id)
+            current_status = current_state.get('status', 'unknown')
 
-            if 'id' not in request:
-                self.qc_manager.log_warning(f"Request does not have an 'id' key: {request}", context="RequestManager")
-                request_id = self._generate_request_id(request)
-                request['id'] = request_id
-                self.qc_manager.log_info(f"Generated new id for request: {request_id}", context="RequestManager")
+            self.qc_manager.log_debug(f"Retrieved request from queue: {request_id}, Current status: {current_status}", context="RequestManager")
             
-            if 'status' not in request:
-                request['status'] = 'queued'
-                self.state_manager.update_request_state(request['id'], 'queued', original_request=request)
-            
-            self.qc_manager.log_info(f"Processing request: {request['id']} with status {request['status']}", context="RequestManager")
-            
+            if current_status in ['completed', 'cancelled']:
+                self.qc_manager.log_info(f"Skipping request {request_id} with status {current_status}", context="RequestManager")
+                continue
+
             try:
                 self._process_single_request(request)
             except Exception as e:
-                self.qc_manager.log_error(f"Error processing request {request['id']}: {str(e)}", error_info=e, context="RequestManager")
+                self.qc_manager.log_error(f"Error processing request {request_id}: {str(e)}", error_info=e, context="RequestManager")
+
+    def _process_single_request(self, request):
+        request_id = request['id']
+        current_state = self.state_manager.get_request_state(request_id)
+        current_status = current_state.get('status', 'unknown')
+
+        self.qc_manager.log_debug(f"Processing request {request_id}, Current status: {current_status}", context="RequestManager")
+
+        if current_status != 'in_progress':
+            self.state_manager.update_request_state(request_id, 'in_progress', original_request=request)
+            self.qc_manager.log_debug(f"Updated state for request {request_id} to in_progress", context="RequestManager")
+
+        try:
+            self.request_router.route_request(request)
+            self.state_manager.update_request_state(request_id, 'completed')
+            self.qc_manager.log_debug(f"Updated state for request {request_id} to completed", context="RequestManager")
+        except Exception as e:
+            self.qc_manager.log_error(f"Error in _process_single_request for request {request_id}: {str(e)}", error_info=e, context="RequestManager")
+            self.state_manager.update_request_state(request_id, 'failed')
+            self.qc_manager.log_error(f"Updated state for request {request_id} to failed", context="RequestManager")
+            raise
 
     def add_requests_from_file(self, request_list_file):
         self.qc_manager.log_debug(f"Loading requests from file: {request_list_file}", context="RequestManager")
@@ -57,15 +72,15 @@ class RequestManager:
             if isinstance(requests, list):
                 for request in requests:
                     generated_id = self._generate_request_id(request)
-                    if generated_id in self.queue.request_data:
-                        self.qc_manager.log_debug(f"Duplicate request found: {generated_id}.  Skipping.", context="RequestManager")
-                        continue
                     request['id'] = generated_id
-                    if 'status' not in request:
+                    existing_state = self.state_manager.get_request_state(generated_id)
+                    if not existing_state or existing_state.get('status') in ['failed', 'cancelled']:
                         request['status'] = 'queued'
-                    self.queue.add(request)
-                    self.state_manager.update_request_state(request['id'], request['status'], original_request=request)
-                self.qc_manager.log_info(f"Loaded {len(requests)} requests from file", context="RequestManager")
+                        self.queue.add(request)
+                        self.state_manager.update_request_state(request['id'], 'queued', original_request=request)
+                    else:
+                        self.qc_manager.log_debug(f"Skipping existing request: {generated_id}", context="RequestManager")
+                self.qc_manager.log_info(f"Skipped {len(requests)} existing requests from file", context="RequestManager")
             else:
                 self.qc_manager.log_error("Invalid JSON structure in request_list.json. Expected a list of requests.", context="RequestManager")
 
@@ -156,7 +171,15 @@ class RequestManager:
         return all_requests_status
 
     def resume_incomplete_requests(self):
-        self.queue.resume_incomplete_requests()
+        all_requests = self.state_manager.get_all_requests_state()
+        for request_id, request_state in all_requests.items():
+            if request_state.get('status') in ['in_progress', 'queued', 'failed']:
+                original_request = request_state.get('original_request')
+                if original_request:
+                    self.add_request(original_request)
+                else:
+                    self.qc_manager.log_debug(f"Invalid in-progress request state: {request_state}", context="RequestManager")
+        self.qc_manager.log_debug(f"Resumed incomplete requests. Current queue size: {len(self.queue)}", context="RequestManager")
 
     def cancel_request_queue(self, request_list_file):
         request_list = self.load_request_list(request_list_file)
@@ -177,30 +200,3 @@ class RequestManager:
             self.qc_manager.log_info(f"Cancelled request {request_id}", context="RequestManager")
         else:
             self.qc_manager.log_warning(f"Request {request_id} not found in the state manager", context="RequestManager")
-
-    def _process_single_request(self, request):
-        """
-        Process a single request.
-
-        :param request: The request dictionary to process.
-        """
-        request_id = request['id']
-        self.qc_manager.log_debug(f"Processing request {request_id}", context="RequestManager")
-        try:
-            self.state_manager.update_request_state(request_id, 'in_progress', original_request=request)
-            self.qc_manager.log_debug(f"Updated state for request {request_id} to in_progress", context="RequestManager")
-            
-            self.qc_manager.log_debug(f"Routing request {request_id}", context="RequestManager")
-            self.request_router.route_request(request)
-            
-            self.queue.complete(request_id)
-            self.state_manager.update_request_state(request_id, 'completed', original_request=request)
-            self.qc_manager.log_debug(f"Request {request_id} completed successfully", context="RequestManager")
-        except Exception as e:
-            self.qc_manager.log_error(f"Error processing request {request_id}: {str(e)}", error_info=e, context="RequestManager")
-            self.qc_manager.log_error(f"Traceback: {traceback.format_exc()}", context="RequestManager")
-            
-            self.queue.fail(request_id, str(e))
-            self.state_manager.update_request_state(request_id, 'failed', progress={'error': str(e)}, original_request=request)
-            
-            # Note: Retry logic has been removed as it's not handled here in the current structure

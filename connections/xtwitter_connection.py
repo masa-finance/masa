@@ -2,6 +2,7 @@ from .api_connection import APIConnection
 from configs.config import global_settings
 from masa_tools.qc.qc_manager import QCManager
 from masa_tools.utils.helper_functions import format_url
+from masa_tools.qc.exceptions import AuthenticationException, APIException, RateLimitException
 
 class XTwitterConnection(APIConnection):
     """
@@ -14,13 +15,9 @@ class XTwitterConnection(APIConnection):
     def __init__(self):
         """Initialize the XTwitterConnection."""
         self.qc_manager = QCManager()
-        self.qc_manager.log_debug("Initializing XTwitterConnection", context="XTwitterConnection")
         
         super().__init__()
         self.base_url = global_settings.get('twitter.BASE_URL') or global_settings.get('twitter.BASE_URL_LOCAL')
-        if not self.base_url:
-            raise ValueError("Twitter base URL is not configured")
-        self.qc_manager.log_debug(f"Initialized XTwitterConnection with base URL: {self.base_url}", context="XTwitterConnection")
 
     def get_headers(self):
         """
@@ -31,23 +28,22 @@ class XTwitterConnection(APIConnection):
         """
         return global_settings.get('twitter.HEADERS', {})  # Get headers from global settings
 
-    @QCManager().handle_error
-    def handle_response(self, response):
+    def get_tweets(self, endpoint, query, count):
         """
-        Handle the XTwitter API response.
+        Get tweets from the XTwitter API.
 
         Args:
-            response (requests.Response): The response object from the API request.
+            endpoint (str): The API endpoint to request.
+            query (str): The search query for tweets.
+            count (int): The number of tweets to retrieve.
 
         Returns:
             dict: The processed response data.
         """
-        if response.status_code == 200:
-            return response.json()
-        else:
-            response.raise_for_status()
+        data = {'query': query, 'count': count}
+        response = self.make_request(endpoint, method='POST', data=data)
+        return self.handle_response(response)
 
-    @QCManager().handle_error_with_retry('twitter.RETRY_CONFIG')
     def make_request(self, endpoint, method='POST', data=None):
         """
         Make a request to the XTwitter API.
@@ -64,18 +60,21 @@ class XTwitterConnection(APIConnection):
         self.qc_manager.log_debug(f"Making request to URL: {url}", context="XTwitterConnection")
         return self._make_request(method, url, data=data)
 
-    def get_tweets(self, endpoint, query, count):
+    def handle_response(self, response):
         """
-        Get tweets from the XTwitter API.
+        Handle the XTwitter API response.
 
         Args:
-            endpoint (str): The API endpoint to request.
-            query (str): The search query for tweets.
-            count (int): The number of tweets to retrieve.
+            response (requests.Response): The response object from the API request.
 
         Returns:
-            requests.Response: The raw response object from the API request.
+            dict: The processed response data.
         """
-        
-        data = {'query': query, 'count': count}
-        return self.make_request(endpoint, method='POST', data=data)
+        if response.status_code == 200:
+            return response.json()
+        elif response.status_code == 429:
+            raise RateLimitException("Rate limit exceeded", status_code=response.status_code)
+        elif response.status_code in (401, 403):
+            raise AuthenticationException("Authentication failed", status_code=response.status_code)
+        else:
+            raise APIException(f"HTTP error {response.status_code}: {response.text}", status_code=response.status_code)

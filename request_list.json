@@ -2,27 +2,91 @@
   {
     "retriever": "XTwitterRetriever",
     "endpoint": "data/twitter/tweets/recent",
-    "priority": 2,
-    "params": {
-      "query": "#AI lang:es",
-      "count": 150 
-    }
-  },
-  {
-    "retriever": "XTwitterRetriever",
-    "endpoint": "data/twitter/tweets/recent",
     "priority": 1,
     "params": {
-      "query": "from:BarackObama",
-      "count": 100 
+      "query": "#Ukraine lang:en",
+      "count": 100
     }
   },
   {
     "retriever": "XTwitterRetriever",
     "endpoint": "data/twitter/tweets/recent",
+    "priority": 2,
     "params": {
-      "query": "#JPMorgan",
-      "count": 150 
+      "query": "from:elonmusk",
+      "count": 50
+    }
+  },
+  {
+    "retriever": "XTwitterRetriever",
+    "endpoint": "data/twitter/tweets/recent",
+    "priority": 3,
+    "params": {
+      "query": "COVID-19 vaccine",
+      "count": 200
+    }
+  },
+  {
+    "retriever": "XTwitterRetriever",
+    "endpoint": "data/twitter/tweets/recent",
+    "priority": 4,
+    "params": {
+      "query": "climate change min_faves:1000",
+      "count": 75
+    }
+  },
+  {
+    "retriever": "XTwitterRetriever",
+    "endpoint": "data/twitter/tweets/recent",
+    "priority": 5,
+    "params": {
+      "query": "#AI OR #MachineLearning",
+      "count": 150
+    }
+  },
+  {
+    "retriever": "XTwitterRetriever",
+    "endpoint": "data/twitter/tweets/recent",
+    "priority": 6,
+    "params": {
+      "query": "cryptocurrency -filter:retweets",
+      "count": 100
+    }
+  },
+  {
+    "retriever": "XTwitterRetriever",
+    "endpoint": "data/twitter/tweets/recent",
+    "priority": 7,
+    "params": {
+      "query": "US election 2024",
+      "count": 200
+    }
+  },
+  {
+    "retriever": "XTwitterRetriever",
+    "endpoint": "data/twitter/tweets/recent",
+    "priority": 8,
+    "params": {
+      "query": "NASA geocode:29.5502,-95.0970,50mi",
+      "count": 50
+    }
+  },
+  {
+    "retriever": "XTwitterRetriever",
+    "endpoint": "data/twitter/tweets/recent",
+    "priority": 9,
+    "params": {
+      "query": "renewable energy min_retweets:100",
+      "count": 75
+    }
+  },
+  {
+    "retriever": "XTwitterRetriever",
+    "endpoint": "data/twitter/tweets/recent",
+    "priority": 10,
+    "params": {
+      "query": "World Cup 2022 lang:es",
+      "count": 150
     }
   }
 ]

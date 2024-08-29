@@ -1,9 +1,11 @@
 {
     "requests": {
         "3106542515069ca871e94c80bca6fa7b315fd1efb2b6ddb838966bb0b587440a": {
-            "status": "failed",
+            "status": "completed",
             "progress": {
-                "error": "'RetryPolicy' object has no attribute 'qc_manager'"
+                "error": "'RetryPolicy' object has no attribute 'qc_manager'",
+                "last_processed_time": "2024-08-26",
+                "tweets_count": 150
             },
             "original_request": {
                 "retriever": "XTwitterRetriever",
@@ -14,16 +16,16 @@
                     "count": 150
                 },
                 "id": "3106542515069ca871e94c80bca6fa7b315fd1efb2b6ddb838966bb0b587440a",
-                "status": "failed",
+                "status": "completed",
                 "error": "'RetryPolicy' object has no attribute 'qc_manager'"
             },
             "created_at": "2024-08-29T10:22:18.675609",
-            "last_updated": "2024-08-29T11:40:14.375535",
+            "last_updated": "2024-08-29T13:54:18.199345",
             "priority": null,
-            "failed_at": "2024-08-29T11:40:14.375541"
+            "completed_at": "2024-08-29T13:54:18.199354"
         },
         "3fe1d43d6f560bc26c8be9d5d824153e54555a449270e9a14997757ee7972888": {
-            "status": "in_progress",
+            "status": "completed",
             "progress": {
                 "error": "'RetryPolicy' object has no attribute 'qc_manager'",
                 "last_processed_time": "2024-07-18",
@@ -38,17 +40,20 @@
                     "count": 100
                 },
                 "id": "3fe1d43d6f560bc26c8be9d5d824153e54555a449270e9a14997757ee7972888",
-                "status": "failed",
+                "status": "completed",
                 "error": "'RetryPolicy' object has no attribute 'qc_manager'"
             },
             "created_at": "2024-08-29T10:22:18.675866",
-            "last_updated": "2024-08-29T13:05:48.238928",
-            "priority": null
+            "last_updated": "2024-08-29T13:54:13.168622",
+            "priority": null,
+            "completed_at": "2024-08-29T13:54:13.168636"
         },
         "eb21d17bc9eea1e0901adbf186f8375f9dc43a975d0d8297e0df0cd9cccd1ca6": {
-            "status": "failed",
+            "status": "completed",
             "progress": {
-                "error": "'RetryPolicy' object has no attribute 'qc_manager'"
+                "error": "'RetryPolicy' object has no attribute 'qc_manager'",
+                "last_processed_time": "2024-08-26",
+                "tweets_count": 68
             },
             "original_request": {
                 "retriever": "XTwitterRetriever",
@@ -58,14 +63,334 @@
                     "count": 150
                 },
                 "id": "eb21d17bc9eea1e0901adbf186f8375f9dc43a975d0d8297e0df0cd9cccd1ca6",
-                "status": "failed",
+                "status": "completed",
                 "error": "'RetryPolicy' object has no attribute 'qc_manager'"
             },
             "created_at": "2024-08-29T10:22:18.676087",
-            "last_updated": "2024-08-29T11:40:15.049862",
+            "last_updated": "2024-08-29T13:54:23.230351",
             "priority": null,
-            "failed_at": "2024-08-29T11:40:15.049866"
+            "completed_at": "2024-08-29T13:54:23.230363"
+        },
+        "0b4c0af17a27e3cf97a061881f198a85b5abf26e238631f5ed5427e36ddc2f3d": {
+            "status": "completed",
+            "progress": {
+                "last_processed_time": "2024-08-26",
+                "tweets_count": 150
+            },
+            "original_request": {
+                "retriever": "XTwitterRetriever",
+                "endpoint": "data/twitter/tweets/recent",
+                "priority": 2,
+                "params": {
+                    "query": "#AI lang:de",
+                    "count": 150
+                },
+                "id": "0b4c0af17a27e3cf97a061881f198a85b5abf26e238631f5ed5427e36ddc2f3d",
+                "status": "queued"
+            },
+            "created_at": "2024-08-29T16:37:34.325377",
+            "last_updated": "2024-08-29T18:12:45.615561",
+            "priority": null,
+            "completed_at": "2024-08-29T18:12:45.615564"
+        },
+        "a08bf34b2dbd5f11ed573d5d1a3ba7f8f526a1c8c2bb447dcfb650442c1e60cc": {
+            "status": "completed",
+            "progress": {
+                "last_processed_time": "2024-08-26",
+                "tweets_count": 100
+            },
+            "original_request": {
+                "retriever": "XTwitterRetriever",
+                "endpoint": "data/twitter/tweets/recent",
+                "priority": 1,
+                "params": {
+                    "query": "from:MikePence",
+                    "count": 100
+                },
+                "id": "a08bf34b2dbd5f11ed573d5d1a3ba7f8f526a1c8c2bb447dcfb650442c1e60cc",
+                "status": "queued"
+            },
+            "created_at": "2024-08-29T16:37:34.325689",
+            "last_updated": "2024-08-29T18:12:40.591051",
+            "priority": null,
+            "completed_at": "2024-08-29T18:12:40.591064"
+        },
+        "f859631ca661571b3b16e337917ca3d548d5febb100394fbf8364a308fe63e2a": {
+            "status": "completed",
+            "progress": {
+                "last_processed_time": "2024-08-26",
+                "tweets_count": 28
+            },
+            "original_request": {
+                "retriever": "XTwitterRetriever",
+                "endpoint": "data/twitter/tweets/recent",
+                "params": {
+                    "query": "#WallStreetBets",
+                    "count": 150
+                },
+                "id": "f859631ca661571b3b16e337917ca3d548d5febb100394fbf8364a308fe63e2a",
+                "status": "queued"
+            },
+            "created_at": "2024-08-29T16:37:34.326294",
+            "last_updated": "2024-08-29T18:43:26.195904",
+            "priority": null,
+            "completed_at": "2024-08-29T18:43:26.195929"
+        },
+        "5235a2a9ad8d2abb2c6fa681c3fc0071a8879e9b22c7d2121eff14ed42638d3b": {
+            "status": "completed",
+            "progress": {
+                "last_processed_time": "2024-08-26",
+                "tweets_count": 69
+            },
+            "original_request": {
+                "retriever": "XTwitterRetriever",
+                "endpoint": "data/twitter/tweets/recent",
+                "priority": 2,
+                "params": {
+                    "query": "#AI lang:fr",
+                    "count": 200
+                },
+                "id": "5235a2a9ad8d2abb2c6fa681c3fc0071a8879e9b22c7d2121eff14ed42638d3b",
+                "status": "queued"
+            },
+            "created_at": "2024-08-29T18:50:21.859455",
+            "last_updated": "2024-08-29T18:51:42.941804",
+            "priority": null,
+            "completed_at": "2024-08-29T18:51:42.941819"
+        },
+        "1fc31f01f5624ad2c202dfd01c929d36e8d56a5067fefc321029ea16dac3b163": {
+            "status": "completed",
+            "progress": {
+                "last_processed_time": "2024-08-26"
+            },
+            "original_request": {
+                "retriever": "XTwitterRetriever",
+                "endpoint": "data/twitter/tweets/recent",
+                "priority": 1,
+                "params": {
+                    "query": "from:TomCruise",
+                    "count": 150
+                },
+                "id": "1fc31f01f5624ad2c202dfd01c929d36e8d56a5067fefc321029ea16dac3b163",
+                "status": "queued"
+            },
+            "created_at": "2024-08-29T18:50:21.859820",
+            "last_updated": "2024-08-29T18:50:57.854977",
+            "priority": null,
+            "completed_at": "2024-08-29T18:50:57.854992"
+        },
+        "acb67e7fe1a88c3d3932ff05dd4deffe3af43888bae6b0097c633ab5ff6a98df": {
+            "status": "completed",
+            "progress": {
+                "last_processed_time": "2024-08-26"
+            },
+            "original_request": {
+                "retriever": "XTwitterRetriever",
+                "endpoint": "data/twitter/tweets/recent",
+                "priority": 3,
+                "params": {
+                    "query": "Masa geocode:37.781157,-122.398720,1mi",
+                    "count": 100
+                },
+                "id": "acb67e7fe1a88c3d3932ff05dd4deffe3af43888bae6b0097c633ab5ff6a98df",
+                "status": "queued"
+            },
+            "created_at": "2024-08-29T18:50:21.860309",
+            "last_updated": "2024-08-29T18:59:45.605676",
+            "priority": null,
+            "completed_at": "2024-08-29T18:59:45.605688"
+        },
+        "026cc9fdc3a67a1266695083c6bc4f6db8b5d7159bb4f69a15d9070c9ab9f7ad": {
+            "status": "completed",
+            "progress": {
+                "last_processed_time": "2024-08-26",
+                "tweets_count": 100
+            },
+            "original_request": {
+                "retriever": "XTwitterRetriever",
+                "endpoint": "data/twitter/tweets/recent",
+                "priority": 1,
+                "params": {
+                    "query": "#Ukraine lang:en",
+                    "count": 100
+                },
+                "id": "026cc9fdc3a67a1266695083c6bc4f6db8b5d7159bb4f69a15d9070c9ab9f7ad",
+                "status": "queued"
+            },
+            "created_at": "2024-08-29T19:15:49.119841",
+            "last_updated": "2024-08-29T19:20:15.549137",
+            "priority": null,
+            "completed_at": "2024-08-29T19:20:15.549149"
+        },
+        "f453d621564614eab1ce16c51d7d351d07f2b8b4fb4f25fbb77a8db8ec8eb7c7": {
+            "status": "completed",
+            "progress": {
+                "last_processed_time": "2024-08-26",
+                "tweets_count": 45
+            },
+            "original_request": {
+                "retriever": "XTwitterRetriever",
+                "endpoint": "data/twitter/tweets/recent",
+                "priority": 2,
+                "params": {
+                    "query": "from:elonmusk",
+                    "count": 50
+                },
+                "id": "f453d621564614eab1ce16c51d7d351d07f2b8b4fb4f25fbb77a8db8ec8eb7c7",
+                "status": "queued"
+            },
+            "created_at": "2024-08-29T19:15:49.120201",
+            "last_updated": "2024-08-29T19:20:54.117049",
+            "priority": null,
+            "completed_at": "2024-08-29T19:20:54.117062"
+        },
+        "6ba094e597a076149fe37a3e17543e51149a7b54e0af61921114bc2e0e8fb3a4": {
+            "status": "in_progress",
+            "progress": {
+                "last_processed_time": "2024-08-28",
+                "tweets_count": 200
+            },
+            "original_request": {
+                "retriever": "XTwitterRetriever",
+                "endpoint": "data/twitter/tweets/recent",
+                "priority": 3,
+                "params": {
+                    "query": "COVID-19 vaccine",
+                    "count": 200
+                },
+                "id": "6ba094e597a076149fe37a3e17543e51149a7b54e0af61921114bc2e0e8fb3a4",
+                "status": "queued"
+            },
+            "created_at": "2024-08-29T19:15:49.120485",
+            "last_updated": "2024-08-29T19:21:11.473654",
+            "priority": null
+        },
+        "0d6fb5aac16c0f59103b7dea2e87e8048f5307f23f18a9a3b2fc53035831d34b": {
+            "status": "queued",
+            "progress": {},
+            "original_request": {
+                "retriever": "XTwitterRetriever",
+                "endpoint": "data/twitter/tweets/recent",
+                "priority": 4,
+                "params": {
+                    "query": "climate change min_faves:1000",
+                    "count": 75
+                },
+                "id": "0d6fb5aac16c0f59103b7dea2e87e8048f5307f23f18a9a3b2fc53035831d34b",
+                "status": "queued"
+            },
+            "created_at": "2024-08-29T19:15:49.120769",
+            "last_updated": "2024-08-29T19:15:49.120771",
+            "priority": null
+        },
+        "484b710a19efe0b45c6e7c935aae355436086d93eddb533fae9987e5a03e346e": {
+            "status": "queued",
+            "progress": {},
+            "original_request": {
+                "retriever": "XTwitterRetriever",
+                "endpoint": "data/twitter/tweets/recent",
+                "priority": 5,
+                "params": {
+                    "query": "#AI OR #MachineLearning",
+                    "count": 150
+                },
+                "id": "484b710a19efe0b45c6e7c935aae355436086d93eddb533fae9987e5a03e346e",
+                "status": "queued"
+            },
+            "created_at": "2024-08-29T19:15:49.121057",
+            "last_updated": "2024-08-29T19:15:49.121058",
+            "priority": null
+        },
+        "93f5aed128228a2400d4eece8ae3683a87cd5ac0dec7787320422bb2f062977f": {
+            "status": "queued",
+            "progress": {},
+            "original_request": {
+                "retriever": "XTwitterRetriever",
+                "endpoint": "data/twitter/tweets/recent",
+                "priority": 6,
+                "params": {
+                    "query": "cryptocurrency -filter:retweets",
+                    "count": 100
+                },
+                "id": "93f5aed128228a2400d4eece8ae3683a87cd5ac0dec7787320422bb2f062977f",
+                "status": "queued"
+            },
+            "created_at": "2024-08-29T19:15:49.121346",
+            "last_updated": "2024-08-29T19:15:49.121347",
+            "priority": null
+        },
+        "10fd610fa67e230da195bfab32aed19f3d5bb5ae6670651f12c21d8dbb5c42cc": {
+            "status": "queued",
+            "progress": {},
+            "original_request": {
+                "retriever": "XTwitterRetriever",
+                "endpoint": "data/twitter/tweets/recent",
+                "priority": 7,
+                "params": {
+                    "query": "US election 2024",
+                    "count": 200
+                },
+                "id": "10fd610fa67e230da195bfab32aed19f3d5bb5ae6670651f12c21d8dbb5c42cc",
+                "status": "queued"
+            },
+            "created_at": "2024-08-29T19:15:49.121698",
+            "last_updated": "2024-08-29T19:15:49.121699",
+            "priority": null
+        },
+        "bd1d5514a08ab247662008e4b00bd39140cc9a5ee4f836de95cf51a7774d48d5": {
+            "status": "queued",
+            "progress": {},
+            "original_request": {
+                "retriever": "XTwitterRetriever",
+                "endpoint": "data/twitter/tweets/recent",
+                "priority": 8,
+                "params": {
+                    "query": "NASA geocode:29.5502,-95.0970,50mi",
+                    "count": 50
+                },
+                "id": "bd1d5514a08ab247662008e4b00bd39140cc9a5ee4f836de95cf51a7774d48d5",
+                "status": "queued"
+            },
+            "created_at": "2024-08-29T19:15:49.122050",
+            "last_updated": "2024-08-29T19:15:49.122052",
+            "priority": null
+        },
+        "86cbb3c2c3ee9e278b4ea7e6d7d175819b36f2069d9cef35c1cf4a4db889a328": {
+            "status": "queued",
+            "progress": {},
+            "original_request": {
+                "retriever": "XTwitterRetriever",
+                "endpoint": "data/twitter/tweets/recent",
+                "priority": 9,
+                "params": {
+                    "query": "renewable energy min_retweets:100",
+                    "count": 75
+                },
+                "id": "86cbb3c2c3ee9e278b4ea7e6d7d175819b36f2069d9cef35c1cf4a4db889a328",
+                "status": "queued"
+            },
+            "created_at": "2024-08-29T19:15:49.122396",
+            "last_updated": "2024-08-29T19:15:49.122397",
+            "priority": null
+        },
+        "b2e4fdd04dca28fc34d3d1f3ea5014c1433fb28207ae4aae3d7793017f7820f8": {
+            "status": "queued",
+            "progress": {},
+            "original_request": {
+                "retriever": "XTwitterRetriever",
+                "endpoint": "data/twitter/tweets/recent",
+                "priority": 10,
+                "params": {
+                    "query": "World Cup 2022 lang:es",
+                    "count": 150
+                },
+                "id": "b2e4fdd04dca28fc34d3d1f3ea5014c1433fb28207ae4aae3d7793017f7820f8",
+                "status": "queued"
+            },
+            "created_at": "2024-08-29T19:15:49.122766",
+            "last_updated": "2024-08-29T19:15:49.122767",
+            "priority": null
         }
     },
-    "last_updated": "2024-08-29T13:05:48.238932"
+    "last_updated": "2024-08-29T19:21:11.473656"
 }

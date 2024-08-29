@@ -30,6 +30,3 @@ class DataProcessingException(MASAException):
 class ConfigurationException(MASAException):
     """Exception for configuration errors"""
 
-class TooManyRequestsException(MASAException):
-    """Exception raised when the API returns a 429 Too Many Requests error."""
-    pass

@@ -29,8 +29,7 @@ class RequestRouter:
         """
         request_id = request['id']
         query = request['params'].get('query', 'N/A')
-        self.qc_manager.log_debug(f"Routing request: Query '{query}' (ID: {request_id})", context="RequestRouter")
-        self.qc_manager.log_debug(f"Request details: {request}", context="RequestRouter")
+        self.qc_manager.log_debug(f"Request details: Query '{query}' {request}", context="RequestRouter")
 
         try:
             retriever_name = request['retriever']

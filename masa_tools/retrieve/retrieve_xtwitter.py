@@ -5,45 +5,24 @@ from connections.xtwitter_connection import XTwitterConnection
 from masa_tools.utils.data_storage import DataStorage
 from masa_tools.qc.qc_manager import QCManager
 from configs.config import global_settings
+from masa_tools.qc.exceptions import ConfigurationException, APIException, DataProcessingException
 
 class XTwitterRetriever:
     def __init__(self, state_manager, request):
-        """
-        Initialize the XTwitterRetriever.
-
-        :param state_manager: StateManager object for managing request states.
-        :param request: Dictionary containing the request parameters.
-        """
         self.qc_manager = QCManager()
         self.state_manager = state_manager
         self.request = request
         self.api_endpoint = request.get('endpoint')
-        
-        self.qc_manager.log_debug(f"Initializing XTwitterRetriever with request: {request}", context="XTwitterRetriever")
-        self.qc_manager.log_debug(f"API Endpoint from request: {self.api_endpoint}", context="XTwitterRetriever")
-        
-        # Remove the assignment to self.config
-        # self.config = global_settings
-        
-        self.qc_manager.log_debug(f"XTwitterRetriever global_settings: {global_settings}", context="XTwitterRetriever")
-        
         self.twitter_connection = XTwitterConnection()
-        self.qc_manager.log_debug("XTwitterConnection created successfully", context="XTwitterRetriever")
-
-        # Initialize the DataStorage instance
         self.data_storage = DataStorage()
-        self.qc_manager.log_debug("DataStorage instance created successfully", context="XTwitterRetriever")
 
     @QCManager().handle_error_with_retry('twitter')
     def retrieve_tweets(self, request):
-        """
-        Retrieve tweets based on the given request parameters.
-
-        :param request: Dictionary containing the request parameters. 
-        :return: Tuple containing all retrieved tweets, API call count, and records fetched count.
-        """
         request_id = request['id']
-        self.qc_manager.log_debug(f"Starting retrieve_tweets for request {request_id}", context="XTwitterRetriever")
+        request_params = request.get('params', {})
+        query = request_params.get('query')
+        self.qc_manager.log_debug(f"Starting retrieve_tweets for request {query} (ID: {request_id})", context="XTwitterRetriever")
+        self.qc_manager.log_info(f"Starting retrieve_tweets for request {query} (ID: {request_id})", context="XTwitterRetriever")
         return self._retrieve_tweets(request)
 
     def _retrieve_tweets(self, request):
@@ -54,9 +33,8 @@ class XTwitterRetriever:
         api_endpoint = request.get('endpoint')
 
         if not all([query, count, api_endpoint]):
-            raise ValueError("Missing required parameters in request")
+            raise ConfigurationException("Missing required parameters in request")
 
-        # Use global_settings directly
         start_date = datetime.strptime(global_settings.get('twitter.START_DATE'), '%Y-%m-%d').date()
         end_date = datetime.strptime(global_settings.get('twitter.END_DATE'), '%Y-%m-%d').date()
         days_per_iteration = global_settings.get('twitter.DAYS_PER_ITERATION', 1)
@@ -72,14 +50,10 @@ class XTwitterRetriever:
             iteration_start_date = current_date - timedelta(days=days_per_iteration)
             day_before = max(iteration_start_date, start_date - timedelta(days=1))
 
-            data = {
-                'query': f"{query} since:{day_before.strftime('%Y-%m-%dT%H:%M:%SZ')} until:{current_date.strftime('%Y-%m-%dT%H:%M:%SZ')}",
-                'count': count
-            }
+            date_range_query = f"{query} since:{day_before.strftime('%Y-%m-%dT%H:%M:%SZ')} until:{current_date.strftime('%Y-%m-%dT%H:%M:%SZ')}"
             
-            response = self.twitter_connection.get_tweets(api_endpoint, query, count)
+            response = self.twitter_connection.get_tweets(api_endpoint, date_range_query, count)
             api_calls_count += 1
-
             records_fetched = self._handle_response(response, request_id, query, current_date, all_tweets, records_fetched)
 
             current_date -= timedelta(days=days_per_iteration)
@@ -88,16 +62,6 @@ class XTwitterRetriever:
         return all_tweets, api_calls_count, records_fetched
 
     def _handle_response(self, response, request_id, query, current_date, all_tweets, records_fetched):
-        """
-        Handle the response from the Twitter API.
-
-        :param response: Dictionary containing the API response.
-        :param request_id: ID of the request.
-        :param query: Search query used for retrieving tweets.
-        :param current_date: Current date being processed.
-        :param all_tweets: List to store all retrieved tweets.
-        :param records_fetched: Count of records fetched so far.
-        """
         self.qc_manager.log_debug(f"Handling response for request {request_id}", context="XTwitterRetriever")
         
         if 'data' in response and response['data'] is not None:
@@ -113,16 +77,10 @@ class XTwitterRetriever:
         return records_fetched
 
     def _save_tweets(self, tweets, request_id, query, current_date):
-        """
-        Save the retrieved tweets and update the request state.
-
-        :param tweets: List of retrieved tweets.
-        :param request_id: ID of the request.
-        :param query: Search query used for retrieving tweets.
-        :param current_date: Current date being processed.
-        """
-        # Save tweets as JSON
-        self.data_storage.save_data(tweets, 'xtwitter', query, file_format='json')
+        try:
+            self.data_storage.save_data(tweets, 'xtwitter', query, file_format='json')
+        except Exception as e:
+            raise DataProcessingException(f"Failed to save tweets: {str(e)}")
         
         self.state_manager.update_request_state(request_id, 'in_progress', {
             'last_processed_time': current_date.isoformat(),
