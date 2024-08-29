@@ -1,6 +1,7 @@
 from .api_connection import APIConnection
 from configs.config import global_settings
 from masa_tools.qc.qc_manager import QCManager
+from masa_tools.utils.helper_functions import format_url
 
 class XTwitterConnection(APIConnection):
     """
@@ -16,7 +17,10 @@ class XTwitterConnection(APIConnection):
         self.qc_manager.log_debug("Initializing XTwitterConnection", context="XTwitterConnection")
         
         super().__init__()
-        self.qc_manager.log_debug("XTwitterConnection initialized successfully", context="XTwitterConnection")
+        self.base_url = global_settings.get('twitter.BASE_URL') or global_settings.get('twitter.BASE_URL_LOCAL')
+        if not self.base_url:
+            raise ValueError("Twitter base URL is not configured")
+        self.qc_manager.log_debug(f"Initialized XTwitterConnection with base URL: {self.base_url}", context="XTwitterConnection")
 
     def get_headers(self):
         """
@@ -27,16 +31,7 @@ class XTwitterConnection(APIConnection):
         """
         return global_settings.get('twitter.HEADERS', {})  # Get headers from global settings
 
-    def get_timeout(self):
-        """
-        Get timeout for XTwitter API requests.
-
-        Returns:
-            int: The timeout value in seconds for the API request.
-        """
-        return self.config.get('request_timeout', 30)
-
-    @QCManager.handle_error
+    @QCManager().handle_error
     def handle_response(self, response):
         """
         Handle the XTwitter API response.
@@ -52,7 +47,7 @@ class XTwitterConnection(APIConnection):
         else:
             response.raise_for_status()
 
-    @QCManager.handle_error_with_retry('twitter.RETRY_CONFIG')
+    @QCManager().handle_error_with_retry('twitter.RETRY_CONFIG')
     def make_request(self, endpoint, method='POST', data=None):
         """
         Make a request to the XTwitter API.
@@ -65,7 +60,9 @@ class XTwitterConnection(APIConnection):
         Returns:
             requests.Response: The raw response object from the API request.
         """
-        return self._make_request(method, endpoint, data=data)
+        url = format_url(self.base_url, endpoint)
+        self.qc_manager.log_debug(f"Making request to URL: {url}", context="XTwitterConnection")
+        return self._make_request(method, url, data=data)
 
     def get_tweets(self, endpoint, query, count):
         """
@@ -79,5 +76,6 @@ class XTwitterConnection(APIConnection):
         Returns:
             requests.Response: The raw response object from the API request.
         """
+        
         data = {'query': query, 'count': count}
         return self.make_request(endpoint, method='POST', data=data)

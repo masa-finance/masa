@@ -1,11 +1,13 @@
 import functools
+import sys
 from requests.exceptions import RequestException, HTTPError, ConnectionError, Timeout
 from .exceptions import (
     MASAException,
     APIException,
     NetworkException,
     RateLimitException,
-    AuthenticationException
+    AuthenticationException,
+    TooManyRequestsException
 )
 
 class ErrorHandler:
@@ -13,15 +15,21 @@ class ErrorHandler:
         self.qc_manager = qc_manager
 
     def handle_error(self, func):
+        """
+        Decorator to handle errors in a function.
+
+        :param func: The function to decorate.
+        :return: The decorated function.
+        """
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
             try:
                 return func(*args, **kwargs)
             except MASAException as e:
-                self.qc_manager.log_error(f"{type(e).__name__}: {str(e)}", context=func.__qualname__)
+                self.qc_manager.log_error(f"{type(e).__name__}: {str(e)}", error_info=e, context=func.__qualname__)
                 raise
             except Exception as e:
-                self.qc_manager.log_error(f"Unexpected error: {type(e).__name__}: {str(e)}", context=func.__qualname__)
+                self.qc_manager.log_error(f"Unexpected error: {type(e).__name__}: {str(e)}", error_info=e, context=func.__qualname__)
                 raise MASAException(f"Unexpected error in {func.__qualname__}: {str(e)}") from e
         return wrapper
 
@@ -40,6 +48,9 @@ class ErrorHandler:
     def _api_call_with_error_handling(self, func, *args, **kwargs):
         try:
             return func(*args, **kwargs)
+        except TooManyRequestsException as e:
+            # Re-raise TooManyRequestsException without wrapping it
+            raise
         except RequestException as e:
             if isinstance(e, ConnectionError):
                 raise NetworkException(f"Network error: {str(e)}", status_code=None) from e
@@ -47,8 +58,11 @@ class ErrorHandler:
                 raise NetworkException(f"Request timed out: {str(e)}", status_code=None) from e
             elif isinstance(e, HTTPError):
                 status_code = e.response.status_code
-                if status_code == 429:
-                    raise RateLimitException("Rate limit exceeded", status_code=status_code) from e
+                if status_code == 404:
+                    self.qc_manager.log_error(f"Received 404 error. Exiting program.", error_info=e)
+                    sys.exit(1)  # Exit the program on 404 error
+                elif status_code == 429:
+                    raise TooManyRequestsException("Too many requests", status_code=status_code) from e
                 elif status_code in (401, 403):
                     raise AuthenticationException("Authentication failed", status_code=status_code) from e
                 else:
@@ -56,5 +70,5 @@ class ErrorHandler:
             else:
                 raise APIException(f"API request failed: {str(e)}", status_code=None) from e
         except Exception as e:
-            self.qc_manager.log_error(f"Unexpected error in API call: {type(e).__name__}: {str(e)}", context=func.__qualname__)
+            self.qc_manager.log_error(f"Unexpected error in API call: {type(e).__name__}: {str(e)}", error_info=e.__traceback__, context=func.__qualname__)
             raise APIException(f"Unexpected error in API call: {str(e)}", status_code=None) from e

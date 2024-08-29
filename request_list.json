@@ -2,16 +2,18 @@
   {
     "retriever": "XTwitterRetriever",
     "endpoint": "data/twitter/tweets/recent",
+    "priority": 2,
     "params": {
-      "query": "#AI lang:en",
-      "count": 200 
+      "query": "#AI lang:es",
+      "count": 150 
     }
   },
   {
     "retriever": "XTwitterRetriever",
     "endpoint": "data/twitter/tweets/recent",
+    "priority": 1,
     "params": {
-      "query": "from:elonmusk",
+      "query": "from:BarackObama",
       "count": 100 
     }
   },
@@ -19,7 +21,7 @@
     "retriever": "XTwitterRetriever",
     "endpoint": "data/twitter/tweets/recent",
     "params": {
-      "query": "#yolo",
+      "query": "#JPMorgan",
       "count": 150 
     }
   }

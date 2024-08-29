@@ -7,6 +7,9 @@ class StateManager:
     """
     Class for managing the state of requests.
 
+    This class handles the state transitions of requests and maintains
+    consistency with the priority queue implementation.
+
     :param state_file: File path to store the state data.
     """
     def __init__(self, state_file):
@@ -41,7 +44,7 @@ class StateManager:
             json.dump(self._state, file, indent=4)
         self.qc_manager.log_debug("State saved successfully", context="StateManager")
 
-    def update_request_state(self, request_id, status, progress=None, original_request=None):
+    def update_request_state(self, request_id, status, progress=None, original_request=None, priority=None):
         """
         Update the state of a request.
 
@@ -49,6 +52,7 @@ class StateManager:
         :param status: New status of the request.
         :param progress: Progress data of the request (optional).
         :param original_request: Original request data (optional).
+        :param priority: Priority of the request (optional).
         """
         with self._lock:
             if request_id not in self._state['requests']:
@@ -57,7 +61,8 @@ class StateManager:
                     'progress': progress or {},
                     'original_request': original_request,
                     'created_at': datetime.now().isoformat(),
-                    'last_updated': datetime.now().isoformat()
+                    'last_updated': datetime.now().isoformat(),
+                    'priority': priority
                 }
             else:
                 current_state = self._state['requests'][request_id]
@@ -67,6 +72,8 @@ class StateManager:
                 current_state['last_updated'] = datetime.now().isoformat()
                 if original_request:
                     current_state['original_request'] = original_request
+                if priority is not None:
+                    current_state['priority'] = priority
                 
                 # Update or remove specific fields based on status
                 if status == 'completed':
@@ -112,3 +119,19 @@ class StateManager:
             self._state['requests'].pop(request_id, None)
             self._state['last_updated'] = datetime.now().isoformat()
             self._save_state()
+
+    def update_request_priority(self, request_id, priority):
+        """
+        Update the priority of a request.
+
+        :param request_id: ID of the request.
+        :param priority: New priority value.
+        """
+        with self._lock:
+            if request_id in self._state['requests']:
+                self._state['requests'][request_id]['priority'] = priority
+                self._state['requests'][request_id]['last_updated'] = datetime.now().isoformat()
+                self._save_state()
+                self.qc_manager.log_debug(f"Priority updated for request {request_id}", context="StateManager")
+            else:
+                self.qc_manager.log_warning(f"Attempt to update priority for non-existent request {request_id}", context="StateManager")

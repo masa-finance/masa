@@ -1,7 +1,7 @@
 import os
 import json
 from datetime import datetime
-from masa_tools.qc.qc_manager import QCManager
+from masa_tools.qc import qc_manager as qc
 
 class DataStorage:
     def __init__(self, base_directory='data'):
@@ -11,7 +11,7 @@ class DataStorage:
         :param base_directory: The base directory for storing data files.
         """
         self.base_directory = base_directory
-        self.qc_manager = QCManager()
+        self.qc_manager = qc.QCManager()
 
     def get_file_path(self, source, query, file_format='json'):
         """

@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 from connections.xtwitter_connection import XTwitterConnection
 from masa_tools.utils.data_storage import DataStorage
 from masa_tools.qc.qc_manager import QCManager
-from configs.config import settings
+from configs.config import global_settings
 
 class XTwitterRetriever:
     def __init__(self, state_manager, request):
@@ -15,26 +15,24 @@ class XTwitterRetriever:
         :param request: Dictionary containing the request parameters.
         """
         self.qc_manager = QCManager()
-        self.qc_manager.log_debug(f"Initializing XTwitterRetriever with request: {request}", context="XTwitterRetriever")
-        
-        if 'endpoint' not in request:
-            self.qc_manager.log_error("Request does not contain 'endpoint'", context="XTwitterRetriever")
-            raise ValueError("Request must contain 'endpoint'")
-        
-        api_endpoint = request['endpoint']
-        self.qc_manager.log_debug(f"API Endpoint from request: {api_endpoint}", context="XTwitterRetriever")
-        
-        self.config = settings.twitter  # Get the Twitter configuration from settings
-        self.qc_manager.log_debug(f"XTwitterRetriever config: {self.config}", context="XTwitterRetriever")
-        full_config = {**self.config, 'api_endpoint': api_endpoint}
-        
-        self.qc_manager.log_debug(f"Creating XTwitterConnection with config: {full_config}", context="XTwitterRetriever")
-        self.twitter_connection = XTwitterConnection(full_config)
-        self.qc_manager.log_debug("XTwitterConnection created successfully", context="XTwitterRetriever")
-        
         self.state_manager = state_manager
-        self.qc_manager.log_debug("XTwitterRetriever initialized successfully", context="XTwitterRetriever")
+        self.request = request
+        self.api_endpoint = request.get('endpoint')
+        
+        self.qc_manager.log_debug(f"Initializing XTwitterRetriever with request: {request}", context="XTwitterRetriever")
+        self.qc_manager.log_debug(f"API Endpoint from request: {self.api_endpoint}", context="XTwitterRetriever")
+        
+        # Remove the assignment to self.config
+        # self.config = global_settings
+        
+        self.qc_manager.log_debug(f"XTwitterRetriever global_settings: {global_settings}", context="XTwitterRetriever")
+        
+        self.twitter_connection = XTwitterConnection()
+        self.qc_manager.log_debug("XTwitterConnection created successfully", context="XTwitterRetriever")
+
+        # Initialize the DataStorage instance
         self.data_storage = DataStorage()
+        self.qc_manager.log_debug("DataStorage instance created successfully", context="XTwitterRetriever")
 
     @QCManager().handle_error_with_retry('twitter')
     def retrieve_tweets(self, request):
@@ -58,9 +56,10 @@ class XTwitterRetriever:
         if not all([query, count, api_endpoint]):
             raise ValueError("Missing required parameters in request")
 
-        start_date = datetime.strptime(self.config['START_DATE'], '%Y-%m-%d').date()
-        end_date = datetime.strptime(self.config['END_DATE'], '%Y-%m-%d').date()
-        days_per_iteration = self.config['DAYS_PER_ITERATION']
+        # Use global_settings directly
+        start_date = datetime.strptime(global_settings.get('twitter.START_DATE'), '%Y-%m-%d').date()
+        end_date = datetime.strptime(global_settings.get('twitter.END_DATE'), '%Y-%m-%d').date()
+        days_per_iteration = global_settings.get('twitter.DAYS_PER_ITERATION', 1)
 
         request_state = self.state_manager.get_request_state(request_id)
         current_date = datetime.fromisoformat(request_state.get('progress', {}).get('last_processed_time', end_date.isoformat())).date()

@@ -1,5 +1,16 @@
 class MASAException(Exception):
     """Base exception for MASA project"""
+    def __init__(self, message, status_code=None, error_info=None):
+        """
+        Initialize the MASAException.
+
+        :param message: The error message.
+        :param status_code: The HTTP status code (default: None).
+        :param error_info: Additional error information (default: None).
+        """
+        super().__init__(message)
+        self.status_code = status_code
+        self.error_info = error_info
 
 class APIException(MASAException):
     """Base exception for API-related errors"""
@@ -18,3 +29,7 @@ class DataProcessingException(MASAException):
 
 class ConfigurationException(MASAException):
     """Exception for configuration errors"""
+
+class TooManyRequestsException(MASAException):
+    """Exception raised when the API returns a 429 Too Many Requests error."""
+    pass

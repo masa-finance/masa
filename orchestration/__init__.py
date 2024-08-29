@@ -5,6 +5,6 @@ from .request_manager import RequestManager
 from .queue import Queue
 from .state_manager import StateManager
 from .request_router import RequestRouter
-from ..masa_tools.qc.retry_manager import RetryPolicy
+from masa_tools.qc.retry_manager import RetryPolicy
 
 __all__ = ['RequestManager', 'Queue', 'StateManager', 'RequestRouter', 'RetryPolicy']

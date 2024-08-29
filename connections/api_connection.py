@@ -22,10 +22,10 @@ class APIConnection(ABC):
         Initialize the APIConnection.
         """
         self.qc_manager = QCManager()
-        base_url = global_settings.get('twitter.BASE_URL')  # Get base URL from global settings
-        self.qc_manager.debug(f"Initializing APIConnection with base_url: {base_url}", context="APIConnection")
+        base_url = global_settings.get('twitter.BASE_URL') or global_settings.get('twitter.BASE_URL_LOCAL')
+        self.qc_manager.log_debug(f"Initializing APIConnection with base_url: {base_url}", context="APIConnection")
         if not base_url:
-            raise ValueError("base_url cannot be None or empty")
+            raise ValueError("Neither BASE_URL nor BASE_URL_LOCAL is set in the configuration")
         self.base_url = base_url.rstrip('/')
 
     @abstractmethod
@@ -35,16 +35,6 @@ class APIConnection(ABC):
 
         :return: A dictionary of headers to be used in the API request.
         :rtype: dict
-        """
-        pass
-
-    @abstractmethod
-    def get_timeout(self):
-        """
-        Return timeout for the API request.
-
-        :return: The timeout value in seconds for the API request.
-        :rtype: int
         """
         pass
 
@@ -62,7 +52,7 @@ class APIConnection(ABC):
         pass
 
     @QCManager().handle_error_with_retry('request_manager.retry_config')
-    def _make_request(self, method, endpoint, data=None, params=None):
+    def _make_request(self, method, url, data=None, params=None):
         """
         Make an API request.
 
@@ -78,16 +68,13 @@ class APIConnection(ABC):
         :rtype: dict
         :raises APIException: If there's an error in making the request or processing the response.
         """
-        url = f"{self.base_url}/{endpoint.lstrip('/')}"
         headers = self.get_headers()
-        timeout = self.get_timeout()
 
         response = requests.request(
             method, 
             url, 
             json=data,
             params=params,
-            headers=headers, 
-            timeout=timeout
+            headers=headers
         )
         return self.handle_response(response)

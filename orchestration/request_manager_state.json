@@ -1,0 +1,71 @@
+{
+    "requests": {
+        "3106542515069ca871e94c80bca6fa7b315fd1efb2b6ddb838966bb0b587440a": {
+            "status": "failed",
+            "progress": {
+                "error": "'RetryPolicy' object has no attribute 'qc_manager'"
+            },
+            "original_request": {
+                "retriever": "XTwitterRetriever",
+                "endpoint": "data/twitter/tweets/recent",
+                "priority": 2,
+                "params": {
+                    "query": "#AI lang:es",
+                    "count": 150
+                },
+                "id": "3106542515069ca871e94c80bca6fa7b315fd1efb2b6ddb838966bb0b587440a",
+                "status": "failed",
+                "error": "'RetryPolicy' object has no attribute 'qc_manager'"
+            },
+            "created_at": "2024-08-29T10:22:18.675609",
+            "last_updated": "2024-08-29T11:40:14.375535",
+            "priority": null,
+            "failed_at": "2024-08-29T11:40:14.375541"
+        },
+        "3fe1d43d6f560bc26c8be9d5d824153e54555a449270e9a14997757ee7972888": {
+            "status": "in_progress",
+            "progress": {
+                "error": "'RetryPolicy' object has no attribute 'qc_manager'",
+                "last_processed_time": "2024-07-18",
+                "tweets_count": 100
+            },
+            "original_request": {
+                "retriever": "XTwitterRetriever",
+                "endpoint": "data/twitter/tweets/recent",
+                "priority": 1,
+                "params": {
+                    "query": "from:BarackObama",
+                    "count": 100
+                },
+                "id": "3fe1d43d6f560bc26c8be9d5d824153e54555a449270e9a14997757ee7972888",
+                "status": "failed",
+                "error": "'RetryPolicy' object has no attribute 'qc_manager'"
+            },
+            "created_at": "2024-08-29T10:22:18.675866",
+            "last_updated": "2024-08-29T13:05:48.238928",
+            "priority": null
+        },
+        "eb21d17bc9eea1e0901adbf186f8375f9dc43a975d0d8297e0df0cd9cccd1ca6": {
+            "status": "failed",
+            "progress": {
+                "error": "'RetryPolicy' object has no attribute 'qc_manager'"
+            },
+            "original_request": {
+                "retriever": "XTwitterRetriever",
+                "endpoint": "data/twitter/tweets/recent",
+                "params": {
+                    "query": "#JPMorgan",
+                    "count": 150
+                },
+                "id": "eb21d17bc9eea1e0901adbf186f8375f9dc43a975d0d8297e0df0cd9cccd1ca6",
+                "status": "failed",
+                "error": "'RetryPolicy' object has no attribute 'qc_manager'"
+            },
+            "created_at": "2024-08-29T10:22:18.676087",
+            "last_updated": "2024-08-29T11:40:15.049862",
+            "priority": null,
+            "failed_at": "2024-08-29T11:40:15.049866"
+        }
+    },
+    "last_updated": "2024-08-29T13:05:48.238932"
+}

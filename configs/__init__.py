@@ -5,10 +5,8 @@ This file imports the necessary classes and functions from the config.py module
 and specifies the names to be exported when using `from masa.configs import *`.
 """
 
-from .config import Config, XTwitterConfig, load_configs
+from .config import initialize_config
 
 __all__ = [
-    'Config', 
-    'XTwitterConfig', 
-    'load_configs'
+    'initialize_config'
 ]

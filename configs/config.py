@@ -1,11 +1,32 @@
+"""
+Configuration module for the MASA project.
+"""
+
 import os
-from dotenv import load_dotenv
-from dynaconf import Dynaconf
-from masa_tools.qc.qc_manager import QCManager
+from dynaconf import Dynaconf, Validator
 
+global_settings = Dynaconf(
+    envvar_prefix="MASA",
+    settings_files=['configs/settings.yaml'],  # Specify the path to the settings file
+    environments=True,  # Enable environment-specific settings
+    load_dotenv=True,  # Load environment variables from .env file
+    dotenv_path="configs/.env",  # Specify the path to the .env file
+    merge_enabled=True,  # Merge settings from different sources
+    validators=[
+        Validator('twitter.BASE_URL', must_exist=True, when=Validator('twitter.BASE_URL_LOCAL', must_exist=False)),
+        Validator('twitter.BASE_URL_LOCAL', must_exist=True, when=Validator('twitter.BASE_URL', must_exist=False)),
+        Validator('request_manager.STATE_FILE', must_exist=True),
+        Validator('request_manager.QUEUE_FILE', must_exist=True)
+    ]
+)
 
-global_settings = None
-qc_manager = QCManager()
+# `envvar_prefix` = export envvars with `export DYNACONF_FOO=bar`.
+# `settings_files` = Load these files in the order.
+# `environments` = Enable environment-specific settings.
+# `load_dotenv` = Load environment variables from .env file.
+# `dotenv_path` = Specify the path to the .env file.
+# `merge_enabled` = Merge settings from different sources.
+# `validators` = Specify validation rules for settings.
 
 def initialize_config():
     """
@@ -15,23 +36,7 @@ def initialize_config():
     the Dynaconf settings using the specified configuration files and environment.
     It also validates the presence of required settings.
     """
-    global global_settings
-    
-    # Load environment variables from .env file
-    load_dotenv()
+    # Validate the settings
+    global_settings.validators.validate()
 
-    # Initialize Dynaconf settings
-    global_settings = Dynaconf(
-        envvar_prefix="MASA",
-        settings_files=['settings.yaml', '.secrets.yaml'],
-        environments=True,
-    )
-
-    # Validate required settings are present
-    required_settings = ['twitter.BASE_URL', 'request_manager.state_file', 'request_manager.queue_file']
-    for setting in required_settings:
-        if not global_settings.get(setting):
-            qc_manager.log_error(f"Required setting '{setting}' is missing", context="Config")
-            raise ValueError(f"Required setting '{setting}' is missing")
-
-    qc_manager.log_info("Configurations initialized successfully.", context="Config")
+    return global_settings

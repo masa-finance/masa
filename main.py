@@ -1,34 +1,46 @@
 import sys
-from orchestration.request_manager import RequestManager
-from configs.config import initialize_config, get_settings
+from configs.config import initialize_config
 from masa_tools.qc.qc_manager import QCManager
-
-qc_manager = QCManager()
+from orchestration.request_manager import RequestManager
+import json
 
 def main(action, json_file_path=None):
     try:
         # Initialize configurations
         initialize_config()
         
-        # Now we can safely get our settings
-        settings = get_settings()
+        qc_manager = QCManager()
+        qc_manager.log_debug("Initialized QCManager", context="Main")
         
-        request_manager = RequestManager()
+        try:
+            request_manager = RequestManager()
+            qc_manager.log_debug("Initialized RequestManager", context="Main")  # Change log_debug to debug
+        except Exception as e:
+            qc_manager.log_error(f"Error initializing RequestManager: {str(e)}", error_info=e, context="Main")
+            raise
 
         if action == 'process':
             qc_manager.log_debug(f"Processing requests from file: {json_file_path}", context="Main")
-            request_manager.process_requests(json_file_path)
-            qc_manager.log_info("Processing all requests", context="Main")
+            try:
+                request_manager.process_requests(json_file_path)
+                qc_manager.log_info("Processing all requests", context="Main")
+            except Exception as e:
+                qc_manager.log_error(f"Error processing requests: {str(e)}", error_info=e, context="Main")
+                raise
         elif action == 'request_history':
-            all_requests_status = request_manager.get_all_requests_status()
-            print(json.dumps(all_requests_status, indent=4))
+            try:
+                all_requests_status = request_manager.get_all_requests_status()
+                print(json.dumps(all_requests_status, indent=4))
+            except Exception as e:
+                qc_manager.log_error(f"Error getting request history: {str(e)}", error_info=e, context="Main")
+                raise
         else:
             print("Invalid action. Allowable options are:")
             print("- 'process': Process all requests (both resumed and new)")
             print("- 'request_history': Get a history of all requests")
             sys.exit(1)
     except Exception as e:
-        qc_manager.log_error(f"An error occurred during initialization: {str(e)}", context="Main")
+        qc_manager.log_error(f"An error occurred during initialization: {str(e)}", error_info=e, context="Main")
         sys.exit(1)
 
 if __name__ == '__main__':

@@ -1,45 +1,50 @@
 import time
-from masa_tools.qc.qc_manager import QCManager
 from masa_tools.qc.exceptions import *
-from configs.config import global_settings
+from tqdm import tqdm
 
 class RetryConfiguration:
-    def __init__(self, config_key):
+    def __init__(self, config_key, settings):
         self.config_key = config_key
+        self.settings = settings
         self.reload_config()
 
     def reload_config(self):
-        """Reload the retry configuration from the global settings."""
-        config = global_settings.get(self.config_key)
+        """Reload the retry configuration from the settings."""
+        config = self.settings.get(self.config_key, {})
         self.max_retries = config.get('MAX_RETRIES', 3)
         self.base_wait_time = config.get('BASE_WAIT_TIME', 10)
         self.backoff_factor = config.get('BACKOFF_FACTOR', 2)
         self.max_wait_time = config.get('MAX_WAIT_TIME', 960)
-        self.success_wait_time = config.get('SUCCESS_WAIT_TIME', 0)  # Added success wait time
+        self.success_wait_time = config.get('SUCCESS_WAIT_TIME', 5)
         self.retryable_exceptions = [
             globals().get(exc_name) for exc_name in config.get('RETRYABLE_EXCEPTIONS', 
-            ['NetworkException', 'RateLimitException', 'APIException'])
+            ['NetworkException', 'RateLimitException', 'APIException', 'TooManyRequestsException'])
         ]
         self.initial_wait_times = config.get('INITIAL_WAIT_TIMES', {})
 
 class RetryPolicy:
-    def __init__(self):
-        self.qc_manager = QCManager()
+    def __init__(self, settings, qc_manager):
+        self.settings = settings
+        self.qc_manager = qc_manager
         self.configurations = {}
 
     def get_configuration(self, config_key):
         """Get the retry configuration for the given key."""
         if config_key not in self.configurations:
-            self.configurations[config_key] = RetryConfiguration(config_key)
+            self.configurations[config_key] = RetryConfiguration(config_key, self.settings)
         return self.configurations[config_key]
 
-    def wait_time(self, config, attempt, error_code=None):
+    def wait_time(self, config, attempt, exception):
         """Calculate the wait time based on the retry configuration and attempt."""
-        if attempt == 1 and error_code and str(error_code) in config.initial_wait_times:
-            wait = config.initial_wait_times[str(error_code)]
+        if isinstance(exception, TooManyRequestsException):
+            # For 429 errors, use the maximum wait time
+            wait = config.max_wait_time
+        elif attempt == 1 and isinstance(exception, APIException) and exception.status_code:
+            # Check for initial wait times based on status code
+            wait = config.initial_wait_times.get(str(exception.status_code), config.base_wait_time)
         else:
             wait = min(config.base_wait_time * (config.backoff_factor ** (attempt - 1)), config.max_wait_time)
-        self.qc_manager.debug(f"Waiting for {wait} seconds before retry", context="RetryPolicy")
+        self.qc_manager.log_debug(f"Waiting for {wait} seconds before retry", context="RetryPolicy")
         return wait
 
     def should_retry(self, config, exception, attempt):
@@ -54,17 +59,22 @@ class RetryPolicy:
         while attempt < config.max_retries:
             try:
                 result = func(*args, **kwargs)
-                time.sleep(config.success_wait_time)  # Wait after successful execution
+                # Wait after successful execution and log progress with tqdm
+                for _ in tqdm(range(config.success_wait_time), desc="Success Wait", unit="s"):
+                    time.sleep(1)
+                self.qc_manager.log_info(f"Success! Waiting for {config.success_wait_time} seconds before next call.", context="RetryPolicy")
                 return result
             except Exception as e:
                 attempt += 1
                 last_exception = e
                 if not self.should_retry(config, e, attempt):
                     raise
-                error_code = getattr(e, 'status_code', None)
-                wait_time = self.wait_time(config, attempt, error_code)
+                wait_time = self.wait_time(config, attempt, e)
                 self.qc_manager.log_warning(f"Attempt {attempt} failed. Retrying in {wait_time} seconds. Error: {str(e)}", context="RetryPolicy")
-                time.sleep(wait_time)
+                # Wait before retrying and log progress with tqdm
+                for _ in tqdm(range(wait_time), desc=f"Retry Wait (Attempt {attempt})", unit="s"):
+                    time.sleep(1)
+                self.qc_manager.log_info(f"Retry wait of {wait_time} seconds completed for attempt {attempt}", context="RetryPolicy")
         
         if last_exception:
             raise last_exception

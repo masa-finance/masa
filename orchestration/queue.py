@@ -1,11 +1,24 @@
 import json
 import os
-from collections import deque
+from queue import PriorityQueue
 from datetime import datetime
-import hashlib
 from masa_tools.qc.qc_manager import QCManager
 
 class Queue:
+    """
+    A priority queue implementation for managing requests.
+
+    This class uses Python's built-in PriorityQueue to manage requests with priorities.
+    Lower priority values indicate higher priority.
+
+    Attributes:
+        file_path (str): The file path for persisting the queue.
+        memory_queue (PriorityQueue): The in-memory priority queue.
+        request_data (dict): A dictionary to store request data.
+        qc_manager (QCManager): Quality control manager for logging.
+        state_manager (StateManager): Manager for handling request states.
+    """
+
     def __init__(self, file_path, state_manager):
         """
         Initialize the Queue.
@@ -14,7 +27,7 @@ class Queue:
         :param state_manager: The StateManager instance for managing request states.
         """
         self.file_path = file_path
-        self.memory_queue = deque()
+        self.memory_queue = PriorityQueue()
         self.request_data = {}
         self.qc_manager = QCManager()
         self.state_manager = state_manager
@@ -22,62 +35,68 @@ class Queue:
 
     def _load_queue(self):
         """
-        Load the queue from the file and sort it by the creation date of the requests.
+        Load the queue from the file and reconstruct the priority queue.
         """
         if os.path.exists(self.file_path):
             with open(self.file_path, 'r') as f:
-                data = json.load(f)
-                self.request_data = data['requests']
-                # Sort the queue by the creation date of the requests
-                sorted_queue = sorted(data['queue'], key=lambda req_id: self.request_data[req_id]['created_at'])
-                self.memory_queue = deque(sorted_queue)
+                try:
+                    data = json.load(f)
+                    self.qc_manager.log_debug(f"Loaded data structure: {list(data.keys())}", context="Queue")
+                    
+                    if isinstance(data, dict) and 'queue' in data and 'requests' in data:
+                        queue_data = data['queue']
+                        requests_data = data['requests']
+                        
+                        for request_id in queue_data:
+                            if request_id in requests_data:
+                                request = requests_data[request_id]
+                                priority = request.get('priority', 100)
+                                self.request_data[request_id] = request
+                                self.memory_queue.put((priority, request_id))
+                            else:
+                                self.qc_manager.log_warning(f"Request ID {request_id} found in queue but not in requests", context="Queue")
+                        
+                        self.qc_manager.log_debug(f"Loaded {len(self.request_data)} requests into the queue", context="Queue")
+                    else:
+                        self.qc_manager.log_error("Invalid JSON structure in request_queue.json. Expected 'queue' and 'requests' keys.", context="Queue")
+                
+                except json.JSONDecodeError as e:
+                    self.qc_manager.log_error(f"Error decoding JSON from {self.file_path}: {str(e)}", context="Queue")
         else:
+            self.qc_manager.log_debug(f"Queue file not found: {self.file_path}", context="Queue")
             self.request_data = {}
-            self.memory_queue = deque()
 
     def _save_queue(self):
         """
         Save the queue to the file.
         """
-        self.qc_manager.log_debug("Saving queue to file", context="Queue")
+        data = {
+            "queue": list(self.request_data.keys()),
+            "requests": self.request_data
+        }
         with open(self.file_path, 'w') as f:
-            json.dump({
-                'queue': list(self.memory_queue),
-                'requests': self.request_data
-            }, f, indent=2)
-        self.qc_manager.log_debug(f"Queue saved. Current queue size: {len(self.memory_queue)}", context="Queue")
+            json.dump(data, f, indent=2)
+        self.qc_manager.log_debug(f"Queue saved. Current queue size: {self.memory_queue.qsize()}", context="Queue")
 
     def add(self, request):
         """
         Add a request to the queue.
-
-        :param request: The request to add.
         """
+        if 'id' not in request:
+            self.qc_manager.log_warning(f"Request does not have an 'id' key. This should be handled by RequestManager.", context="Queue")
+            return
+
         request_id = request['id']
-        query = request['params'].get('query', 'N/A')
-        current_status = self.request_data.get(request_id, {}).get('status', 'new')
+        priority = request.get('priority', 100)
         
-        log_message = f"Request: Query '{query}' (ID: {request_id}) "
+        # Ensure the request has a status, default to 'queued'
+        if 'status' not in request:
+            request['status'] = 'queued'
         
-        if current_status == 'completed':
-            log_message += "already completed. Not adding to queue."
-        elif current_status in ['queued', 'in_progress']:
-            log_message += f"is {current_status}. Ensuring it's in the queue."
-            if request_id not in self.memory_queue:
-                self.memory_queue.append(request_id)
-        else:
-            log_message += "added to queue."
-            self.request_data[request_id] = {
-                'request': request,
-                'status': 'queued',
-                'created_at': datetime.now().isoformat()
-            }
-            if request_id not in self.memory_queue:
-                self.memory_queue.append(request_id)
-        
-        self.qc_manager.log_info(log_message, context="Queue")
+        self.request_data[request_id] = request
+        self.memory_queue.put((priority, request_id))
         self._save_queue()
-        self.qc_manager.log_debug(f"Queue size after adding request: {len(self.memory_queue)}", context="Queue")
+        self.qc_manager.log_debug(f"Added request {request_id} with priority {priority} and status {request['status']}", context="Queue")
 
     def get(self):
         """
@@ -85,20 +104,16 @@ class Queue:
 
         :return: The next request or None if the queue is empty.
         """
-        if not self.memory_queue:
+        if self.memory_queue.empty():
             self.qc_manager.log_debug("Attempted to get request from empty queue", context="Queue")
             return None
 
-        request_id = self.memory_queue.popleft()
+        _, request_id = self.memory_queue.get()
         self.qc_manager.log_debug(f"Getting request {request_id} from queue", context="Queue")
-        request_info = self.request_data.get(request_id)
-        if request_info:
-            request_info['status'] = 'in_progress'
-            self._save_queue()
-            self.qc_manager.log_debug(f"Request {request_id} removed from queue. New queue size: {len(self.memory_queue)}", context="Queue")
-            self.qc_manager.log_debug(f"Updating state for request {request_id} to 'in_progress'", context="Queue")
-            self.state_manager.update_request_state(request_id, 'in_progress') 
-            return request_info['request']
+        request = self.request_data.get(request_id)
+        if request:
+            self.qc_manager.log_debug(f"Request {request_id} retrieved from queue. New queue size: {self.memory_queue.qsize()}", context="Queue")
+            return request
         else:
             self.qc_manager.log_warning(f"Request {request_id} found in queue but not in request_data", context="Queue")
             return None
@@ -112,9 +127,8 @@ class Queue:
         self.qc_manager.log_debug(f"Marking request {request_id} as completed", context="Queue")
         if request_id in self.request_data:
             self.request_data[request_id]['status'] = 'completed'
-            self.memory_queue.remove(request_id) 
             self._save_queue()
-            self.qc_manager.log_debug(f"Request {request_id} marked as completed and removed from queue", context="Queue")
+            self.qc_manager.log_debug(f"Request {request_id} marked as completed", context="Queue")
         else:
             self.qc_manager.log_warning(f"Request {request_id} not found for completion", context="Queue")
 
@@ -131,7 +145,6 @@ class Queue:
             self.request_data[request_id]['error'] = str(error)
             self._save_queue()
             self.qc_manager.log_debug(f"Request {request_id} marked as failed", context="Queue")
-            self.state_manager.update_request_state(request_id, 'failed', {'error': str(error)})
         else:
             self.qc_manager.log_warning(f"Request {request_id} not found for failure logging", context="Queue")
 
@@ -156,16 +169,46 @@ class Queue:
         """
         Resume incomplete requests by adding them back to the queue.
         """
+        self.qc_manager.log_debug(f"Resuming incomplete requests. Current queue size: {self.memory_queue.qsize()}", context="Queue")
         for request_id, request_info in self.request_data.items():
-            if request_info['status'] in ['queued', 'in_progress']:
-                if request_id not in self.memory_queue:
-                    self.memory_queue.append(request_id)
+            self.qc_manager.log_debug(f"Checking request {request_id}: {request_info}", context="Queue")
+            
+            status = request_info.get('status', 'queued')
+            
+            if status in ['queued', 'in_progress']:
+                if not any(req_id == request_id for _, req_id in self.memory_queue.queue):
+                    priority = request_info.get('priority', 100)
+                    self.memory_queue.put((priority, request_id))
+                    self.qc_manager.log_debug(f"Resumed request {request_id} with status {status}", context="Queue")
+                else:
+                    self.qc_manager.log_debug(f"Request {request_id} already in queue", context="Queue")
+        
+        self.qc_manager.log_debug(f"After resuming, queue size: {self.memory_queue.qsize()}", context="Queue")
         self._save_queue()
 
     def clear_queue(self):
         """
         Clear the queue and request data.
         """
-        self.memory_queue.clear()
+        while not self.memory_queue.empty():
+            self.memory_queue.get()
         self.request_data = {}
         self._save_queue()
+
+    def peek(self):
+        """
+        Peek at the next request in the queue without removing it.
+
+        :return: The next request or None if the queue is empty.
+        """
+        if self.memory_queue.empty():
+            return None
+        _, request_id = self.memory_queue.queue[0]
+        return self.request_data.get(request_id, {}).get('request')
+
+    def _generate_request_id(self, request):
+        """Generate a unique id for a request."""
+        import hashlib
+        import json
+        request_json = json.dumps(request, sort_keys=True).encode('utf-8')
+        return hashlib.sha256(request_json).hexdigest()
