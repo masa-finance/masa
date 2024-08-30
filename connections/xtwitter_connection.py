@@ -69,11 +69,17 @@ class XTwitterConnection(APIConnection):
 
         Returns:
             dict: The processed response data.
+
+        Raises:
+            RateLimitException: If the API rate limit is exceeded.
+            AuthenticationException: If authentication fails.
+            APIException: For other HTTP errors.
         """
         if response.status_code == 200:
             return response.json()
         elif response.status_code == 429:
-            raise RateLimitException("Rate limit exceeded", status_code=response.status_code)
+            self.qc_manager.log_warning(f"Rate limit exceeded. Status code: {response.status_code}", context="XTwitterConnection")
+            raise RateLimitException(f"Rate limit exceeded. Status code: {response.status_code}", status_code=response.status_code)
         elif response.status_code in (401, 403):
             raise AuthenticationException("Authentication failed", status_code=response.status_code)
         else:

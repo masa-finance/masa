@@ -4,35 +4,35 @@
     "endpoint": "data/twitter/tweets/recent",
     "priority": 1,
     "params": {
-      "query": "#Ukraine lang:en",
+      "query": "#MasaNode", 
       "count": 100
     }
   },
   {
-    "retriever": "XTwitterRetriever",
+    "retriever": "XTwitterRetriever", 
     "endpoint": "data/twitter/tweets/recent",
     "priority": 2,
     "params": {
-      "query": "from:elonmusk",
-      "count": 50
+      "query": "@getmasafi",
+      "count": 50  
     }
   },
   {
     "retriever": "XTwitterRetriever",
-    "endpoint": "data/twitter/tweets/recent",
+    "endpoint": "data/twitter/tweets/recent", 
     "priority": 3,
     "params": {
-      "query": "COVID-19 vaccine",
-      "count": 200
+      "query": "from:BrendanPlayford", 
+      "count": 75
     }
   },
   {
     "retriever": "XTwitterRetriever",
     "endpoint": "data/twitter/tweets/recent",
-    "priority": 4,
+    "priority": 4, 
     "params": {
-      "query": "climate change min_faves:1000",
-      "count": 75
+      "query": "Masa lang:en",
+      "count": 200
     }
   },
   {
@@ -40,16 +40,16 @@
     "endpoint": "data/twitter/tweets/recent",
     "priority": 5,
     "params": {
-      "query": "#AI OR #MachineLearning",
+      "query": "@getmasafi",
       "count": 150
     }
   },
   {
-    "retriever": "XTwitterRetriever",
+    "retriever": "XTwitterRetriever", 
     "endpoint": "data/twitter/tweets/recent",
     "priority": 6,
     "params": {
-      "query": "cryptocurrency -filter:retweets",
+      "query": "Masa -filter:retweets",
       "count": 100
     }
   },
@@ -58,8 +58,8 @@
     "endpoint": "data/twitter/tweets/recent",
     "priority": 7,
     "params": {
-      "query": "US election 2024",
-      "count": 200
+      "query": "Masa min_faves:500",
+      "count": 50
     }
   },
   {
@@ -67,8 +67,8 @@
     "endpoint": "data/twitter/tweets/recent",
     "priority": 8,
     "params": {
-      "query": "NASA geocode:29.5502,-95.0970,50mi",
-      "count": 50
+      "query": "Masa min_retweets:100",
+      "count": 75
     }
   },
   {
@@ -76,8 +76,8 @@
     "endpoint": "data/twitter/tweets/recent",
     "priority": 9,
     "params": {
-      "query": "renewable energy min_retweets:100",
-      "count": 75
+      "query": "Masa filter:safe",
+      "count": 200
     }
   },
   {
@@ -85,7 +85,7 @@
     "endpoint": "data/twitter/tweets/recent",
     "priority": 10,
     "params": {
-      "query": "World Cup 2022 lang:es",
+      "query": "Masa -moon",
       "count": 150
     }
   }

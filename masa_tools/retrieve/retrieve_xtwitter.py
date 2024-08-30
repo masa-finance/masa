@@ -4,8 +4,8 @@ from datetime import datetime, timedelta
 from connections.xtwitter_connection import XTwitterConnection
 from masa_tools.utils.data_storage import DataStorage
 from masa_tools.qc.qc_manager import QCManager
+from masa_tools.qc.exceptions import ConfigurationException, APIException, DataProcessingException, RateLimitException
 from configs.config import global_settings
-from masa_tools.qc.exceptions import ConfigurationException, APIException, DataProcessingException
 
 class XTwitterRetriever:
     def __init__(self, state_manager, request):
@@ -19,10 +19,7 @@ class XTwitterRetriever:
     @QCManager().handle_error_with_retry('twitter')
     def retrieve_tweets(self, request):
         request_id = request['id']
-        request_params = request.get('params', {})
-        query = request_params.get('query')
-        self.qc_manager.log_debug(f"Starting retrieve_tweets for request {query} (ID: {request_id})", context="XTwitterRetriever")
-        self.qc_manager.log_info(f"Starting retrieve_tweets for request {query} (ID: {request_id})", context="XTwitterRetriever")
+        self.qc_manager.log_debug(f"Starting retrieve_tweets for request {request_id}", context="XTwitterRetriever")
         return self._retrieve_tweets(request)
 
     def _retrieve_tweets(self, request):
@@ -52,9 +49,16 @@ class XTwitterRetriever:
 
             date_range_query = f"{query} since:{day_before.strftime('%Y-%m-%dT%H:%M:%SZ')} until:{current_date.strftime('%Y-%m-%dT%H:%M:%SZ')}"
             
-            response = self.twitter_connection.get_tweets(api_endpoint, date_range_query, count)
-            api_calls_count += 1
-            records_fetched = self._handle_response(response, request_id, query, current_date, all_tweets, records_fetched)
+            try:
+                response = self.twitter_connection.get_tweets(api_endpoint, date_range_query, count)
+                api_calls_count += 1
+                records_fetched = self._handle_response(response, request_id, query, current_date, all_tweets, records_fetched)
+            except RateLimitException:
+                self.qc_manager.log_warning(f"Rate limit exceeded. Retrying after delay.", context="XTwitterRetriever")
+                raise
+            except APIException as e:
+                self.qc_manager.log_error(f"API error occurred: {str(e)}", context="XTwitterRetriever")
+                raise
 
             current_date -= timedelta(days=days_per_iteration)
             self.state_manager.update_request_state(request_id, 'in_progress', {'last_processed_time': current_date.isoformat()})
@@ -69,10 +73,10 @@ class XTwitterRetriever:
             all_tweets.extend(tweets)
             num_tweets = len(tweets)
             records_fetched += num_tweets
-            self.qc_manager.log_info(f"Fetched {num_tweets} tweets for {current_date.strftime('%Y-%m-%d')}.", context="XTwitterRetriever")
+            self.qc_manager.log_info(f"Scraped {num_tweets} tweets for {query} on {current_date.strftime('%Y-%m-%d %H:%M:%S')}.", context="XTwitterRetriever")
             self._save_tweets(tweets, request_id, query, current_date)
         else:
-            self.qc_manager.log_warning(f"No tweets fetched for {current_date.strftime('%Y-%m-%d')}. Possibly rate limited or no results.", context="XTwitterRetriever")
+            self.qc_manager.log_warning(f"No tweets fetched for {query} on {current_date.strftime('%Y-%m-%d %H:%M:%S')}. Likely no results.", context="XTwitterRetriever")
 
         return records_fetched
 

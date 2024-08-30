@@ -3,6 +3,7 @@ from masa_tools.retrieve.retrieve_xtwitter import XTwitterRetriever
 from masa_tools.qc.qc_manager import QCManager
 import traceback
 from configs.config import global_settings
+from datetime import datetime
 
 class RequestRouter:
     """
@@ -51,14 +52,18 @@ class RequestRouter:
                 if endpoint == 'data/twitter/tweets/recent':
                     self.qc_manager.log_debug(f"Calling retrieve_tweets for request: Query '{query}' (ID: {request_id})", context="RequestRouter")
                     all_tweets, api_calls_count, records_fetched = retriever.retrieve_tweets(request)
+                    result = {
+                        'tweets_count': records_fetched,
+                        'api_calls_count': api_calls_count,
+                        'last_processed_time': datetime.now().isoformat()
+                    }
                     self.qc_manager.log_debug(f"Completed request: Query '{query}' (ID: {request_id}). API calls: {api_calls_count}, Records fetched: {records_fetched}")
+                    return result
                 else:
                     raise ValueError(f"Unknown endpoint for {retriever_name}: {endpoint}")
             else:
                 raise ValueError(f"Unknown retriever: {retriever_name}")
 
-            self.qc_manager.log_debug(f"Completed request: Query '{query}' (ID: {request_id}) for {retriever_name}")
-            self.qc_manager.log_debug(f"------------------------------------------------")
         except Exception as e:
             self.qc_manager.log_error(f"Error in route_request for Query '{query}' (ID: {request_id}): {str(e)}", error_info=e, context="RequestRouter")
             self.qc_manager.log_error(f"Traceback: {traceback.format_exc()}", context="RequestRouter")

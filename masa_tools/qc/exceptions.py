@@ -14,12 +14,14 @@ class MASAException(Exception):
 
 class APIException(MASAException):
     """Base exception for API-related errors"""
+    pass
 
 class NetworkException(APIException):
     """Exception for network-related errors"""
 
 class RateLimitException(APIException):
     """Exception for rate limiting"""
+    pass
 
 class AuthenticationException(APIException):
     """Exception for authentication errors"""

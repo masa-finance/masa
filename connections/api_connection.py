@@ -2,7 +2,7 @@ import requests
 from abc import ABC, abstractmethod
 from configs.config import global_settings
 from masa_tools.qc.qc_manager import QCManager
-from masa_tools.qc.exceptions import APIException, NetworkException, ConfigurationException
+from masa_tools.qc.exceptions import APIException, NetworkException, ConfigurationException, RateLimitException
 
 class APIConnection(ABC):
     """
@@ -66,6 +66,7 @@ class APIConnection(ABC):
         :return: The raw response object.
         :rtype: requests.Response
         :raises APIException: If there's an error in making the request or processing the response.
+        :raises RateLimitException: If the API rate limit is exceeded (status code 429).
         """
         headers = self.get_headers()
         try:
@@ -76,6 +77,8 @@ class APIConnection(ABC):
                 params=params,
                 headers=headers
             )
+            if response.status_code == 429:
+                raise RateLimitException(f"Rate limit exceeded. Status code: {response.status_code}", status_code=response.status_code)
             response.raise_for_status()
             return response
         except requests.exceptions.ConnectionError as e:

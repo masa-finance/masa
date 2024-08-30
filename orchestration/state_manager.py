@@ -1,4 +1,5 @@
 import json
+import os
 import threading
 from datetime import datetime
 from masa_tools.qc.qc_manager import QCManager
@@ -20,20 +21,37 @@ class StateManager:
         """
         self._state_file = state_file
         self._lock = threading.Lock()
-        self._state = self._load_state()
         self.qc_manager = QCManager()
+        
+        # Ensure the directory exists
+        os.makedirs(os.path.dirname(self._state_file), exist_ok=True)
+        
+        # Load or create the state file
+        self._state = self._load_state()
+        
+        # If the state file was just created, save the initial state
+        if not os.path.exists(self._state_file):
+            self._save_state()
 
     def _load_state(self):
         """
-        Load the state data from the state file.
+        Load the state data from the state file or create a new state if the file doesn't exist.
 
         :return: Loaded state data or default state if file doesn't exist or is invalid.
         """
-        try:
-            with open(self._state_file, 'r') as file:
-                return json.load(file)
-        except (FileNotFoundError, json.JSONDecodeError):
-            return {'requests': {}, 'last_updated': datetime.now().isoformat()}
+        if os.path.exists(self._state_file):
+            try:
+                with open(self._state_file, 'r') as file:
+                    state = json.load(file)
+                self.qc_manager.log_debug("State file loaded successfully", context="StateManager")
+                return state
+            except json.JSONDecodeError:
+                self.qc_manager.log_warning("Invalid JSON in state file. Creating new state.", context="StateManager")
+        else:
+            self.qc_manager.log_info("State file not found. Creating new state.", context="StateManager")
+        
+        # Return default state if file doesn't exist or is invalid
+        return {'requests': {}, 'last_updated': datetime.now().isoformat()}
 
     def _save_state(self):
         """
@@ -44,49 +62,44 @@ class StateManager:
             json.dump(self._state, file, indent=4)
         self.qc_manager.log_debug("State saved successfully", context="StateManager")
 
-    def update_request_state(self, request_id, status, progress=None, original_request=None, priority=None):
+    def update_request_state(self, request_id, status, progress=None, result=None, error=None, request_details=None):
         """
         Update the state of a request.
 
         :param request_id: ID of the request.
         :param status: New status of the request.
         :param progress: Progress data of the request (optional).
-        :param original_request: Original request data (optional).
-        :param priority: Priority of the request (optional).
+        :param result: Result data of the request (optional).
+        :param error: Error data of the request (optional).
+        :param request_details: Original request data (optional).
         """
         with self._lock:
+            current_time = datetime.now().isoformat()
             if request_id not in self._state['requests']:
                 self._state['requests'][request_id] = {
                     'status': status,
-                    'progress': progress or {},
-                    'original_request': original_request,
-                    'created_at': datetime.now().isoformat(),
-                    'last_updated': datetime.now().isoformat(),
-                    'priority': priority
+                    'created_at': current_time,
+                    'last_updated': current_time,
+                    'request_details': request_details
                 }
             else:
-                current_state = self._state['requests'][request_id]
-                current_state['status'] = status
-                if progress:
-                    current_state['progress'].update(progress)
-                current_state['last_updated'] = datetime.now().isoformat()
-                if original_request:
-                    current_state['original_request'] = original_request
-                if priority is not None:
-                    current_state['priority'] = priority
-                
-                # Update or remove specific fields based on status
-                if status == 'completed':
-                    current_state['completed_at'] = datetime.now().isoformat()
-                    current_state.pop('failed_at', None)
-                elif status == 'failed':
-                    current_state['failed_at'] = datetime.now().isoformat()
-                    current_state.pop('completed_at', None)
-                else:
-                    current_state.pop('completed_at', None)
-                    current_state.pop('failed_at', None)
+                self._state['requests'][request_id]['status'] = status
+                self._state['requests'][request_id]['last_updated'] = current_time
 
-            self._state['last_updated'] = datetime.now().isoformat()
+            if progress is not None:
+                self._state['requests'][request_id]['progress'] = progress
+            elif status == 'completed':
+                self._state['requests'][request_id]['result'] = result
+                self._state['requests'][request_id].pop('progress', None)
+            elif status == 'failed':
+                self._state['requests'][request_id]['error'] = error
+                self._state['requests'][request_id].pop('progress', None)
+
+            if request_details:
+                self._state['requests'][request_id]['request_details'] = request_details
+                self._state['requests'][request_id]['priority'] = request_details.get('priority')
+
+            self._state['last_updated'] = current_time
             self._save_state()
             self.qc_manager.log_debug(f"State updated and saved for request {request_id}", context="StateManager")
 
@@ -98,7 +111,7 @@ class StateManager:
         :return: State data of the request or an empty dictionary if not found.
         """
         with self._lock:
-            return self._state['requests'].get(request_id, {})
+            return self._state['requests'].get(request_id, {}).copy()
 
     def get_all_requests_state(self):
         """

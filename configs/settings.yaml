@@ -19,8 +19,8 @@ default:
       - APIException
 
   request_manager:
-    STATE_FILE: "orchestration/request_manager_state.json"  #: File path for storing the state of the request manager.
-    QUEUE_FILE: "orchestration/request_queue.json"  #: File path for storing the request queue.
+    STATE_FILE: "orchestration/request_manager_state.json"
+    QUEUE_FILE: "orchestration/request_queue.json"
 
   logging:
     LOG_LEVEL: INFO
