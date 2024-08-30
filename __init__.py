@@ -1,18 +1,27 @@
 """
-MASA Package
-===========
+MASA: Multi-Agent System Architecture
 
-This package contains the MASA project.
+This package provides a framework for building and managing multi-agent systems.
+It currently includes tools for data retrieval and quality control, with more
+features in development.
+
+Key components:
+- Retrieval: Fetch data from various sources
+- Quality Control: Validate data and handle errors
+
+Other components (Augmentation, Structuring, Ecosystem integration) are
+currently in development and will be added in future releases.
+
 """
 
-from . import masa_tools
+from . import tools
 from . import configs
 from . import connections
 from . import main
 from . import requests
 
 __all__ = [
-    'masa_tools',
+    'tools',
     'configs',
     'connections',
     'main',

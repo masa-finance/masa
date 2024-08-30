@@ -3,28 +3,45 @@ channels:
   - defaults
   - conda-forge
 dependencies:
+  # Core dependencies
+  - python=3.12
+  - pip
+  - numpy
+  - pandas
+  - pyyaml
+  - python-dotenv
+  - requests
+  - tqdm
+
+  # Logging and configuration
   - colorlog
   - dynaconf
-  - feedparser
+
+  # Data processing and visualization
+  - matplotlib
+  - scikit-learn
+
+  # Jupyter and IPython
   - ipykernel
   - jupyter
-  - matplotlib
   - notebook
-  - numpy
-  - openai
-  - pandas
-  - pip
-  - python-dotenv
-  - python=3.12
-  - pyyaml
-  - recommonmark
-  - requests
-  - scikit-learn
+
+  # Documentation
   - sphinx
   - sphinx_rtd_theme
+  - recommonmark
   - myst-parser
+
+  # Web and API
   - streamlit
+
+  # Natural Language Processing
   - tiktoken
-  - tqdm
+  - openai
+
+  # Miscellaneous
+  - feedparser
+
+  # Install additional dependencies from requirements.txt
   - pip:
     - -r requirements.txt

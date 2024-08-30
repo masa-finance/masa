@@ -1,3 +1,10 @@
+"""
+Request Manager module for the MASA project.
+
+This module provides the RequestManager class, which is responsible for
+orchestrating the overall request processing workflow in the MASA system.
+"""
+
 import os
 import hashlib
 import json
@@ -5,12 +12,30 @@ from datetime import datetime
 from .request_router import RequestRouter
 from .queue import Queue
 from .state_manager import StateManager
-from masa_tools.qc.qc_manager import QCManager
+from tools.qc.qc_manager import QCManager
 from configs.config import global_settings
 import traceback
 
 class RequestManager:
+    """
+    RequestManager class for orchestrating request processing.
+
+    This class manages the lifecycle of requests, including queueing,
+    routing, processing, and state management. It integrates various
+    components of the MASA system to ensure efficient and reliable
+    request handling.
+
+    Attributes:
+        qc_manager (tools.qc.qc_manager.QCManager): Quality control manager for logging and error handling.
+        config (dict): Configuration settings for the request manager.
+        state_manager (orchestration.state_manager.StateManager): Manager for handling request states.
+        request_router (orchestration.request_router.RequestRouter): Router for directing requests to appropriate handlers.
+        queue (orchestration.queue.Queue): Priority queue for managing requests.
+    """
     def __init__(self):
+        """
+        Initialize the RequestManager.
+        """
         self.qc_manager = QCManager()
         self.config = global_settings
         self.state_file = self.config.get('request_manager.STATE_FILE')
@@ -20,6 +45,19 @@ class RequestManager:
         self.queue = Queue(self.state_manager, self.queue_file)
 
     def process_requests(self, request_list_file=None):
+        """
+        Process requests from a file or the existing queue.
+
+        This method is the main entry point for request processing. It loads
+        requests from a file if provided, otherwise processes requests from
+        the existing queue.
+
+        Args:
+            request_list_file (str, optional): Path to a JSON file containing requests to process.
+
+        Returns:
+            None
+        """
         if request_list_file:
             self.add_requests_from_file(request_list_file)
     
@@ -46,6 +84,15 @@ class RequestManager:
                 self.qc_manager.log_error(f"Error processing request {request_id}: {str(e)}", error_info=e, context="RequestManager")
 
     def _process_single_request(self, request):
+        """
+        Process a single request.
+
+        Args:
+            request (dict): The request to process.
+
+        Raises:
+            Exception: If an error occurs during request processing.
+        """
         request_id = request['id']
         current_state = self.state_manager.get_request_state(request_id)
 
@@ -63,6 +110,12 @@ class RequestManager:
             raise
 
     def add_requests_from_file(self, request_list_file):
+        """
+        Add requests from a JSON file to the queue.
+
+        Args:
+            request_list_file (str): Path to the JSON file containing requests.
+        """
         self.qc_manager.log_debug(f"Loading requests from file: {request_list_file}", context="RequestManager")
         with open(request_list_file, 'r') as file:
             requests = json.load(file)
@@ -82,12 +135,27 @@ class RequestManager:
                 self.qc_manager.log_error("Invalid JSON structure in request_list.json. Expected a list of requests.", context="RequestManager")
 
     def _generate_request_id(self, request):
+        """
+        Generate a unique request ID based on the request content.
+
+        Args:
+            request (dict): The request dictionary.
+
+        Returns:
+            str: The generated request ID.
+        """
         request_copy = request.copy()
         request_copy.pop('id', None) 
         request_json = json.dumps(request_copy, sort_keys=True).encode('utf-8')
         return hashlib.sha256(request_json).hexdigest()
 
     def prompt_user_for_queue_action(self, request_list_file):
+        """
+        Prompt the user for an action to take on the request queue.
+
+        Args:
+            request_list_file (str): Path to the JSON file containing requests.
+        """
         request_list = self.load_request_list(request_list_file)
         self.qc_manager.log_info("Existing requests in the queue:", context="RequestManager")
         for request in request_list:
@@ -113,6 +181,15 @@ class RequestManager:
             self.qc_manager.log_error("Invalid action. Please enter 'process', 'cancel', or 'skip'.", context="RequestManager")
 
     def load_request_list(self, request_list_file):
+        """
+        Load the request list from a JSON file.
+
+        Args:
+            request_list_file (str): Path to the JSON file containing requests.
+
+        Returns:
+            list: The loaded request list.
+        """
         try:
             with open(request_list_file, 'r') as file:
                 request_list = json.load(file)
@@ -125,6 +202,12 @@ class RequestManager:
             return []
 
     def _get_in_progress_requests(self):
+        """
+        Get the requests that are currently in progress or queued.
+
+        Returns:
+            list: The list of in-progress or queued requests.
+        """
         all_requests = self.state_manager.get_all_requests_state()
         in_progress = []
         for request_id, request_state in all_requests.items():
@@ -138,6 +221,12 @@ class RequestManager:
         return in_progress
 
     def add_request(self, request):
+        """
+        Add a request to the system.
+
+        Args:
+            request (dict): The request to add.
+        """
         request_id = request['id']
         self.qc_manager.log_debug(f"Adding request {request_id} to system", context="RequestManager")
         
@@ -146,9 +235,24 @@ class RequestManager:
         self.qc_manager.log_debug(f"Request {request_id} added to queue and state updated", context="RequestManager")
 
     def get_request_status(self, request_id):
+        """
+        Get the status of a request.
+
+        Args:
+            request_id (str): The ID of the request.
+
+        Returns:
+            dict: The status of the request.
+        """
         return self.state_manager.get_request_state(request_id)
 
     def get_all_requests_status(self):
+        """
+        Get the status of all requests.
+
+        Returns:
+            list: A list of dictionaries containing the status of all requests.
+        """
         all_requests_status = []
         all_requests = self.state_manager.get_all_requests_state()
         for request_id, request_state in all_requests.items():
@@ -168,6 +272,9 @@ class RequestManager:
         return all_requests_status
 
     def resume_incomplete_requests(self):
+        """
+        Resume incomplete requests (in progress, queued, or failed).
+        """
         all_requests = self.state_manager.get_all_requests_state()
         for request_id, request_state in all_requests.items():
             if request_state.get('status') in ['in_progress', 'queued', 'failed']:
@@ -179,6 +286,12 @@ class RequestManager:
         self.qc_manager.log_debug(f"Resumed incomplete requests. Current queue size: {len(self.queue)}", context="RequestManager")
 
     def cancel_request_queue(self, request_list_file):
+        """
+        Cancel the requests in the queue based on the provided request list file.
+
+        Args:
+            request_list_file (str): Path to the JSON file containing requests to cancel.
+        """
         request_list = self.load_request_list(request_list_file)
         for request in request_list:
             if request is None:
@@ -191,6 +304,12 @@ class RequestManager:
             self.cancel_request(request_id)
 
     def cancel_request(self, request_id):
+        """
+        Cancel a specific request.
+
+        Args:
+            request_id (str): The ID of the request to cancel.
+        """
         request_state = self.state_manager.get_request_state(request_id)
         if request_state:
             self.state_manager.update_request_state(request_id, 'cancelled')

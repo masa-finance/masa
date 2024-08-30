@@ -1,7 +1,7 @@
-Queue
-=====
+Settings
+========
 
-.. automodule:: orchestration.queue
+.. automodule:: settings.yml
    :members:
    :undoc-members:
    :show-inheritance:

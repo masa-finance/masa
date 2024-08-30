@@ -1,7 +1,7 @@
-State Manager
+Error Handler
 =============
 
-.. automodule:: state_manager
+.. automodule:: qc.error_handler
    :members:
    :undoc-members:
    :show-inheritance:

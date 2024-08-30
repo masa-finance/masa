@@ -5,11 +5,10 @@ Welcome to MASA Project's documentation!
    :maxdepth: 2
    :caption: Contents:
 
-   readme
    installation
-   usage
-   modules/index
    contributing
+   readme
+   modules/index
 
 Indices and tables
 ==================

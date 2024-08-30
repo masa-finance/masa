@@ -1,8 +1,24 @@
+"""
+Queue module for the MASA project.
+
+This module provides a priority queue implementation for managing requests
+in the MASA system, ensuring efficient processing based on request priorities.
+
+The Queue class uses Python's built-in PriorityQueue to manage requests with priorities.
+Lower priority values indicate higher priority.
+
+Attributes:
+    memory_queue (queue.PriorityQueue): The in-memory priority queue.
+    request_data (dict): A dictionary to store request data.
+    qc_manager (tools.qc.qc_manager.QCManager): Quality control manager for logging.
+    state_manager (orchestration.state_manager.StateManager): Manager for handling request states.
+"""
+
 import json
 import os
 from queue import PriorityQueue
 from datetime import datetime
-from masa_tools.qc.qc_manager import QCManager
+from tools.qc.qc_manager import QCManager
 
 class Queue:
     """
@@ -12,28 +28,28 @@ class Queue:
     Lower priority values indicate higher priority.
 
     Attributes:
-        memory_queue (PriorityQueue): The in-memory priority queue.
+        memory_queue (queue.PriorityQueue): The in-memory priority queue.
         request_data (dict): A dictionary to store request data.
-        qc_manager (QCManager): Quality control manager for logging.
-        state_manager (StateManager): Manager for handling request states.
+        qc_manager (tools.qc.qc_manager.QCManager): Quality control manager for logging.
+        state_manager (orchestration.state_manager.StateManager): Manager for handling request states.
     """
 
     def __init__(self, state_manager, queue_file):
         """
         Initialize the Queue.
 
-        :param state_manager: The StateManager instance for managing request states.
-        :param queue_file: File path to store the queue data.
+        Args:
+            state_manager (orchestration.state_manager.StateManager): The StateManager instance for managing request states.
+            queue_file (str): File path to store the queue data.
         """
         self.memory_queue = PriorityQueue()
         self.state_manager = state_manager
         self.qc_manager = QCManager()
         self._queue_file = queue_file
         
-        # Ensure the directory exists
+        
         os.makedirs(os.path.dirname(self._queue_file), exist_ok=True)
         
-        # Load or create the queue file
         self._load_queue()
 
     def _load_queue(self):
@@ -67,6 +83,9 @@ class Queue:
         self.qc_manager.log_debug("Queue saved successfully", context="Queue")
 
     def _load_queue_from_state(self):
+        """
+        Load queued and in-progress requests from the state manager into the queue.
+        """
         all_requests = self.state_manager.get_all_requests_state()
         for request_id, request_state in all_requests.items():
             if request_state.get('status') in ['queued', 'in_progress']:
@@ -77,6 +96,12 @@ class Queue:
         self.qc_manager.log_info(f"Loaded {self.memory_queue.qsize()} requests from state manager", context="Queue")
 
     def add(self, request):
+        """
+        Add a request to the queue if it's not already completed or cancelled.
+
+        Args:
+            request (dict): The request to add to the queue.
+        """
         request_id = request['id']
         current_state = self.state_manager.get_request_state(request_id)
         current_status = current_state.get('status', 'unknown')
@@ -92,6 +117,12 @@ class Queue:
         self._save_queue()
 
     def get(self):
+        """
+        Get the next request from the queue.
+
+        Returns:
+            dict: The next request, or None if the queue is empty.
+        """
         if self.memory_queue.empty():
             self.qc_manager.log_debug("Attempted to get request from empty queue", context="Queue")
             return None
@@ -111,7 +142,8 @@ class Queue:
         """
         Mark a request as completed and remove it from the queue.
 
-        :param request_id: The ID of the request to mark as completed.
+        Args:
+            request_id (str): The ID of the request to mark as completed.
         """
         self.qc_manager.log_debug(f"Marking request {request_id} as completed", context="Queue")
         if request_id in self.request_data:
@@ -124,8 +156,9 @@ class Queue:
         """
         Mark a request as failed and log the error.
 
-        :param request_id: The ID of the request to mark as failed.
-        :param error: The error message.
+        Args:
+            request_id (str): The ID of the request to mark as failed.
+            error (str): The error message.
         """
         self.qc_manager.log_debug(f"Marking request {request_id} as failed", context="Queue")
         if request_id in self.request_data:
@@ -139,8 +172,11 @@ class Queue:
         """
         Get the status of a request.
 
-        :param request_id: The ID of the request.
-        :return: The status of the request.
+        Args:
+            request_id (str): The ID of the request.
+
+        Returns:
+            dict: The status of the request.
         """
         return self.request_data.get(request_id)
 
@@ -148,7 +184,8 @@ class Queue:
         """
         Get the statuses of all requests.
 
-        :return: A dictionary containing the statuses of all requests.
+        Returns:
+            dict: A dictionary containing the statuses of all requests.
         """
         return self.request_data
 
@@ -165,7 +202,8 @@ class Queue:
         """
         Peek at the next request in the queue without removing it.
 
-        :return: The next request or None if the queue is empty.
+        Returns:
+            dict: The next request or None if the queue is empty.
         """
         if self.memory_queue.empty():
             return None
@@ -173,7 +211,15 @@ class Queue:
         return self.request_data.get(request_id, {}).get('request')
 
     def _generate_request_id(self, request):
-        """Generate a unique id for a request."""
+        """
+        Generate a unique id for a request.
+
+        Args:
+            request (dict): The request to generate an ID for.
+
+        Returns:
+            str: The generated request ID.
+        """
         import hashlib
         import json
         request_json = json.dumps(request, sort_keys=True).encode('utf-8')

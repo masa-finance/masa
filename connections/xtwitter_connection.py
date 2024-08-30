@@ -1,19 +1,31 @@
+"""
+Module for handling connections to the XTwitter API in the MASA project.
+
+This module provides a concrete implementation of the APIConnection class
+specifically for interacting with the XTwitter API. It handles authentication,
+request formatting, and response processing for XTwitter-specific endpoints.
+"""
+
 from .api_connection import APIConnection
 from configs.config import global_settings
-from masa_tools.qc.qc_manager import QCManager
-from masa_tools.utils.helper_functions import format_url
-from masa_tools.qc.exceptions import AuthenticationException, APIException, RateLimitException
+from tools.qc.qc_manager import QCManager
+from tools.utils.helper_functions import format_url
+from tools.qc.exceptions import AuthenticationException, APIException, RateLimitException
 
 class XTwitterConnection(APIConnection):
     """
     XTwitter API connection class.
 
     This class implements the APIConnection interface for the XTwitter API.
-    It handles XTwitter-specific configuration, headers, timeouts, and response handling.
+    It handles XTwitter-specific configuration, headers, and response handling.
     """
 
     def __init__(self):
-        """Initialize the XTwitterConnection."""
+        """
+        Initialize the XTwitterConnection.
+
+        Sets up the QCManager and configures the base URL for the XTwitter API.
+        """
         self.qc_manager = QCManager()
         
         super().__init__()
@@ -38,7 +50,10 @@ class XTwitterConnection(APIConnection):
             count (int): The number of tweets to retrieve.
 
         Returns:
-            dict: The processed response data.
+            dict: The processed response data containing the retrieved tweets.
+
+        Raises:
+            APIException: If there's an error in making the request or processing the response.
         """
         data = {'query': query, 'count': count}
         response = self.make_request(endpoint, method='POST', data=data)
@@ -55,6 +70,9 @@ class XTwitterConnection(APIConnection):
 
         Returns:
             requests.Response: The raw response object from the API request.
+
+        Raises:
+            APIException: If there's an error in making the request.
         """
         url = format_url(self.base_url, endpoint)
         self.qc_manager.log_debug(f"Making request to URL: {url}", context="XTwitterConnection")

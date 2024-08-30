@@ -49,6 +49,12 @@ html_static_path = ['_static']
 # further.  For a list of options available for each theme, see the documentation.
 html_theme_options = {
     'navigation_depth': 4,
+    'collapse_navigation': False,
+    'sticky_navigation': True,
+    'navigation_depth': 4,
+    'includehidden': True,
+    'titles_only': False,
+    'body_max_width': None,  # This removes the max-width constraint
 }
 
 # -- Extension configuration -------------------------------------------------

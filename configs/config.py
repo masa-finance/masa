@@ -1,5 +1,9 @@
 """
 Configuration module for the MASA project.
+
+This module uses Dynaconf to manage configuration settings for the MASA project.
+It provides functionality to load settings from files, environment variables,
+and validate the configuration.
 """
 
 import os
@@ -7,11 +11,11 @@ from dynaconf import Dynaconf, Validator
 
 global_settings = Dynaconf(
     envvar_prefix="MASA",
-    settings_files=['configs/settings.yaml'],  # Specify the path to the settings file
-    environments=True,  # Enable environment-specific settings
-    load_dotenv=True,  # Load environment variables from .env file
-    dotenv_path="configs/.env",  # Specify the path to the .env file
-    merge_enabled=True,  # Merge settings from different sources
+    settings_files=['configs/settings.yaml'],
+    environments=True,
+    load_dotenv=True,
+    dotenv_path="configs/.env",
+    merge_enabled=True,
     validators=[
         Validator('twitter.BASE_URL', must_exist=True, when=Validator('twitter.BASE_URL_LOCAL', must_exist=False)),
         Validator('twitter.BASE_URL_LOCAL', must_exist=True, when=Validator('twitter.BASE_URL', must_exist=False)),
@@ -20,14 +24,6 @@ global_settings = Dynaconf(
     ]
 )
 
-# `envvar_prefix` = export envvars with `export DYNACONF_FOO=bar`.
-# `settings_files` = Load these files in the order.
-# `environments` = Enable environment-specific settings.
-# `load_dotenv` = Load environment variables from .env file.
-# `dotenv_path` = Specify the path to the .env file.
-# `merge_enabled` = Merge settings from different sources.
-# `validators` = Specify validation rules for settings.
-
 def initialize_config():
     """
     Initialize the global settings using Dynaconf.
@@ -35,8 +31,9 @@ def initialize_config():
     This function loads environment variables from the .env file and initializes
     the Dynaconf settings using the specified configuration files and environment.
     It also validates the presence of required settings.
-    """
-    # Validate the settings
-    global_settings.validators.validate()
 
+    Returns:
+        Dynaconf: The initialized and validated global settings object.
+    """
+    global_settings.validators.validate()
     return global_settings

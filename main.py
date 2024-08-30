@@ -1,10 +1,37 @@
+"""
+Main entry point for the MASA application.
+
+This module provides the main functionality to process requests or retrieve request history.
+It initializes the necessary components and handles the command-line interface.
+
+Usage:
+    python main.py <action> [path_to_requests_json]
+    
+    Actions:
+    - 'process': Process all requests (both resumed and new)
+    - 'request_history': Get a history of all requests
+"""
+
 import sys
 from configs.config import initialize_config
-from masa_tools.qc.qc_manager import QCManager
+from tools.qc.qc_manager import QCManager
 from orchestration.request_manager import RequestManager
 import json
 
 def main(action, json_file_path=None):
+    """
+    Main function to process requests or retrieve request history.
+
+    Args:
+        action (str): The action to perform. Either 'process' or 'request_history'.
+        json_file_path (str, optional): Path to the JSON file containing requests. Required for 'process' action.
+
+    Raises:
+        Exception: If there's an error during initialization or processing.
+
+    Returns:
+        None
+    """
     try:
         # Initialize configurations
         initialize_config()

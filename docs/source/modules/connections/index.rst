@@ -1,13 +1,13 @@
 Connections
 ===========
 
-.. automodule:: masa.connections
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 4
 
    api_connection
    xtwitter_connection
+
+.. automodule:: connections
+   :members:
+   :undoc-members:
+   :show-inheritance:

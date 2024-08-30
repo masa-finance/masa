@@ -2,9 +2,9 @@ MASA Package Modules
 ====================
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 4
 
-   config
+   configs/index
    connections/index
-   masa_tools/index
    orchestration/index
+   tools/index

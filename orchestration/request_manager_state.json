@@ -575,9 +575,9 @@
             }
         },
         "1d7b6eafeffa5efe23744a1f9988748163ce4cd02c8924e5755a2a7c8bee35cb": {
-            "status": "in_progress",
+            "status": "completed",
             "created_at": "2024-08-29T21:39:41.062797",
-            "last_updated": "2024-08-29T21:57:18.617051",
+            "last_updated": "2024-08-30T14:45:18.712018",
             "request_details": {
                 "retriever": "XTwitterRetriever",
                 "endpoint": "data/twitter/tweets/recent",
@@ -590,14 +590,16 @@
                 "status": "queued"
             },
             "priority": 8,
-            "progress": {
-                "last_processed_time": "2024-08-28"
+            "result": {
+                "tweets_count": 144,
+                "api_calls_count": 2,
+                "last_processed_time": "2024-08-30T14:45:18.711461"
             }
         },
         "a2ec2112d00e91b6797abb812b98e75bf9f68339036066f3a1556b8df3b52556": {
-            "status": "queued",
+            "status": "completed",
             "created_at": "2024-08-29T21:39:41.063319",
-            "last_updated": "2024-08-29T21:39:41.063319",
+            "last_updated": "2024-08-30T14:45:24.747400",
             "request_details": {
                 "retriever": "XTwitterRetriever",
                 "endpoint": "data/twitter/tweets/recent",
@@ -609,12 +611,17 @@
                 "id": "a2ec2112d00e91b6797abb812b98e75bf9f68339036066f3a1556b8df3b52556",
                 "status": "queued"
             },
-            "priority": 9
+            "priority": 9,
+            "result": {
+                "tweets_count": 0,
+                "api_calls_count": 3,
+                "last_processed_time": "2024-08-30T14:45:24.747300"
+            }
         },
         "1b086ab6a86e68fb7c9f76f953f5a2a3d7cbca69b92b89d73158ca87961740bf": {
-            "status": "queued",
+            "status": "completed",
             "created_at": "2024-08-29T21:39:41.063855",
-            "last_updated": "2024-08-29T21:39:41.063855",
+            "last_updated": "2024-08-30T14:45:43.880956",
             "request_details": {
                 "retriever": "XTwitterRetriever",
                 "endpoint": "data/twitter/tweets/recent",
@@ -626,8 +633,13 @@
                 "id": "1b086ab6a86e68fb7c9f76f953f5a2a3d7cbca69b92b89d73158ca87961740bf",
                 "status": "queued"
             },
-            "priority": 10
+            "priority": 10,
+            "result": {
+                "tweets_count": 450,
+                "api_calls_count": 3,
+                "last_processed_time": "2024-08-30T14:45:43.880481"
+            }
         }
     },
-    "last_updated": "2024-08-29T21:57:18.617051"
+    "last_updated": "2024-08-30T14:45:43.880956"
 }

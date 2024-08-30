@@ -1,7 +1,7 @@
 Request Router
 ==============
 
-.. automodule:: masa.orchestration.request_router
+.. automodule:: orchestration.request_router
    :members:
    :undoc-members:
    :show-inheritance:

@@ -1,7 +1,7 @@
-Request Manager
+Logging Config
 ===============
 
-.. automodule:: orchestration.request_manager
+.. automodule:: qc.logging_config
    :members:
    :undoc-members:
    :show-inheritance:

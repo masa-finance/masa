@@ -1,23 +1,37 @@
+"""
+State Manager module for the MASA project.
+
+This module provides the StateManager class, which is responsible for
+managing the state of requests throughout their lifecycle in the MASA system.
+"""
+
 import json
 import os
 import threading
 from datetime import datetime
-from masa_tools.qc.qc_manager import QCManager
+from tools.qc.qc_manager import QCManager
 
 class StateManager:
     """
     Class for managing the state of requests.
 
     This class handles the state transitions of requests and maintains
-    consistency with the priority queue implementation.
+    consistency with the priority queue implementation. It provides methods
+    for updating, retrieving, and removing request states.
 
-    :param state_file: File path to store the state data.
+    Attributes:
+        _state_file (str): File path to store the state data.
+        _lock (threading.Lock): Lock for thread-safe operations.
+        qc_manager (QCManager): Quality control manager for logging.
+        _state (dict): In-memory representation of the current state.
     """
+
     def __init__(self, state_file):
         """
         Initialize the StateManager.
 
-        :param state_file: File path to store the state data.
+        Args:
+            state_file (str): File path to store the state data.
         """
         self._state_file = state_file
         self._lock = threading.Lock()
@@ -66,12 +80,13 @@ class StateManager:
         """
         Update the state of a request.
 
-        :param request_id: ID of the request.
-        :param status: New status of the request.
-        :param progress: Progress data of the request (optional).
-        :param result: Result data of the request (optional).
-        :param error: Error data of the request (optional).
-        :param request_details: Original request data (optional).
+        Args:
+            request_id (str): ID of the request.
+            status (str): New status of the request.
+            progress (dict, optional): Progress data of the request.
+            result (dict, optional): Result data of the request.
+            error (str, optional): Error data of the request.
+            request_details (dict, optional): Original request data.
         """
         with self._lock:
             current_time = datetime.now().isoformat()
@@ -107,8 +122,11 @@ class StateManager:
         """
         Get the state of a specific request.
 
-        :param request_id: ID of the request.
-        :return: State data of the request or an empty dictionary if not found.
+        Args:
+            request_id (str): ID of the request.
+
+        Returns:
+            dict: State data of the request or an empty dictionary if not found.
         """
         with self._lock:
             return self._state['requests'].get(request_id, {}).copy()

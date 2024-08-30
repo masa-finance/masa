@@ -1,6 +1,6 @@
 # MASA Project
 
-MASA is a project for data retrieval, structuring, augmentation, and quality control. It provides tools to retrieve data from various sources, including Twitter, and perform advanced searches using the Masa Oracle Node API.
+MASA is a project for data retrieval, quality control, and orchestration. It currently provides tools to retrieve data from Twitter using the Masa Oracle Node API, with plans to expand to other data sources and functionalities in the future.
 
 ## Quick Start
 
@@ -18,6 +18,35 @@ MASA is a project for data retrieval, structuring, augmentation, and quality con
 
 3. Basic usage example:
 
+   ```python
+   from masa.orchestration import RequestManager
+
+   # Initialize the RequestManager
+   request_manager = RequestManager()
+
+   # Define a request
+   request = {
+       "retriever": "XTwitterRetriever",
+       "endpoint": "data/twitter/tweets/recent",
+       "params": {
+           "query": "#AI lang:en",
+           "count": 100
+       }
+   }
+
+   # Process the request
+   request_manager.process_requests([request])
+   ```
+
+## Configuration
+
+The project uses YAML files for configuration:
+
+- `configs/settings.yaml`: Main configuration file containing settings for Twitter API, request management, and logging.
+- `configs/.secrets.yaml`: (Optional) File for storing sensitive information like API keys. Not currently in use.
+
+The `settings.yaml` file is loaded using Dynaconf, which allows for easy environment-based configuration management.
+
 ## Advanced Twitter Search
 
 The Masa Oracle Node API provides advanced search capabilities for retrieving Twitter data. Some of the available search options include:
@@ -32,25 +61,29 @@ The Masa Oracle Node API provides advanced search capabilities for retrieving Tw
 
 For more details, refer to the [Masa Oracle Twitter Docs](https://developers.masa.ai/docs/masa-oracle/oracle-node/twitter-data#advanced-search).
 
-## Configuration
+## Project Structure
 
-The project uses a combination of YAML files and environment variables for configuration. Key configuration files include:
-
-- `configs/twitter_retriever_config.yaml`: Twitter API configuration
-- `.env`: Environment variables (create this file in the project root)
+- `masa/`: Main package directory
+  - `configs/`: Configuration files
+  - `connections/`: API connection handlers
+  - `masa_tools/`: Core functionality modules
+    - `qc/`: Quality control tools
+    - `retrieve/`: Data retrieval tools
+    - `utils/`: Utility functions
+  - `orchestration/`: Request management and processing
 
 ## Dependencies
 
 Key dependencies include:
 
 - Data processing: numpy, pandas
-- Machine learning: scikit-learn, torch, transformers
 - API interaction: requests
+- Configuration: dynaconf
+- Quality control: colorlog
 - Natural Language Processing: langchain, openai
 - Data visualization: matplotlib, streamlit
-- Quality control: colorlog
 
-For a full list of dependencies, refer to `setup.py` or `requirements.txt`.
+For a full list of dependencies, refer to `environment.yml` and `requirements.txt`.
 
 ## Contributing
 
