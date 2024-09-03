@@ -166,8 +166,14 @@ data/
 
 # ignore the orchestration files
 orchestration/request_queue.json
-orchestration/state_manager.json
+orchestration/request_manager_state.json
 
 # Ignore TODO files
 TODO.md
+
+# Ignore everything inside the logs directory
+logs/*
+
+
+
 

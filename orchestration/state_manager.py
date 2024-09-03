@@ -95,11 +95,16 @@ class StateManager:
                     'status': status,
                     'created_at': current_time,
                     'last_updated': current_time,
-                    'request_details': request_details
                 }
             else:
                 self._state['requests'][request_id]['status'] = status
                 self._state['requests'][request_id]['last_updated'] = current_time
+
+            if request_details:
+                # Ensure we're not storing status in request_details
+                request_details_copy = request_details.copy()
+                request_details_copy.pop('status', None)
+                self._state['requests'][request_id]['request_details'] = request_details_copy
 
             if progress is not None:
                 self._state['requests'][request_id]['progress'] = progress
@@ -109,10 +114,6 @@ class StateManager:
             elif status == 'failed':
                 self._state['requests'][request_id]['error'] = error
                 self._state['requests'][request_id].pop('progress', None)
-
-            if request_details:
-                self._state['requests'][request_id]['request_details'] = request_details
-                self._state['requests'][request_id]['priority'] = request_details.get('priority')
 
             self._state['last_updated'] = current_time
             self._save_state()

@@ -101,11 +101,11 @@ class RequestManager:
 
         try:
             result = self.request_router.route_request(request)
-            self.state_manager.update_request_state(request_id, 'completed', result=result)
+            self.state_manager.update_request_state(request_id, 'completed', result=result, request_details=request)
             self.qc_manager.log_info(f"Request completed: {request_id}")
         except Exception as e:
             self.qc_manager.log_error(f"Error in request {request_id}: {str(e)}")
-            self.state_manager.update_request_state(request_id, 'failed', error=str(e))
+            self.state_manager.update_request_state(request_id, 'failed', error=str(e), request_details=request)
             raise
 
     def add_requests_from_file(self, request_list_file):
@@ -255,13 +255,13 @@ class RequestManager:
         all_requests_status = []
         all_requests = self.state_manager.get_all_requests_state()
         for request_id, request_state in all_requests.items():
-            original_request = request_state.get('original_request') or {}
-            params = original_request.get('params', {})
+            request_details = request_state.get('request_details', {})
+            params = request_details.get('params', {})
             status_entry = {
                 'request_id': request_id,
                 'status': request_state.get('status', 'Unknown'),
-                'retriever': original_request.get('retriever', 'N/A'),
-                'endpoint': original_request.get('endpoint', 'N/A'),
+                'retriever': request_details.get('retriever', 'N/A'),
+                'endpoint': request_details.get('endpoint', 'N/A'),
                 'query': params.get('query', 'N/A'),
                 'count': params.get('count', 'N/A'),
                 'created_at': request_state.get('created_at', 'N/A'),
