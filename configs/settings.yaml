@@ -13,7 +13,7 @@ default:
     BASE_WAIT_TIME: 10
     BACKOFF_FACTOR: 2
     MAX_WAIT_TIME: 960
-    SUCCESS_WAIT_TIME: 5
+    SUCCESS_WAIT_TIME: 10
     RETRYABLE_EXCEPTIONS:
       - NetworkException
       - RateLimitException
@@ -27,9 +27,19 @@ default:
   logging:
     LOG_LEVEL: INFO
     LOG_FILE: "logs/masa.log"
-    LOG_FORMAT: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    LOG_FORMAT: "%(log_color)s%(asctime)s - %(levelname)s - %(message)s%(reset)s"
     LOG_DATE_FORMAT: "%Y-%m-%d %H:%M:%S"
+    CONSOLE_LOG_LEVEL: INFO
+    FILE_LOG_LEVEL: DEBUG
+    COLOR_ENABLED: true
 
 development:
   logging:
     LOG_LEVEL: DEBUG
+    CONSOLE_LOG_LEVEL: DEBUG
+
+production:
+  logging:
+    LOG_LEVEL: INFO
+    CONSOLE_LOG_LEVEL: INFO
+    FILE_LOG_LEVEL: DEBUG

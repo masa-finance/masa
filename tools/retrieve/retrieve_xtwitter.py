@@ -77,9 +77,13 @@ class XTwitterRetriever:
         request_state = self.state_manager.get_request_state(request_id)
         current_date = datetime.fromisoformat(request_state.get('progress', {}).get('last_processed_time', end_date.isoformat())).date()
 
+        total_days = (end_date - start_date).days
+        self.qc_manager.log_info(f"Starting tweet retrieval for {total_days} days")
+
         all_tweets = []
         api_calls_count = 0
         records_fetched = 0
+        days_processed = 0
 
         while current_date >= start_date:
             iteration_start_date = current_date - timedelta(days=days_per_iteration)
@@ -89,43 +93,30 @@ class XTwitterRetriever:
             
             response = self.twitter_connection.get_tweets(api_endpoint, date_range_query, count)
             api_calls_count += 1
-            records_fetched = self._handle_response(response, request_id, query, current_date, all_tweets, records_fetched)
+            new_records = self._handle_response(response, request_id, query, current_date, all_tweets, records_fetched)
+            records_fetched += new_records
+
+            days_processed += days_per_iteration
+            progress_percentage = min(100, int((days_processed / total_days) * 100))
+            self.qc_manager.log_info(f"Tweet retrieval progress: {progress_percentage}% ({records_fetched} tweets fetched)")
 
             current_date -= timedelta(days=days_per_iteration)
             self.state_manager.update_request_state(request_id, 'in_progress', {'last_processed_time': current_date.isoformat()})
 
+        self.qc_manager.log_info(f"Tweet retrieval completed. Total tweets: {records_fetched}, API calls: {api_calls_count}")
         return all_tweets, api_calls_count, records_fetched
 
     def _handle_response(self, response, request_id, query, current_date, all_tweets, records_fetched):
-        """
-        Handle the API response for a single request.
-
-        This method processes the API response, extracts the tweets, and updates the retrieval statistics.
-
-        Args:
-            response (dict): The API response containing the retrieved tweets.
-            request_id (str): The ID of the current request.
-            query (str): The search query used for retrieving tweets.
-            current_date (datetime): The current date being processed.
-            all_tweets (list): The list of all tweets retrieved so far.
-            records_fetched (int): The number of records fetched so far.
-
-        Returns:
-            int: The updated number of records fetched.
-        """
-        self.qc_manager.log_debug(f"Handling response for request {request_id}", context="XTwitterRetriever")
-        
         if 'data' in response and response['data'] is not None:
             tweets = response['data']
             all_tweets.extend(tweets)
             num_tweets = len(tweets)
-            records_fetched += num_tweets
-            self.qc_manager.log_info(f"Scraped {num_tweets} tweets for {query} on {current_date.strftime('%Y-%m-%d %H:%M:%S')}.", context="XTwitterRetriever")
             self._save_tweets(tweets, request_id, query, current_date)
+            self.qc_manager.log_debug(f"Scraped and saved {num_tweets} tweets for {query} on {current_date.strftime('%Y-%m-%d')}.")
+            return num_tweets
         else:
-            self.qc_manager.log_warning(f"No tweets fetched for {query} on {current_date.strftime('%Y-%m-%d %H:%M:%S')}. Likely no results.", context="XTwitterRetriever")
-
-        return records_fetched
+            self.qc_manager.log_debug(f"No tweets fetched for {query} on {current_date.strftime('%Y-%m-%d')}. Likely no results.")
+            return 0
 
     def _save_tweets(self, tweets, request_id, query, current_date):
         """

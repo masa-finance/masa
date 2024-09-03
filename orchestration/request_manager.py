@@ -60,28 +60,26 @@ class RequestManager:
         """
         if request_list_file:
             self.add_requests_from_file(request_list_file)
+            self.qc_manager.log_info(f"Loaded requests from file: {request_list_file}")
     
+        total_requests = len(self.queue.memory_queue.queue)
+        self.qc_manager.log_info(f"Starting to process {total_requests} requests")
+
+        processed_requests = 0
         while True:
             request = self.queue.get()
             if request is None:
-                self.qc_manager.log_debug("Queue is empty. Exiting process_requests.", context="RequestManager")
                 break
 
-            # Get the most up-to-date state from StateManager
-            request_id = request['id']
-            current_state = self.state_manager.get_request_state(request_id)
-            current_status = current_state.get('status', 'unknown')
-
-            self.qc_manager.log_debug(f"Retrieved request from queue: {request_id}, Current status: {current_status}", context="RequestManager")
-            
-            if current_status in ['completed', 'cancelled']:
-                self.qc_manager.log_info(f"Skipping request {request_id} with status {current_status}", context="RequestManager")
-                continue
+            processed_requests += 1
+            self.qc_manager.log_info(f"Processing request {processed_requests} of {total_requests}")
 
             try:
                 self._process_single_request(request)
             except Exception as e:
-                self.qc_manager.log_error(f"Error processing request {request_id}: {str(e)}", error_info=e, context="RequestManager")
+                self.qc_manager.log_error(f"Error processing request: {str(e)}")
+
+        self.qc_manager.log_info(f"Completed processing all {total_requests} requests")
 
     def _process_single_request(self, request):
         """
@@ -104,8 +102,9 @@ class RequestManager:
         try:
             result = self.request_router.route_request(request)
             self.state_manager.update_request_state(request_id, 'completed', result=result)
+            self.qc_manager.log_info(f"Request completed: {request_id}")
         except Exception as e:
-            self.qc_manager.log_error(f"Error in _process_single_request for request {request_id}: {str(e)}", error_info=e, context="RequestManager")
+            self.qc_manager.log_error(f"Error in request {request_id}: {str(e)}")
             self.state_manager.update_request_state(request_id, 'failed', error=str(e))
             raise
 
@@ -130,7 +129,7 @@ class RequestManager:
                         self.state_manager.update_request_state(request['id'], 'queued', request_details=request)
                     else:
                         self.qc_manager.log_debug(f"Skipping existing request: {generated_id}", context="RequestManager")
-                self.qc_manager.log_info(f"Skipped {len(requests)} existing requests from file", context="RequestManager")
+                self.qc_manager.log_info(f"Added {len(requests)} new requests from file")
             else:
                 self.qc_manager.log_error("Invalid JSON structure in request_list.json. Expected a list of requests.", context="RequestManager")
 
