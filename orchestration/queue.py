@@ -47,40 +47,10 @@ class Queue:
         self.qc_manager = QCManager()
         self._queue_file = queue_file
         
-        
         os.makedirs(os.path.dirname(self._queue_file), exist_ok=True)
         
-        self._load_queue()
-
-    def _load_queue(self):
-        """
-        Load the queue data from the queue file or create a new queue if the file doesn't exist.
-        """
-        if os.path.exists(self._queue_file):
-            try:
-                with open(self._queue_file, 'r') as file:
-                    queue_data = json.load(file)
-                for priority, request_id in queue_data:
-                    self.memory_queue.put((priority, request_id))
-                self.qc_manager.log_debug("Queue file loaded successfully", context="Queue")
-            except json.JSONDecodeError:
-                self.qc_manager.log_warning("Invalid JSON in queue file. Creating new queue.", context="Queue")
-                self._save_queue()
-        else:
-            self.qc_manager.log_info("Queue file not found. Creating new queue.", context="Queue")
-            self._save_queue()
-        
         self._load_queue_from_state()
-
-    def _save_queue(self):
-        """
-        Save the current queue data to the queue file.
-        """
-        self.qc_manager.log_debug("Saving queue to file", context="Queue")
-        queue_data = list(self.memory_queue.queue)
-        with open(self._queue_file, 'w') as file:
-            json.dump(queue_data, file, indent=4)
-        self.qc_manager.log_debug("Queue saved successfully", context="Queue")
+        self._load_queue_file()
 
     def _load_queue_from_state(self):
         """
@@ -91,9 +61,40 @@ class Queue:
             if request_state.get('status') in ['queued', 'in_progress']:
                 request_details = request_state.get('request_details')
                 if request_details:
-                    self.add(request_details)
-        self.qc_manager.log_debug(f"Loaded {self.memory_queue.qsize()} requests from state manager", context="Queue")
+                    priority = request_details.get('priority', 100)
+                    self.memory_queue.put((priority, request_id))
         self.qc_manager.log_info(f"Loaded {self.memory_queue.qsize()} requests from state manager", context="Queue")
+
+    def _load_queue_file(self):
+        """
+        Load the queue data from the queue file, avoiding duplicates.
+        """
+        if os.path.exists(self._queue_file):
+            try:
+                with open(self._queue_file, 'r') as file:
+                    queue_data = json.load(file)
+                for priority, request_id in queue_data:
+                    if not any(item[1] == request_id for item in self.memory_queue.queue):
+                        self.memory_queue.put((priority, request_id))
+                self.qc_manager.log_debug("Queue file loaded successfully", context="Queue")
+            except json.JSONDecodeError:
+                self.qc_manager.log_warning("Invalid JSON in queue file. Creating new queue.", context="Queue")
+                self._save_queue()
+        else:
+            self.qc_manager.log_info("Queue file not found. Creating new queue.", context="Queue")
+            self._save_queue()
+        
+        self.qc_manager.log_info(f"Total requests in queue after loading: {self.memory_queue.qsize()}", context="Queue")
+
+    def _save_queue(self):
+        """
+        Save the current queue data to the queue file.
+        """
+        self.qc_manager.log_debug("Saving queue to file", context="Queue")
+        queue_data = list(self.memory_queue.queue)
+        with open(self._queue_file, 'w') as file:
+            json.dump(queue_data, file, indent=4)
+        self.qc_manager.log_debug("Queue saved successfully", context="Queue")
 
     def add(self, request):
         """
