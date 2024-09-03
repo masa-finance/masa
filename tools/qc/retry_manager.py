@@ -72,8 +72,9 @@ class RetryPolicy:
         return attempt < config.max_retries and isinstance(exception, tuple(config.retryable_exceptions))
 
     def execute_with_retry(self, func, config_key, *args, **kwargs):
-        """Execute the given function with retry logic based on the configuration.
-        
+        """
+        Execute the given function with retry logic based on the configuration.
+
         :param func: The function to execute
         :param config_key: The key of the retry configuration to use
         :param args: Positional arguments to pass to the function
@@ -82,59 +83,48 @@ class RetryPolicy:
         :raises: The last exception if all retries fail
         """
         config = self.get_configuration(config_key)
-        attempt = 1  # Start at 1, as this is the first attempt
+        attempt = 1
         last_exception = None
-        
-        self._local.retry_depth += 1
-        outer_most = self._local.retry_depth == 1
-        
-        with tqdm(total=config.max_retries, desc="Retry Progress", unit="attempt", 
-                  position=0, leave=True, disable=not outer_most) as pbar:
+
+        while attempt <= config.max_retries:
             try:
-                while attempt <= config.max_retries:  # Use <= to include the last attempt
-                    try:
-                        result = func(*args, **kwargs)
-                        self._handle_success(config, pbar, outer_most)
-                        return result
-                    except Exception as e:
-                        last_exception = e
-                        if not self.should_retry(config, e, attempt) or attempt == config.max_retries:
-                            pbar.update(config.max_retries - attempt + 1)  # Update to fill the bar
-                            raise
-                        wait_time = self.wait_time(config, attempt, e)
-                        self.qc_manager.log_warning(f"Attempt {attempt} failed. Retrying in {wait_time} seconds. Error: {str(e)}", context="RetryPolicy")
-                        self.wait_with_progress(wait_time, f"Retry attempt {attempt}", pbar, outer_most)
-                        pbar.update(1)
-                        self.qc_manager.log_debug(f"Retry wait of {wait_time} seconds completed for attempt {attempt}", context="RetryPolicy")
-                        attempt += 1  # Increment attempt at the end of the loop
-                
-                if last_exception:
-                    raise last_exception
-            finally:
-                self._local.retry_depth -= 1
+                result = func(*args, **kwargs)
+                self._handle_success(config)
+                return result
+            except Exception as e:
+                last_exception = e
+                if not self.should_retry(config, e, attempt):
+                    raise
+                wait_time = self.wait_time(config, attempt, e)
+                self.qc_manager.log_warning(f"Attempt {attempt} failed. Retrying in {wait_time} seconds. Error: {str(e)}", context="RetryPolicy")
+                self.wait_with_progress(wait_time)
+                attempt += 1
 
-    def _handle_success(self, config, pbar, outer_most):
-        """Handle successful execution of the function."""
-        self.qc_manager.log_info("Request completed successfully", context="RetryPolicy")
-        self.wait_with_progress(config.success_wait_time, "Success! Waiting before next call", pbar, outer_most)
-        pbar.update(config.max_retries)  # Update to fill the bar
+        if last_exception:
+            raise last_exception
 
-    def wait_with_progress(self, wait_time, description, outer_pbar, show_inner_bar):
-        """Wait for the specified time while updating progress bars.
-        
-        :param wait_time: The time to wait in seconds
-        :param description: The description for the inner progress bar
-        :param outer_pbar: The outer (retry) progress bar
-        :param show_inner_bar: Whether to show the inner progress bar
-        :return: None
+    def _handle_success(self, config):
         """
-        if show_inner_bar:
-            for _ in tqdm(range(int(wait_time)), desc=description, unit="s", leave=False):
-                time.sleep(1)
-                outer_pbar.refresh()
-        else:
-            time.sleep(wait_time)
-            outer_pbar.refresh()
+        Handle successful execution of the function.
+
+        :param config: The retry configuration
+        """
+        self.qc_manager.log_info("Request completed successfully", context="RetryPolicy")
+        self.wait_with_progress(config.success_wait_time)
+
+    def wait_with_progress(self, wait_time):
+        """
+        Wait for the specified time while showing a progress bar.
+
+        :param wait_time: The time to wait in seconds
+        """
+        with tqdm(total=wait_time, desc="Wait Time", unit="s", leave=False) as pbar:
+            start_time = time.time()
+            while time.time() - start_time < wait_time:
+                time.sleep(0.1)
+                elapsed = time.time() - start_time
+                pbar.update(elapsed - pbar.n)
+            pbar.update(wait_time - pbar.n)  # Ensure we reach 100%
 
     def reload_configurations(self):
         """Reload all the retry configurations.

@@ -1,9 +1,9 @@
 {
     "requests": {
         "6724f150714c44cd6741ac8ee6d9299c01508a0b4701ed000f1b922483d5f7f6": {
-            "status": "completed",
-            "created_at": "2024-09-03T11:51:39.904102",
-            "last_updated": "2024-09-03T11:52:52.585717",
+            "status": "in_progress",
+            "created_at": "2024-09-03T13:39:17.227536",
+            "last_updated": "2024-09-03T13:44:59.273313",
             "request_details": {
                 "retriever": "XTwitterRetriever",
                 "endpoint": "data/twitter/tweets/recent",
@@ -12,20 +12,16 @@
                     "query": "#Bitcoin since:2023-01-01 until:2023-01-05",
                     "count": 100
                 },
-                "id": "6724f150714c44cd6741ac8ee6d9299c01508a0b4701ed000f1b922483d5f7f6",
-                "status": "queued"
+                "id": "6724f150714c44cd6741ac8ee6d9299c01508a0b4701ed000f1b922483d5f7f6"
             },
-            "priority": 1,
-            "result": {
-                "tweets_count": 500,
-                "api_calls_count": 5,
-                "last_processed_time": "2024-09-03T11:52:52.585310"
+            "progress": {
+                "last_processed_time": "2023-01-01"
             }
         },
         "88de363865fc2822320f7114c38a46d4f26d8660847fb72c73529ebf5e7214f2": {
-            "status": "in_progress",
-            "created_at": "2024-09-03T11:51:39.904473",
-            "last_updated": "2024-09-03T11:55:06.852313",
+            "status": "queued",
+            "created_at": "2024-09-03T13:39:17.227816",
+            "last_updated": "2024-09-03T13:39:17.227816",
             "request_details": {
                 "retriever": "XTwitterRetriever",
                 "endpoint": "data/twitter/tweets/recent",
@@ -34,18 +30,13 @@
                     "query": "Ethereum lang:en -filter:retweets since:2023-06-10 until:2023-06-15",
                     "count": 75
                 },
-                "id": "88de363865fc2822320f7114c38a46d4f26d8660847fb72c73529ebf5e7214f2",
-                "status": "queued"
-            },
-            "priority": 2,
-            "progress": {
-                "last_processed_time": "2023-06-14"
+                "id": "88de363865fc2822320f7114c38a46d4f26d8660847fb72c73529ebf5e7214f2"
             }
         },
         "1e7ec1f0f8b0490402a033afe47873feee263c496d2798720cc82dd8d4f4a26c": {
             "status": "queued",
-            "created_at": "2024-09-03T11:51:39.904827",
-            "last_updated": "2024-09-03T11:51:39.904827",
+            "created_at": "2024-09-03T13:39:17.228084",
+            "last_updated": "2024-09-03T13:39:17.228084",
             "request_details": {
                 "retriever": "XTwitterRetriever",
                 "endpoint": "data/twitter/tweets/recent",
@@ -54,15 +45,13 @@
                     "query": "Cardano OR ADA min_faves:100 since:2023-09-20 until:2023-09-25",
                     "count": 50
                 },
-                "id": "1e7ec1f0f8b0490402a033afe47873feee263c496d2798720cc82dd8d4f4a26c",
-                "status": "queued"
-            },
-            "priority": 3
+                "id": "1e7ec1f0f8b0490402a033afe47873feee263c496d2798720cc82dd8d4f4a26c"
+            }
         },
         "95fa77b5fbab5098f7656498d5ce1f2de2b81d6ecfb296209e719c41c0a10837": {
             "status": "queued",
-            "created_at": "2024-09-03T11:51:39.905186",
-            "last_updated": "2024-09-03T11:51:39.905186",
+            "created_at": "2024-09-03T13:39:17.228355",
+            "last_updated": "2024-09-03T13:39:17.228355",
             "request_details": {
                 "retriever": "XTwitterRetriever",
                 "endpoint": "data/twitter/tweets/recent",
@@ -71,15 +60,13 @@
                     "query": "Polkadot from:gavofyork since:2023-03-15 until:2023-03-20",
                     "count": 25
                 },
-                "id": "95fa77b5fbab5098f7656498d5ce1f2de2b81d6ecfb296209e719c41c0a10837",
-                "status": "queued"
-            },
-            "priority": 4
+                "id": "95fa77b5fbab5098f7656498d5ce1f2de2b81d6ecfb296209e719c41c0a10837"
+            }
         },
         "a6862d652ea1d751d89772d8e196b15ab1081f7462c43192a35e3bb25cf33c17": {
             "status": "queued",
-            "created_at": "2024-09-03T11:51:39.905659",
-            "last_updated": "2024-09-03T11:51:39.905659",
+            "created_at": "2024-09-03T13:39:17.228756",
+            "last_updated": "2024-09-03T13:39:17.228756",
             "request_details": {
                 "retriever": "XTwitterRetriever",
                 "endpoint": "data/twitter/tweets/recent",
@@ -88,15 +75,13 @@
                     "query": "Solana min_retweets:50 since:2023-11-01 until:2023-11-05",
                     "count": 60
                 },
-                "id": "a6862d652ea1d751d89772d8e196b15ab1081f7462c43192a35e3bb25cf33c17",
-                "status": "queued"
-            },
-            "priority": 5
+                "id": "a6862d652ea1d751d89772d8e196b15ab1081f7462c43192a35e3bb25cf33c17"
+            }
         },
         "eb8098f407b962cf278008d5e00f48026f5e41aea4ec1587194f3d3dfdf872d9": {
             "status": "queued",
-            "created_at": "2024-09-03T11:51:39.906038",
-            "last_updated": "2024-09-03T11:51:39.906038",
+            "created_at": "2024-09-03T13:39:17.229056",
+            "last_updated": "2024-09-03T13:39:17.229056",
             "request_details": {
                 "retriever": "XTwitterRetriever",
                 "endpoint": "data/twitter/tweets/recent",
@@ -105,15 +90,13 @@
                     "query": "\"Binance Coin\" OR BNB since:2023-07-20 until:2023-07-25",
                     "count": 80
                 },
-                "id": "eb8098f407b962cf278008d5e00f48026f5e41aea4ec1587194f3d3dfdf872d9",
-                "status": "queued"
-            },
-            "priority": 6
+                "id": "eb8098f407b962cf278008d5e00f48026f5e41aea4ec1587194f3d3dfdf872d9"
+            }
         },
         "6b3e652c1180ca623dbb01224a0d178608af04c66f7f983613ca4a3b50145c31": {
             "status": "queued",
-            "created_at": "2024-09-03T11:51:39.906425",
-            "last_updated": "2024-09-03T11:51:39.906425",
+            "created_at": "2024-09-03T13:39:17.229354",
+            "last_updated": "2024-09-03T13:39:17.229354",
             "request_details": {
                 "retriever": "XTwitterRetriever",
                 "endpoint": "data/twitter/tweets/recent",
@@ -122,15 +105,13 @@
                     "query": "Chainlink filter:safe since:2023-02-10 until:2023-02-15",
                     "count": 40
                 },
-                "id": "6b3e652c1180ca623dbb01224a0d178608af04c66f7f983613ca4a3b50145c31",
-                "status": "queued"
-            },
-            "priority": 7
+                "id": "6b3e652c1180ca623dbb01224a0d178608af04c66f7f983613ca4a3b50145c31"
+            }
         },
         "494dc5e32562885da8acf4f15f2f52266ae9598433319b54bc7584e64bbca19f": {
             "status": "queued",
-            "created_at": "2024-09-03T11:51:39.906849",
-            "last_updated": "2024-09-03T11:51:39.906849",
+            "created_at": "2024-09-03T13:39:17.229665",
+            "last_updated": "2024-09-03T13:39:17.229665",
             "request_details": {
                 "retriever": "XTwitterRetriever",
                 "endpoint": "data/twitter/tweets/recent",
@@ -139,15 +120,13 @@
                     "query": "Uniswap -moon since:2023-08-05 until:2023-08-10",
                     "count": 30
                 },
-                "id": "494dc5e32562885da8acf4f15f2f52266ae9598433319b54bc7584e64bbca19f",
-                "status": "queued"
-            },
-            "priority": 8
+                "id": "494dc5e32562885da8acf4f15f2f52266ae9598433319b54bc7584e64bbca19f"
+            }
         },
         "322635fffc1bf3f85ce1599ea53aaf3379692436b39be5ef5bdb73569e06378d": {
             "status": "queued",
-            "created_at": "2024-09-03T11:51:39.907261",
-            "last_updated": "2024-09-03T11:51:39.907261",
+            "created_at": "2024-09-03T13:39:17.229984",
+            "last_updated": "2024-09-03T13:39:17.229984",
             "request_details": {
                 "retriever": "XTwitterRetriever",
                 "endpoint": "data/twitter/tweets/recent",
@@ -156,15 +135,13 @@
                     "query": "Aave lang:en since:2023-04-25 until:2023-04-30",
                     "count": 55
                 },
-                "id": "322635fffc1bf3f85ce1599ea53aaf3379692436b39be5ef5bdb73569e06378d",
-                "status": "queued"
-            },
-            "priority": 9
+                "id": "322635fffc1bf3f85ce1599ea53aaf3379692436b39be5ef5bdb73569e06378d"
+            }
         },
         "0d589b9f04f0ee7b971a18f4601fd9d4bdb9c75fd3c5bc7774b3659d3bebe482": {
             "status": "queued",
-            "created_at": "2024-09-03T11:51:39.907678",
-            "last_updated": "2024-09-03T11:51:39.907678",
+            "created_at": "2024-09-03T13:39:17.230304",
+            "last_updated": "2024-09-03T13:39:17.230304",
             "request_details": {
                 "retriever": "XTwitterRetriever",
                 "endpoint": "data/twitter/tweets/recent",
@@ -173,11 +150,9 @@
                     "query": "Cosmos OR ATOM since:2023-12-15 until:2023-12-20",
                     "count": 90
                 },
-                "id": "0d589b9f04f0ee7b971a18f4601fd9d4bdb9c75fd3c5bc7774b3659d3bebe482",
-                "status": "queued"
-            },
-            "priority": 10
+                "id": "0d589b9f04f0ee7b971a18f4601fd9d4bdb9c75fd3c5bc7774b3659d3bebe482"
+            }
         }
     },
-    "last_updated": "2024-09-03T11:55:06.852313"
+    "last_updated": "2024-09-03T13:44:59.273313"
 }
