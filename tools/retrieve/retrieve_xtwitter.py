@@ -9,6 +9,7 @@ data storage.
 import json
 import time
 from datetime import datetime, timedelta
+import re
 from connections.xtwitter_connection import XTwitterConnection
 from tools.utils.data_storage import DataStorage
 from tools.qc.qc_manager import QCManager
@@ -61,8 +62,16 @@ class XTwitterRetriever:
         if not all([query, count, api_endpoint]):
             raise ConfigurationException("Missing required parameters in request")
 
-        start_date = datetime.strptime(global_settings.get('twitter.START_DATE'), '%Y-%m-%d').date()
-        end_date = datetime.strptime(global_settings.get('twitter.END_DATE'), '%Y-%m-%d').date()
+        # Extract time-related parameters
+        start_date, end_date, cleaned_query = self._extract_date_range(query)
+        
+        # Use default timeframe if not provided in the query
+        if not end_date:
+            end_date = datetime.now().date()
+        if not start_date:
+            default_months = global_settings.get('twitter.DEFAULT_TIMEFRAME_MONTHS', 3)
+            start_date = end_date - timedelta(days=30 * default_months)
+
         days_per_iteration = global_settings.get('twitter.DAYS_PER_ITERATION', 1)
 
         request_state = self.state_manager.get_request_state(request_id)
@@ -76,7 +85,7 @@ class XTwitterRetriever:
             iteration_start_date = current_date - timedelta(days=days_per_iteration)
             day_before = max(iteration_start_date, start_date - timedelta(days=1))
 
-            date_range_query = f"{query} since:{day_before.strftime('%Y-%m-%dT%H:%M:%SZ')} until:{current_date.strftime('%Y-%m-%dT%H:%M:%SZ')}"
+            date_range_query = f"{cleaned_query} since:{day_before.strftime('%Y-%m-%dT%H:%M:%SZ')} until:{current_date.strftime('%Y-%m-%dT%H:%M:%SZ')}"
             
             response = self.twitter_connection.get_tweets(api_endpoint, date_range_query, count)
             api_calls_count += 1
@@ -143,3 +152,21 @@ class XTwitterRetriever:
             'last_processed_time': current_date.isoformat(),
             'tweets_count': len(tweets)
         })
+
+    def _extract_date_range(self, query):
+        start_date = None
+        end_date = None
+        
+        # Extract 'since' date
+        since_match = re.search(r'since:(\d{4}-\d{2}-\d{2})', query)
+        if since_match:
+            start_date = datetime.strptime(since_match.group(1), '%Y-%m-%d').date()
+            query = query.replace(since_match.group(0), '').strip()
+
+        # Extract 'until' date
+        until_match = re.search(r'until:(\d{4}-\d{2}-\d{2})', query)
+        if until_match:
+            end_date = datetime.strptime(until_match.group(1), '%Y-%m-%d').date()
+            query = query.replace(until_match.group(0), '').strip()
+
+        return start_date, end_date, query

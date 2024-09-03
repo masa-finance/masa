@@ -18,6 +18,7 @@ default:
       - NetworkException
       - RateLimitException
       - APIException
+    DEFAULT_TIMEFRAME_MONTHS: 3  # Default timeframe of 3 months
 
   request_manager:
     STATE_FILE: "orchestration/request_manager_state.json"
