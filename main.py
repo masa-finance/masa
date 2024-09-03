@@ -10,6 +10,7 @@ Usage:
     Actions:
     - 'process': Process all requests (both resumed and new)
     - 'request_history': Get a history of all requests
+    - '--docs [page_name]': View the documentation for the specified page
 """
 
 import sys
