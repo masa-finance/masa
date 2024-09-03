@@ -665,7 +665,7 @@
         "7d006a225e0dbf551af3ca902ab738a58f12887567e1817de91e0c10e589261a": {
             "status": "in_progress",
             "created_at": "2024-09-03T09:25:54.321536",
-            "last_updated": "2024-09-03T10:11:58.916328",
+            "last_updated": "2024-09-03T10:28:18.872004",
             "request_details": {
                 "retriever": "XTwitterRetriever",
                 "endpoint": "data/twitter/tweets/recent",
@@ -679,7 +679,7 @@
             },
             "priority": 2,
             "progress": {
-                "last_processed_time": "2024-08-06"
+                "last_processed_time": "2024-08-05"
             }
         },
         "579e85fbd64ca2d3dda35228832271a217c833f672c557142c5501abd320b27f": {
@@ -994,5 +994,5 @@
             "priority": 10
         }
     },
-    "last_updated": "2024-09-03T10:11:58.916328"
+    "last_updated": "2024-09-03T10:28:18.872004"
 }

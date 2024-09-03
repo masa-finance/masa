@@ -17,6 +17,7 @@ from configs.config import initialize_config
 from tools.qc.qc_manager import QCManager
 from orchestration.request_manager import RequestManager
 import json
+import subprocess
 
 def main(action, json_file_path=None):
     """
@@ -71,11 +72,16 @@ def main(action, json_file_path=None):
         sys.exit(1)
 
 if __name__ == '__main__':
-    if len(sys.argv) < 2 or len(sys.argv) > 3:
+    if len(sys.argv) < 2:
         print("Usage: python main.py <action> [path_to_requests_json]")
-        print("Actions: 'process' or 'request_history'")
+        print("Actions: 'process', 'request_history', or '--docs [page_name]'")
         sys.exit(1)
 
     action = sys.argv[1]
-    json_file_path = sys.argv[2] if len(sys.argv) == 3 else None
-    main(action, json_file_path)
+
+    if action == '--docs':
+        page = sys.argv[2] if len(sys.argv) > 2 else None
+        subprocess.run([sys.executable, 'view_docs.py', page] if page else [sys.executable, 'view_docs.py'])
+    else:
+        json_file_path = sys.argv[2] if len(sys.argv) == 3 else None
+        main(action, json_file_path)

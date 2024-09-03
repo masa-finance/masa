@@ -16,27 +16,7 @@ MASA is a project for data retrieval, quality control, and orchestration. It cur
    conda activate masa
    ```
 
-3. Basic usage example:
-
-   ```python
-   from masa.orchestration import RequestManager
-
-   # Initialize the RequestManager
-   request_manager = RequestManager()
-
-   # Define a request
-   request = {
-       "retriever": "XTwitterRetriever",
-       "endpoint": "data/twitter/tweets/recent",
-       "params": {
-           "query": "#AI lang:en",
-           "count": 100
-       }
-   }
-
-   # Process the request
-   request_manager.process_requests([request])
-   ```
+3. For detailed usage instructions, please refer to the [Usage Guide](docs/source/usage.rst).
 
 ## Configuration
 
