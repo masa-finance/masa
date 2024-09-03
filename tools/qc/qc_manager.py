@@ -89,8 +89,7 @@ class QCManager:
             message (str): The info message.
             context (str, optional): The context of the info.
         """
-        method_name = inspect.currentframe().f_back.f_code.co_name
-        context = f"{context or ''} - {method_name}"
+        context = context or ''
         self.logger.info(f"{context}: {message}")
 
     def log_debug(self, message, context=None):

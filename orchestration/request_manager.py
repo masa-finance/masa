@@ -62,7 +62,12 @@ class RequestManager:
             self.add_requests_from_file(request_list_file)
             self.qc_manager.log_info(f"Loaded requests from file: {request_list_file}")
     
-        total_requests = len(self.queue.memory_queue.queue)
+        queue_summary = self.queue.get_queue_summary()
+        self.qc_manager.log_info("Queue Summary:")
+        for item in queue_summary:
+            self.qc_manager.log_info(f"ID: {item['id']}, Priority: {item['priority']}, Query: {item['query']}")
+
+        total_requests = len(queue_summary)
         self.qc_manager.log_info(f"Starting to process {total_requests} requests")
 
         processed_requests = 0
@@ -122,13 +127,7 @@ class RequestManager:
                 for request in requests:
                     generated_id = self._generate_request_id(request)
                     request['id'] = generated_id
-                    existing_state = self.state_manager.get_request_state(generated_id)
-                    if not existing_state or existing_state.get('status') in ['failed', 'cancelled']:
-                        request['status'] = 'queued'
-                        self.queue.add(request)
-                        self.state_manager.update_request_state(request['id'], 'queued', request_details=request)
-                    else:
-                        self.qc_manager.log_debug(f"Skipping existing request: {generated_id}", context="RequestManager")
+                    self.queue.add(request)
                 self.qc_manager.log_info(f"Added {len(requests)} new requests from file")
             else:
                 self.qc_manager.log_error("Invalid JSON structure in request_list.json. Expected a list of requests.", context="RequestManager")

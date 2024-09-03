@@ -101,7 +101,6 @@ class StateManager:
                 self._state['requests'][request_id]['last_updated'] = current_time
 
             if request_details:
-                # Ensure we're not storing status in request_details
                 request_details_copy = request_details.copy()
                 request_details_copy.pop('status', None)
                 self._state['requests'][request_id]['request_details'] = request_details_copy
@@ -118,6 +117,10 @@ class StateManager:
             self._state['last_updated'] = current_time
             self._save_state()
             self.qc_manager.log_debug(f"State updated and saved for request {request_id}", context="StateManager")
+
+    def get_all_requests_state(self):
+        with self._lock:
+            return {k: v for k, v in self._state['requests'].items() if k != 'null'}
 
     def get_request_state(self, request_id):
         """

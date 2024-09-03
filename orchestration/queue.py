@@ -49,8 +49,8 @@ class Queue:
         
         os.makedirs(os.path.dirname(self._queue_file), exist_ok=True)
         
+        self.clear_queue()
         self._load_queue_from_state()
-        self._load_queue_file()
 
     def _load_queue_from_state(self):
         """
@@ -63,6 +63,7 @@ class Queue:
                 if request_details:
                     priority = request_details.get('priority', 100)
                     self.memory_queue.put((priority, request_id))
+                    self.state_manager.update_request_state(request_id, 'queued')
         self.qc_manager.log_info(f"Loaded {self.memory_queue.qsize()} requests from state manager", context="Queue")
 
     def _load_queue_file(self):
@@ -104,18 +105,13 @@ class Queue:
             request (dict): The request to add to the queue.
         """
         request_id = request['id']
-        current_state = self.state_manager.get_request_state(request_id)
-        current_status = current_state.get('status', 'unknown')
-        
-        # Don't add completed or cancelled requests to the queue
-        if current_status in ['completed', 'cancelled']:
-            self.qc_manager.log_debug(f"Skipping {current_status} request {request_id}", context="Queue")
-            return
-        
-        priority = request.get('priority', 100)
-        self.memory_queue.put((priority, request_id))
-        self.qc_manager.log_debug(f"Added request {request_id} with priority {priority} and status {current_status}", context="Queue")
-        self._save_queue()
+        if not any(item[1] == request_id for item in self.memory_queue.queue):
+            priority = request.get('priority', 100)
+            self.memory_queue.put((priority, request_id))
+            self.state_manager.update_request_state(request_id, 'queued', request_details=request)
+            self.qc_manager.log_debug(f"Added request {request_id} with priority {priority}", context="Queue")
+        else:
+            self.qc_manager.log_debug(f"Skipping duplicate request {request_id}", context="Queue")
 
     def get(self):
         """
@@ -225,3 +221,15 @@ class Queue:
         import json
         request_json = json.dumps(request, sort_keys=True).encode('utf-8')
         return hashlib.sha256(request_json).hexdigest()
+
+    def get_queue_summary(self):
+        summary = []
+        for priority, request_id in sorted(self.memory_queue.queue):
+            request_state = self.state_manager.get_request_state(request_id)
+            request_details = request_state.get('request_details', {})
+            summary.append({
+                'id': request_id,
+                'priority': priority,
+                'query': request_details.get('params', {}).get('query', 'N/A')
+            })
+        return summary

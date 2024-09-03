@@ -11,7 +11,8 @@ Functions:
 """
 
 import logging
-from colorlog import ColoredFormatter
+from logging.handlers import RotatingFileHandler
+import colorlog
 from configs.config import global_settings
 
 def setup_logger(name):
@@ -23,46 +24,35 @@ def setup_logger(name):
     :return: The configured logger.
     :rtype: logging.Logger
     """
-    log_settings = global_settings.logging
-
     logger = logging.getLogger(name)
-    log_level = getattr(logging, log_settings.LOG_LEVEL)
-    logger.setLevel(log_level)
+    logger.setLevel(logging.DEBUG)  # Set to lowest level, handlers will filter
 
-    if not logger.handlers:
-        # Console handler
-        console_handler = logging.StreamHandler()
-        console_level = getattr(logging, log_settings.get('CONSOLE_LOG_LEVEL', log_settings.LOG_LEVEL))
-        console_handler.setLevel(console_level)
-        
-        if log_settings.get('COLOR_ENABLED', True):
-            formatter = ColoredFormatter(
-                log_settings.LOG_FORMAT,
-                datefmt=log_settings.LOG_DATE_FORMAT,
-                log_colors={
-                    'DEBUG': 'cyan',
-                    'INFO': 'green',
-                    'WARNING': 'yellow',
-                    'ERROR': 'red',
-                    'CRITICAL': 'red,bg_white',
-                },
-                reset=True,
-                secondary_log_colors={}
-            )
-        else:
-            formatter = logging.Formatter(log_settings.LOG_FORMAT, datefmt=log_settings.LOG_DATE_FORMAT)
-        
-        console_handler.setFormatter(formatter)
-        logger.addHandler(console_handler)
+    # Get settings
+    log_settings = global_settings.get('logging', {})
+    log_file = log_settings.get('LOG_FILE', 'logs/masa.log')
+    log_format = log_settings.get('LOG_FORMAT', '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    date_format = log_settings.get('LOG_DATE_FORMAT', '%Y-%m-%d %H:%M:%S')
+    console_level = getattr(logging, log_settings.get('CONSOLE_LOG_LEVEL', 'INFO'))
+    file_level = getattr(logging, log_settings.get('FILE_LOG_LEVEL', 'DEBUG'))
+    color_enabled = log_settings.get('COLOR_ENABLED', True)
 
-        # File handler
-        if log_settings.get('LOG_FILE'):
-            file_handler = logging.FileHandler(log_settings.LOG_FILE)
-            file_level = getattr(logging, log_settings.get('FILE_LOG_LEVEL', log_settings.LOG_LEVEL))
-            file_handler.setLevel(file_level)
-            file_formatter = logging.Formatter(log_settings.LOG_FORMAT.replace('%(log_color)s', '').replace('%(reset)s', ''), 
-                                               datefmt=log_settings.LOG_DATE_FORMAT)
-            file_handler.setFormatter(file_formatter)
-            logger.addHandler(file_handler)
+    # Console Handler
+    console_handler = logging.StreamHandler()
+    console_handler.setLevel(console_level)
+
+    # File Handler
+    file_handler = RotatingFileHandler(log_file, maxBytes=10*1024*1024, backupCount=5)
+    file_handler.setLevel(file_level)
+
+    if color_enabled:
+        formatter = colorlog.ColoredFormatter(log_format, date_format)
+    else:
+        formatter = logging.Formatter(log_format, date_format)
+
+    console_handler.setFormatter(formatter)
+    file_handler.setFormatter(formatter)
+
+    logger.addHandler(console_handler)
+    logger.addHandler(file_handler)
 
     return logger

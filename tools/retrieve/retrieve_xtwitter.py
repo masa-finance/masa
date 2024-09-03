@@ -53,11 +53,14 @@ class XTwitterRetriever:
             APIException: If there's an error in making the API request.
             RateLimitException: If the API rate limit is exceeded.
         """
-        request_id = request['id']
+        self.qc_manager.log_debug(f"Request object: {request}", context="XTwitterRetriever")
+        request_id = request.get('request_id')
         params = request.get('params', {})
         query = params.get('query')
         count = params.get('count')
         api_endpoint = request.get('endpoint')
+
+        self.qc_manager.log_debug(f"Query: {query}", context="XTwitterRetriever")
 
         if not all([query, count, api_endpoint]):
             raise ConfigurationException("Missing required parameters in request")
@@ -78,7 +81,7 @@ class XTwitterRetriever:
         current_date = datetime.fromisoformat(request_state.get('progress', {}).get('last_processed_time', end_date.isoformat())).date()
 
         total_days = (end_date - start_date).days
-        self.qc_manager.log_info(f"Starting tweet retrieval for {total_days} days")
+        self.qc_manager.log_info(f"Starting tweet retrieval for query: {query} over {total_days} days", context="XTwitterRetriever")
 
         all_tweets = []
         api_calls_count = 0
@@ -98,12 +101,12 @@ class XTwitterRetriever:
 
             days_processed += days_per_iteration
             progress_percentage = min(100, int((days_processed / total_days) * 100))
-            self.qc_manager.log_info(f"Tweet retrieval progress: {progress_percentage}% ({records_fetched} tweets fetched)")
+            self.qc_manager.log_info(f"Tweet retrieval progress: {progress_percentage}% ({records_fetched} tweets fetched)", context="XTwitterRetriever")
 
             current_date -= timedelta(days=days_per_iteration)
             self.state_manager.update_request_state(request_id, 'in_progress', {'last_processed_time': current_date.isoformat()})
 
-        self.qc_manager.log_info(f"Tweet retrieval completed. Total tweets: {records_fetched}, API calls: {api_calls_count}")
+        self.qc_manager.log_info(f"Tweet retrieval completed for query: {query} over {total_days} days. Total tweets: {records_fetched}, API calls: {api_calls_count}", context="XTwitterRetriever")
         return all_tweets, api_calls_count, records_fetched
 
     def _handle_response(self, response, request_id, query, current_date, all_tweets, records_fetched):
@@ -112,10 +115,10 @@ class XTwitterRetriever:
             all_tweets.extend(tweets)
             num_tweets = len(tweets)
             self._save_tweets(tweets, request_id, query, current_date)
-            self.qc_manager.log_debug(f"Scraped and saved {num_tweets} tweets for {query} on {current_date.strftime('%Y-%m-%d')}.")
+            self.qc_manager.log_debug(f"Scraped and saved {num_tweets} tweets for {query} on {current_date.strftime('%Y-%m-%d')}.", context="XTwitterRetriever")
             return num_tweets
         else:
-            self.qc_manager.log_debug(f"No tweets fetched for {query} on {current_date.strftime('%Y-%m-%d')}. Likely no results.")
+            self.qc_manager.log_debug(f"No tweets fetched for {query} on {current_date.strftime('%Y-%m-%d')}. Likely no results.", context="XTwitterRetriever")
             return 0
 
     def _save_tweets(self, tweets, request_id, query, current_date):
@@ -145,6 +148,7 @@ class XTwitterRetriever:
         })
 
     def _extract_date_range(self, query):
+        self.qc_manager.log_debug(f"Query: {query}", context="XTwitterRetriever")
         start_date = None
         end_date = None
         
@@ -160,4 +164,5 @@ class XTwitterRetriever:
             end_date = datetime.strptime(until_match.group(1), '%Y-%m-%d').date()
             query = query.replace(until_match.group(0), '').strip()
 
+        self.qc_manager.log_debug(f"Start date: {start_date}, End date: {end_date}", context="XTwitterRetriever")
         return start_date, end_date, query
