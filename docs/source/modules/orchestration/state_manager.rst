@@ -1,7 +1,7 @@
 State Manager
 =============
 
-.. automodule:: state_manager
+.. automodule:: orchestration.state_manager
    :members:
    :undoc-members:
    :show-inheritance:

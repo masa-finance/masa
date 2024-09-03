@@ -9,6 +9,7 @@ Welcome to MASA Project's documentation!
    contributing
    readme
    modules/index
+   usage
 
 Indices and tables
 ==================

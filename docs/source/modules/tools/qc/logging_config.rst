@@ -1,7 +1,7 @@
 Logging Config
 ===============
 
-.. automodule:: qc.logging_config
+.. automodule:: tools.qc.logging_config
    :members:
    :undoc-members:
    :show-inheritance:

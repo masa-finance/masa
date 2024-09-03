@@ -20,7 +20,7 @@ class RequestRouter:
     to the appropriate retriever based on the request type and endpoint.
 
     Attributes:
-        qc_manager (QCManager): Quality control manager for logging and error handling.
+        qc_manager (tools.qc.qc_manager.QCManager): Quality control manager for logging and error handling.
         config (dict): Configuration settings for the request router.
         state_manager (orchestration.state_manager.StateManager): Manager for handling request states.
         retrievers (dict): Dictionary to store initialized retriever objects.
@@ -31,13 +31,13 @@ class RequestRouter:
         Initialize the RequestRouter.
 
         Args:
-            qc_manager (QCManager): Quality control manager for logging and error handling.
-            state_manager (StateManager): Manager for handling request states.
+            qc_manager (tools.qc.qc_manager.QCManager): Quality control manager for logging and error handling.
+            state_manager (orchestration.state_manager.StateManager): Manager for handling request states.
         """
         self.qc_manager = qc_manager
         self.config = global_settings
         self.state_manager = state_manager
-        self.retrievers = {}  # Dictionary to store initialized retriever objects
+        self.retrievers = {}
 
     def route_request(self, request):
         """
@@ -62,14 +62,8 @@ class RequestRouter:
 
             self.qc_manager.log_debug(f"Routing request: Query '{query}' (ID: {request_id}) to {retriever_name}")
 
-            if retriever_name not in self.retrievers:
-                self.qc_manager.log_debug(f"Initializing retriever: {retriever_name}", context="RequestRouter")
-                if retriever_name == 'XTwitterRetriever':
-                    self.retrievers[retriever_name] = XTwitterRetriever(self.state_manager, request)
-                else:
-                    raise ValueError(f"Unknown retriever: {retriever_name}")
-
-            retriever = self.retrievers[retriever_name]
+            # Use get_retriever method to initialize the retriever
+            retriever = self.get_retriever(retriever_name, request)
             self.qc_manager.log_debug(f"Retrieved retriever object for {retriever_name}", context="RequestRouter")
 
             if retriever_name == 'XTwitterRetriever':
@@ -93,12 +87,13 @@ class RequestRouter:
             self.qc_manager.log_error(f"Traceback: {traceback.format_exc()}", context="RequestRouter")
             raise
 
-    def get_retriever(self, retriever_name):
+    def get_retriever(self, retriever_name, request):
         """
         Get the retriever object for a given retriever name.
 
         Args:
             retriever_name (str): Name of the retriever.
+            request (dict): Dictionary containing the request parameters.
 
         Returns:
             object: Initialized retriever object.
@@ -108,6 +103,7 @@ class RequestRouter:
         """
         if retriever_name not in self.retrievers:
             if retriever_name == 'XTwitterRetriever':
-                self.retrievers[retriever_name] = XTwitterRetriever(self.config, self.state_manager)
-            # Add more retriever initialization conditions as needed
+                self.retrievers[retriever_name] = XTwitterRetriever(self.state_manager, request)
+            else:
+                raise ValueError(f"Unknown retriever: {retriever_name}")
         return self.retrievers[retriever_name]

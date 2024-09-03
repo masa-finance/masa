@@ -1,7 +1,7 @@
 XTwitter Connection
 ===================
 
-.. automodule:: xtwitter_connection
+.. automodule:: connections.xtwitter_connection
    :members:
    :undoc-members:
    :show-inheritance:

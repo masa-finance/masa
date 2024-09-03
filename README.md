@@ -91,7 +91,7 @@ We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.
 
 ## Documentation
 
-For detailed documentation, including API reference and advanced usage, please visit our [full documentation](link-to-your-hosted-sphinx-docs).
+For detailed documentation, including API reference and advanced usage, please run `python view_docs.py` from the root directory of the project. This will open the Sphinx-generated documentation in your default web browser.
 
 ## License
 

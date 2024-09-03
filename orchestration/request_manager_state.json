@@ -639,7 +639,185 @@
                 "api_calls_count": 3,
                 "last_processed_time": "2024-08-30T14:45:43.880481"
             }
+        },
+        "f91afabaab0dad27e73ea49a04059279634d5d83bfebd99d42276ee6f3cd1a1c": {
+            "status": "completed",
+            "created_at": "2024-09-03T09:25:54.319861",
+            "last_updated": "2024-09-03T09:26:38.667415",
+            "request_details": {
+                "retriever": "XTwitterRetriever",
+                "endpoint": "data/twitter/tweets/recent",
+                "priority": 1,
+                "params": {
+                    "query": "#Bitcoin since:2023-01-01 until:2023-12-31",
+                    "count": 100
+                },
+                "id": "f91afabaab0dad27e73ea49a04059279634d5d83bfebd99d42276ee6f3cd1a1c",
+                "status": "queued"
+            },
+            "priority": 1,
+            "result": {
+                "tweets_count": 0,
+                "api_calls_count": 3,
+                "last_processed_time": "2024-09-03T09:26:38.667392"
+            }
+        },
+        "7d006a225e0dbf551af3ca902ab738a58f12887567e1817de91e0c10e589261a": {
+            "status": "in_progress",
+            "created_at": "2024-09-03T09:25:54.321536",
+            "last_updated": "2024-09-03T09:26:54.599880",
+            "request_details": {
+                "retriever": "XTwitterRetriever",
+                "endpoint": "data/twitter/tweets/recent",
+                "priority": 2,
+                "params": {
+                    "query": "Ethereum lang:en -filter:retweets",
+                    "count": 75
+                },
+                "id": "7d006a225e0dbf551af3ca902ab738a58f12887567e1817de91e0c10e589261a",
+                "status": "queued"
+            },
+            "priority": 2,
+            "progress": {
+                "last_processed_time": "2024-08-15"
+            }
+        },
+        "579e85fbd64ca2d3dda35228832271a217c833f672c557142c5501abd320b27f": {
+            "status": "queued",
+            "created_at": "2024-09-03T09:25:54.322181",
+            "last_updated": "2024-09-03T09:25:54.322181",
+            "request_details": {
+                "retriever": "XTwitterRetriever",
+                "endpoint": "data/twitter/tweets/recent",
+                "priority": 3,
+                "params": {
+                    "query": "Cardano OR ADA min_faves:100",
+                    "count": 50
+                },
+                "id": "579e85fbd64ca2d3dda35228832271a217c833f672c557142c5501abd320b27f",
+                "status": "queued"
+            },
+            "priority": 3
+        },
+        "a1edf9dfd9626e55581ee9bdd45eb4ad68c72d53bae83a45a288dc8f5b287371": {
+            "status": "queued",
+            "created_at": "2024-09-03T09:25:54.322952",
+            "last_updated": "2024-09-03T09:25:54.322952",
+            "request_details": {
+                "retriever": "XTwitterRetriever",
+                "endpoint": "data/twitter/tweets/recent",
+                "priority": 4,
+                "params": {
+                    "query": "Polkadot from:gavofyork",
+                    "count": 25
+                },
+                "id": "a1edf9dfd9626e55581ee9bdd45eb4ad68c72d53bae83a45a288dc8f5b287371",
+                "status": "queued"
+            },
+            "priority": 4
+        },
+        "f3e229f9cbcdfcac29bc0801c714e31ec8872731d113de95d674f827d3dd0908": {
+            "status": "queued",
+            "created_at": "2024-09-03T09:25:54.323768",
+            "last_updated": "2024-09-03T09:25:54.323768",
+            "request_details": {
+                "retriever": "XTwitterRetriever",
+                "endpoint": "data/twitter/tweets/recent",
+                "priority": 5,
+                "params": {
+                    "query": "Solana min_retweets:50",
+                    "count": 60
+                },
+                "id": "f3e229f9cbcdfcac29bc0801c714e31ec8872731d113de95d674f827d3dd0908",
+                "status": "queued"
+            },
+            "priority": 5
+        },
+        "cbcf1e3fc7a6d9d7da455d927320b94743cc6455a1f98511c23f7d9c3b4c38d3": {
+            "status": "queued",
+            "created_at": "2024-09-03T09:25:54.324376",
+            "last_updated": "2024-09-03T09:25:54.324376",
+            "request_details": {
+                "retriever": "XTwitterRetriever",
+                "endpoint": "data/twitter/tweets/recent",
+                "priority": 6,
+                "params": {
+                    "query": "\"Binance Coin\" OR BNB",
+                    "count": 80
+                },
+                "id": "cbcf1e3fc7a6d9d7da455d927320b94743cc6455a1f98511c23f7d9c3b4c38d3",
+                "status": "queued"
+            },
+            "priority": 6
+        },
+        "2091f9f1961d5af2b02d05f3ce884dfb0faf38f80c3c8be1042d49cc6345f89c": {
+            "status": "queued",
+            "created_at": "2024-09-03T09:25:54.324985",
+            "last_updated": "2024-09-03T09:25:54.324985",
+            "request_details": {
+                "retriever": "XTwitterRetriever",
+                "endpoint": "data/twitter/tweets/recent",
+                "priority": 7,
+                "params": {
+                    "query": "Chainlink filter:safe",
+                    "count": 40
+                },
+                "id": "2091f9f1961d5af2b02d05f3ce884dfb0faf38f80c3c8be1042d49cc6345f89c",
+                "status": "queued"
+            },
+            "priority": 7
+        },
+        "ce367cf334637686de05457eca9c48c808876badcb59b7edc0d9279ddb42757b": {
+            "status": "queued",
+            "created_at": "2024-09-03T09:25:54.325585",
+            "last_updated": "2024-09-03T09:25:54.325585",
+            "request_details": {
+                "retriever": "XTwitterRetriever",
+                "endpoint": "data/twitter/tweets/recent",
+                "priority": 8,
+                "params": {
+                    "query": "Uniswap -moon",
+                    "count": 30
+                },
+                "id": "ce367cf334637686de05457eca9c48c808876badcb59b7edc0d9279ddb42757b",
+                "status": "queued"
+            },
+            "priority": 8
+        },
+        "83694e5897cfaf0911c77cbfd0ff6506731e6298970147eb960420e137c4305f": {
+            "status": "queued",
+            "created_at": "2024-09-03T09:25:54.326169",
+            "last_updated": "2024-09-03T09:25:54.326169",
+            "request_details": {
+                "retriever": "XTwitterRetriever",
+                "endpoint": "data/twitter/tweets/recent",
+                "priority": 9,
+                "params": {
+                    "query": "Aave lang:en",
+                    "count": 55
+                },
+                "id": "83694e5897cfaf0911c77cbfd0ff6506731e6298970147eb960420e137c4305f",
+                "status": "queued"
+            },
+            "priority": 9
+        },
+        "b802b1c019ece396849c728f992ddfcb8786ccc4adc707824258a0328f41a19f": {
+            "status": "queued",
+            "created_at": "2024-09-03T09:25:54.327343",
+            "last_updated": "2024-09-03T09:25:54.327343",
+            "request_details": {
+                "retriever": "XTwitterRetriever",
+                "endpoint": "data/twitter/tweets/recent",
+                "priority": 10,
+                "params": {
+                    "query": "Cosmos OR ATOM",
+                    "count": 90
+                },
+                "id": "b802b1c019ece396849c728f992ddfcb8786ccc4adc707824258a0328f41a19f",
+                "status": "queued"
+            },
+            "priority": 10
         }
     },
-    "last_updated": "2024-08-30T14:45:43.880956"
+    "last_updated": "2024-09-03T09:26:54.599880"
 }

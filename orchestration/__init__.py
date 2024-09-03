@@ -6,9 +6,13 @@ of requests in the application, including request queuing, routing, and state ma
 
 Classes:
     RequestManager: Manages the overall request processing workflow.
+
     Queue: Handles the queuing of requests.
+
     StateManager: Manages the state of requests throughout their lifecycle.
+
     RequestRouter: Routes requests to appropriate handlers.
+    
     RetryPolicy: Manages retry logic for failed requests.
 """
 

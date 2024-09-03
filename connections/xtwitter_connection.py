@@ -40,6 +40,7 @@ class XTwitterConnection(APIConnection):
         """
         return global_settings.get('twitter.HEADERS', {})  # Get headers from global settings
 
+    @QCManager().handle_error_with_retry('twitter')
     def get_tweets(self, endpoint, query, count):
         """
         Get tweets from the XTwitter API.
@@ -55,28 +56,10 @@ class XTwitterConnection(APIConnection):
         Raises:
             APIException: If there's an error in making the request or processing the response.
         """
-        data = {'query': query, 'count': count}
-        response = self.make_request(endpoint, method='POST', data=data)
-        return self.handle_response(response)
-
-    def make_request(self, endpoint, method='POST', data=None):
-        """
-        Make a request to the XTwitter API.
-
-        Args:
-            endpoint (str): The API endpoint to request.
-            method (str, optional): The HTTP method for the request. Defaults to 'POST'.
-            data (dict, optional): The data to send in the request body.
-
-        Returns:
-            requests.Response: The raw response object from the API request.
-
-        Raises:
-            APIException: If there's an error in making the request.
-        """
         url = format_url(self.base_url, endpoint)
-        self.qc_manager.log_debug(f"Making request to URL: {url}", context="XTwitterConnection")
-        return self._make_request(method, url, data=data)
+        data = {'query': query, 'count': count}
+        response = self._make_request('POST', url, data=data)
+        return self.handle_response(response)
 
     def handle_response(self, response):
         """

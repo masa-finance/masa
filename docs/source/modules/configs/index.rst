@@ -10,4 +10,3 @@ Configs
    :maxdepth: 2
 
    config
-   settings.yml

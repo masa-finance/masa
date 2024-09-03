@@ -9,7 +9,7 @@ Quality Control
    logging_config 
    retry_manager
 
-.. automodule:: qc
+.. automodule:: tools.qc
    :members:
    :undoc-members:
    :show-inheritance:

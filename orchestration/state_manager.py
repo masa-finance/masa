@@ -22,7 +22,7 @@ class StateManager:
     Attributes:
         _state_file (str): File path to store the state data.
         _lock (threading.Lock): Lock for thread-safe operations.
-        qc_manager (QCManager): Quality control manager for logging.
+        qc_manager (tools.qc.qc_manager.QCManager): Quality control manager for logging.
         _state (dict): In-memory representation of the current state.
     """
 

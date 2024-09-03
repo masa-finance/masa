@@ -94,8 +94,7 @@ class RetryPolicy:
                 while attempt <= config.max_retries:  # Use <= to include the last attempt
                     try:
                         result = func(*args, **kwargs)
-                        self.wait_with_progress(config.success_wait_time, "Success! Waiting before next call", pbar, outer_most)
-                        pbar.update(config.max_retries - attempt + 1)  # Update to fill the bar
+                        self._handle_success(config, pbar, outer_most)
                         return result
                     except Exception as e:
                         last_exception = e
@@ -113,6 +112,12 @@ class RetryPolicy:
                     raise last_exception
             finally:
                 self._local.retry_depth -= 1
+
+    def _handle_success(self, config, pbar, outer_most):
+        """Handle successful execution of the function."""
+        self.qc_manager.log_info("Request completed successfully", context="RetryPolicy")
+        self.wait_with_progress(config.success_wait_time, "Success! Waiting before next call", pbar, outer_most)
+        pbar.update(config.max_retries)  # Update to fill the bar
 
     def wait_with_progress(self, wait_time, description, outer_pbar, show_inner_bar):
         """Wait for the specified time while updating progress bars.

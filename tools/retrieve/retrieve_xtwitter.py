@@ -34,36 +34,12 @@ class XTwitterRetriever:
         self.qc_manager = QCManager()
         self.state_manager = state_manager
         self.request = request
-        self.api_endpoint = request.get('endpoint')
         self.twitter_connection = XTwitterConnection()
         self.data_storage = DataStorage()
 
-    @QCManager().handle_error_with_retry('twitter')
     def retrieve_tweets(self, request):
         """
         Retrieve tweets based on the given request.
-
-        Args:
-            request (dict): The request configuration for tweet retrieval.
-
-        Returns:
-            tuple: A tuple containing the retrieved tweets, API call count, and number of records fetched.
-
-        Raises:
-            ConfigurationException: If required parameters are missing in the request.
-            APIException: If there's an error in making the API request.
-            RateLimitException: If the API rate limit is exceeded.
-        """
-        request_id = request['id']
-        self.qc_manager.log_debug(f"Starting retrieve_tweets for request {request_id}", context="XTwitterRetriever")
-        return self._retrieve_tweets(request)
-
-    def _retrieve_tweets(self, request):
-        """
-        Internal method to handle the tweet retrieval process.
-
-        This method handles the pagination of tweet retrieval, processes the responses,
-        and manages the state of the retrieval process.
 
         Args:
             request (dict): The request configuration for tweet retrieval.
@@ -102,16 +78,9 @@ class XTwitterRetriever:
 
             date_range_query = f"{query} since:{day_before.strftime('%Y-%m-%dT%H:%M:%SZ')} until:{current_date.strftime('%Y-%m-%dT%H:%M:%SZ')}"
             
-            try:
-                response = self.twitter_connection.get_tweets(api_endpoint, date_range_query, count)
-                api_calls_count += 1
-                records_fetched = self._handle_response(response, request_id, query, current_date, all_tweets, records_fetched)
-            except RateLimitException:
-                self.qc_manager.log_warning(f"Rate limit exceeded. Retrying after delay.", context="XTwitterRetriever")
-                raise
-            except APIException as e:
-                self.qc_manager.log_error(f"API error occurred: {str(e)}", context="XTwitterRetriever")
-                raise
+            response = self.twitter_connection.get_tweets(api_endpoint, date_range_query, count)
+            api_calls_count += 1
+            records_fetched = self._handle_response(response, request_id, query, current_date, all_tweets, records_fetched)
 
             current_date -= timedelta(days=days_per_iteration)
             self.state_manager.update_request_state(request_id, 'in_progress', {'last_processed_time': current_date.isoformat()})

@@ -1,9 +1,7 @@
 """
-MASA: Multi-Agent System Architecture
+MASA:
 
-This package provides a framework for building and managing multi-agent systems.
-It currently includes tools for data retrieval and quality control, with more
-features in development.
+Decentralized Data Retrieval and Processing Framework
 
 Key components:
 - Retrieval: Fetch data from various sources
@@ -19,13 +17,14 @@ from . import configs
 from . import connections
 from . import main
 from . import requests
-
+from . import orchestration
 __all__ = [
     'tools',
     'configs',
     'connections',
     'main',
-    'requests'
+    'requests',
+    'orchestration'
 ]
 
 __version__ = '0.1.0'

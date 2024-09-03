@@ -22,7 +22,7 @@ class APIConnection(ABC):
 
     Attributes:
         base_url (str): The base URL for the API.
-        qc_manager (QCManager): Quality control manager for logging and error handling.
+        qc_manager (tools.qc.qc_manager.QCManager): Quality control manager for logging and error handling.
     """
 
     def __init__(self):

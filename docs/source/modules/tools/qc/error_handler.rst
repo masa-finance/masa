@@ -1,7 +1,7 @@
 Error Handler
 =============
 
-.. automodule:: qc.error_handler
+.. automodule:: tools.qc.error_handler
    :members:
    :undoc-members:
    :show-inheritance:

@@ -4,35 +4,35 @@
     "endpoint": "data/twitter/tweets/recent",
     "priority": 1,
     "params": {
-      "query": "#MasaNode", 
+      "query": "#Bitcoin since:2023-01-01 until:2023-12-31", 
       "count": 100
     }
   },
   {
-    "retriever": "XTwitterRetriever", 
+    "retriever": "XTwitterRetriever",
     "endpoint": "data/twitter/tweets/recent",
     "priority": 2,
     "params": {
-      "query": "@getmasafi",
-      "count": 50  
-    }
-  },
-  {
-    "retriever": "XTwitterRetriever",
-    "endpoint": "data/twitter/tweets/recent", 
-    "priority": 3,
-    "params": {
-      "query": "from:BrendanPlayford", 
+      "query": "Ethereum lang:en -filter:retweets",
       "count": 75
     }
   },
   {
     "retriever": "XTwitterRetriever",
     "endpoint": "data/twitter/tweets/recent",
-    "priority": 4, 
+    "priority": 3,
     "params": {
-      "query": "Masa lang:en",
-      "count": 200
+      "query": "Cardano OR ADA min_faves:100",
+      "count": 50
+    }
+  },
+  {
+    "retriever": "XTwitterRetriever",
+    "endpoint": "data/twitter/tweets/recent",
+    "priority": 4,
+    "params": {
+      "query": "Polkadot from:gavofyork",
+      "count": 25
     }
   },
   {
@@ -40,17 +40,17 @@
     "endpoint": "data/twitter/tweets/recent",
     "priority": 5,
     "params": {
-      "query": "@getmasafi",
-      "count": 150
+      "query": "Solana min_retweets:50",
+      "count": 60
     }
   },
   {
-    "retriever": "XTwitterRetriever", 
+    "retriever": "XTwitterRetriever",
     "endpoint": "data/twitter/tweets/recent",
     "priority": 6,
     "params": {
-      "query": "Masa -filter:retweets",
-      "count": 100
+      "query": "\"Binance Coin\" OR BNB",
+      "count": 80
     }
   },
   {
@@ -58,8 +58,8 @@
     "endpoint": "data/twitter/tweets/recent",
     "priority": 7,
     "params": {
-      "query": "Masa min_faves:500",
-      "count": 50
+      "query": "Chainlink filter:safe",
+      "count": 40
     }
   },
   {
@@ -67,8 +67,8 @@
     "endpoint": "data/twitter/tweets/recent",
     "priority": 8,
     "params": {
-      "query": "Masa min_retweets:100",
-      "count": 75
+      "query": "Uniswap -moon",
+      "count": 30
     }
   },
   {
@@ -76,8 +76,8 @@
     "endpoint": "data/twitter/tweets/recent",
     "priority": 9,
     "params": {
-      "query": "Masa filter:safe",
-      "count": 200
+      "query": "Aave lang:en",
+      "count": 55
     }
   },
   {
@@ -85,8 +85,8 @@
     "endpoint": "data/twitter/tweets/recent",
     "priority": 10,
     "params": {
-      "query": "Masa -moon",
-      "count": 150
+      "query": "Cosmos OR ATOM",
+      "count": 90
     }
   }
 ]

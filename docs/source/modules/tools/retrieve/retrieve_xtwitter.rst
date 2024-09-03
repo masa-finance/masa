@@ -1,7 +1,7 @@
 Retrieve XTwitter
 =================
 
-.. automodule:: retrieve_xtwitter
+.. automodule:: tools.retrieve.retrieve_xtwitter
    :members:
    :undoc-members:
    :show-inheritance:
