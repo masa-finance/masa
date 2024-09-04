@@ -10,18 +10,16 @@ To use the MASA application, you can run the following command:
 
 .. code-block:: bash
 
-    python main.py <action> [path_to_requests_json]
+    python masa.py <action> [path_to_requests_json]
 
 Actions:
     - 'process': Process all requests (both resumed and new)
-    - 'request_history': Get a history of all requests
 
 Example usage:
 
 .. code-block:: bash
 
-    python main.py process /path/to/request_list.json
-    python main.py request_history
+    python masa.py process /path/to/request_list.json
 
 Request Format
 --------------
@@ -83,8 +81,3 @@ Request Processing
 The RequestManager handles the processing of requests. It reads the JSON file, prioritizes the requests, and executes them using the appropriate retriever (currently only XTwitterRetriever is implemented).
 
 The application will process all requests in the JSON file, handling both new requests and resuming any previously interrupted requests.
-
-Request History
----------------
-
-You can retrieve the history of all processed requests using the 'request_history' action. This will display the status and progress of all requests that have been processed by the system.

@@ -94,7 +94,7 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'masa-init=masa.quickstart:main',
+            'masa=masa.masa:main',
         ],
     },
     cmdclass={

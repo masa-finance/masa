@@ -1,15 +1,14 @@
 """
 Main entry point for the MASA application.
 
-This module provides the main functionality to process requests or retrieve request history.
+This module provides the main functionality to process requests or view documentation.
 It initializes the necessary components and handles the command-line interface.
 
 Usage:
-    python main.py <action> [path_to_requests_json]
+    python masa.py <action> [path_to_requests_json]
     
     Actions:
     - 'process': Process all requests (both resumed and new)
-    - 'request_history': Get a history of all requests
     - '--docs [page_name]': View the documentation for the specified page
 """
 

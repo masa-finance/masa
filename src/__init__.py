@@ -15,14 +15,14 @@ currently in development and will be added in future releases.
 from . import tools
 from . import configs
 from . import connections
-from . import main
+from . import masa
 from . import requests
 from . import orchestration
 __all__ = [
     'tools',
     'configs',
     'connections',
-    'main',
+    'masa',
     'requests',
     'orchestration'
 ]

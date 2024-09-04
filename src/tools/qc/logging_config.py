@@ -25,7 +25,7 @@ def setup_logger(name):
     :rtype: logging.Logger
     """
     logger = logging.getLogger(name)
-    logger.setLevel(logging.DEBUG)  # Set to lowest level, handlers will filter
+    logger.setLevel(logging.INFO)  # Set to lowest level, handlers will filter
 
     # Get settings
     log_settings = global_settings.get('logging', {})

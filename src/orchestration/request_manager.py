@@ -65,7 +65,7 @@ class RequestManager:
         if request_list_file:
             self._update_state_from_file(request_list_file)
 
-        # Now initialize the queue based on the updated state
+        # Initialize the queue
         self.queue = Queue(self.state_manager, self.queue_file)
 
         # Process the requests
