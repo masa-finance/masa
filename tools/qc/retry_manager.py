@@ -19,7 +19,6 @@ class RetryConfiguration:
         self.base_wait_time = config.get('BASE_WAIT_TIME', 10)
         self.backoff_factor = config.get('BACKOFF_FACTOR', 2)
         self.max_wait_time = config.get('MAX_WAIT_TIME', 960)
-        self.success_wait_time = config.get('SUCCESS_WAIT_TIME', 5)
         self.retryable_exceptions = [
             globals().get(exc_name) for exc_name in config.get('RETRYABLE_EXCEPTIONS', 
             ['NetworkException', 'RateLimitException', 'APIException'])
@@ -89,7 +88,6 @@ class RetryPolicy:
         while attempt <= config.max_retries:
             try:
                 result = func(*args, **kwargs)
-                self._handle_success(config)
                 return result
             except Exception as e:
                 last_exception = e
@@ -102,15 +100,6 @@ class RetryPolicy:
 
         if last_exception:
             raise last_exception
-
-    def _handle_success(self, config):
-        """
-        Handle successful execution of the function.
-
-        :param config: The retry configuration
-        """
-        self.qc_manager.log_info("Request completed successfully", context="RetryPolicy")
-        self.wait_with_progress(config.success_wait_time)
 
     def wait_with_progress(self, wait_time):
         """

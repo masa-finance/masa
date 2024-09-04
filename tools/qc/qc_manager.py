@@ -104,17 +104,17 @@ class QCManager:
         context = f"{context or ''} - {method_name}"
         self.logger.debug(f"{context}: {message}")
 
-    def handle_error(self, func):
+    def handle_error(self, custom_handlers=None):
         """
         Decorator to handle errors in a function.
 
         Args:
-            func (callable): The function to decorate.
+            custom_handlers (dict, optional): Custom exception handlers.
 
         Returns:
-            callable: The decorated function.
+            callable: The decorator function.
         """
-        return self.error_handler.handle_error(func)
+        return self.error_handler.handle_error(custom_handlers)
 
     def handle_error_with_retry(self, config_key):
         """

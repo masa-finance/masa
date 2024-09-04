@@ -38,6 +38,7 @@ class XTwitterRetriever:
         self.twitter_connection = XTwitterConnection()
         self.data_storage = DataStorage()
 
+    @QCManager().handle_error()
     def retrieve_tweets(self, request):
         """
         Retrieve tweets based on the given request.
@@ -53,20 +54,22 @@ class XTwitterRetriever:
             APIException: If there's an error in making the API request.
             RateLimitException: If the API rate limit is exceeded.
         """
-        self.qc_manager.log_debug(f"Request object: {request}", context="XTwitterRetriever")
+        self.qc_manager.log_debug(f"Starting retrieve_tweets for request: {request}", context="XTwitterRetriever")
         request_id = request.get('request_id')
         params = request.get('params', {})
         query = params.get('query')
         count = params.get('count')
         api_endpoint = request.get('endpoint')
 
-        self.qc_manager.log_debug(f"Query: {query}", context="XTwitterRetriever")
+        self.qc_manager.log_debug(f"Query: {query}, Count: {count}", context="XTwitterRetriever")
 
         if not all([query, count, api_endpoint]):
             raise ConfigurationException("Missing required parameters in request")
 
         # Extract time-related parameters
         start_date, end_date, cleaned_query = self._extract_date_range(query)
+        
+        self.qc_manager.log_debug(f"Extracted date range: {start_date} to {end_date}", context="XTwitterRetriever")
         
         # Use default timeframe if not provided in the query
         if not end_date:
@@ -94,7 +97,14 @@ class XTwitterRetriever:
 
             date_range_query = f"{cleaned_query} since:{day_before.strftime('%Y-%m-%dT%H:%M:%SZ')} until:{current_date.strftime('%Y-%m-%dT%H:%M:%SZ')}"
             
-            response = self.twitter_connection.get_tweets(api_endpoint, date_range_query, count)
+            self.qc_manager.log_debug(f"Processing date: {current_date}", context="XTwitterRetriever")
+            
+            try:
+                response = self.twitter_connection.get_tweets(api_endpoint, date_range_query, count)
+                self.qc_manager.log_debug(f"API response content: {response.json()}", context="XTwitterRetriever")
+            except Exception as e:
+                self.qc_manager.log_error(f"API call failed: {str(e)}", context="XTwitterRetriever")
+            
             api_calls_count += 1
             new_records = self._handle_response(response, request_id, query, current_date, all_tweets, records_fetched)
             records_fetched += new_records
@@ -109,6 +119,7 @@ class XTwitterRetriever:
         self.qc_manager.log_info(f"Tweet retrieval completed for query: {query} over {total_days} days. Total tweets: {records_fetched}, API calls: {api_calls_count}", context="XTwitterRetriever")
         return all_tweets, api_calls_count, records_fetched
 
+    @QCManager().handle_error()
     def _handle_response(self, response, request_id, query, current_date, all_tweets, records_fetched):
         if 'data' in response and response['data'] is not None:
             tweets = response['data']

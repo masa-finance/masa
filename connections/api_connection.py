@@ -71,6 +71,7 @@ class APIConnection(ABC):
         """
         pass
 
+    @QCManager().handle_error()
     def _make_request(self, method, url, data=None, params=None):
         """
         Make an API request.
