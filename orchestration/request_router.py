@@ -38,7 +38,7 @@ class RequestRouter:
         self.config = global_settings
         self.state_manager = state_manager
         self.retrievers = {}
-
+    
     def route_request(self, request):
         """
         Route the request to the appropriate retriever based on the request parameters.
@@ -52,30 +52,33 @@ class RequestRouter:
         Raises:
             ValueError: If an unknown retriever or endpoint is specified.
         """
-        request_id = request['id']
-        query = request['params'].get('query', 'N/A')
+        # Add a check to ensure the request has a valid ID
+        request_id = request.get('id')
+        if request_id is None:
+            self.qc_manager.log_error("Request is missing a valid ID", context="RequestRouter")
+            raise ValueError("Request is missing a valid ID")
+
+        retriever_name = request['retriever']
+        endpoint = request['endpoint']
+        params = request['params']
+
+        query = params.get('query', 'N/A')
         self.qc_manager.log_debug(f"Request details: Query '{query}' {request}", context="RequestRouter")
 
         try:
-            retriever_name = request['retriever']
-            endpoint = request['endpoint']
-
-            self.qc_manager.log_debug(f"Routing request: Query '{query}' (ID: {request_id}) to {retriever_name}")
-
-            # Use get_retriever method to initialize the retriever
-            retriever = self.get_retriever(retriever_name, request)
-            self.qc_manager.log_debug(f"Retrieved retriever object for {retriever_name}", context="RequestRouter")
+            self.qc_manager.log_debug(f"Routing request: {request_id} to {retriever_name} for endpoint {endpoint}", context="RequestRouter")
 
             if retriever_name == 'XTwitterRetriever':
                 if endpoint == 'data/twitter/tweets/recent':
+                    retriever = self.get_retriever(retriever_name, request)
                     self.qc_manager.log_debug(f"Calling retrieve_tweets for request: Query '{query}' (ID: {request_id})", context="RequestRouter")
-                    all_tweets, api_calls_count, records_fetched = retriever.retrieve_tweets(request)
-                    result = {
-                        'tweets_count': records_fetched,
-                        'api_calls_count': api_calls_count,
-                        'last_processed_time': datetime.now().isoformat()
-                    }
-                    self.qc_manager.log_debug(f"Completed request: Query '{query}' (ID: {request_id}). API calls: {api_calls_count}, Records fetched: {records_fetched}")
+                    
+                    # Ensure 'query' and 'count' are present in the params
+                    if 'query' not in params or 'count' not in params:
+                        raise ValueError("Missing 'query' or 'count' parameter in the request")
+                    
+                    result = retriever.retrieve_tweets(request_id, params['query'], params['count'])
+                    self.qc_manager.log_debug(f"Completed request: Query '{query}' (ID: {request_id}).")
                     return result
                 else:
                     raise ValueError(f"Unknown endpoint for {retriever_name}: {endpoint}")

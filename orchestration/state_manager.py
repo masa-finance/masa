@@ -40,12 +40,13 @@ class StateManager:
         # Ensure the directory exists
         os.makedirs(os.path.dirname(self._state_file), exist_ok=True)
         
-        # Load or create the state file
+        self._state = None
+
+    def load_state(self):
+        """
+        Load the state data from the state file.
+        """
         self._state = self._load_state()
-        
-        # If the state file was just created, save the initial state
-        if not os.path.exists(self._state_file):
-            self._save_state()
 
     def _load_state(self):
         """
@@ -57,6 +58,9 @@ class StateManager:
             try:
                 with open(self._state_file, 'r') as file:
                     state = json.load(file)
+                # Remove any 'null' entries
+                if 'requests' in state:
+                    state['requests'] = {k: v for k, v in state['requests'].items() if k != 'null'}
                 self.qc_manager.log_debug("State file loaded successfully", context="StateManager")
                 return state
             except json.JSONDecodeError:
@@ -88,6 +92,7 @@ class StateManager:
             error (str, optional): Error data of the request.
             request_details (dict, optional): Original request data.
         """
+        self.qc_manager.log_debug(f"Updating state for request ID: {request_id}, status: {status}", context="StateManager")
         with self._lock:
             current_time = datetime.now().isoformat()
             if request_id not in self._state['requests']:
@@ -132,17 +137,13 @@ class StateManager:
         Returns:
             dict: State data of the request or an empty dictionary if not found.
         """
+        self.qc_manager.log_debug(f"Retrieving state for request ID: {request_id}", context="StateManager")
         with self._lock:
-            return self._state['requests'].get(request_id, {}).copy()
-
-    def get_all_requests_state(self):
-        """
-        Get the state of all requests.
-
-        :return: Dictionary containing the state data of all requests.
-        """
-        with self._lock:
-            return self._state['requests']
+            state = self._state['requests'].get(request_id)
+            if state is None:
+                self.qc_manager.log_warning(f"No state found for request ID: {request_id}", context="StateManager")
+                return {}
+            return state.copy()
 
     def remove_request_state(self, request_id):
         """
@@ -170,3 +171,27 @@ class StateManager:
                 self.qc_manager.log_debug(f"Priority updated for request {request_id}", context="StateManager")
             else:
                 self.qc_manager.log_warning(f"Attempt to update priority for non-existent request {request_id}", context="StateManager")
+
+    def request_exists(self, request_id):
+        """
+        Check if a request with the given ID exists in the state.
+
+        Args:
+            request_id (str): ID of the request to check.
+
+        Returns:
+            bool: True if the request exists, False otherwise.
+        """
+        return request_id in self._state['requests']
+
+    def get_active_requests(self):
+        """
+        Get all requests that are either queued or in progress.
+
+        Returns:
+            dict: A dictionary of active requests, keyed by request ID.
+        """
+        return {
+            k: v for k, v in self._state['requests'].items()
+            if v.get('status') in ['queued', 'in_progress']
+        }

@@ -9,7 +9,6 @@ Lower priority values indicate higher priority.
 
 Attributes:
     memory_queue (queue.PriorityQueue): The in-memory priority queue.
-    request_data (dict): A dictionary to store request data.
     qc_manager (tools.qc.qc_manager.QCManager): Quality control manager for logging.
     state_manager (orchestration.state_manager.StateManager): Manager for handling request states.
 """
@@ -29,7 +28,6 @@ class Queue:
 
     Attributes:
         memory_queue (queue.PriorityQueue): The in-memory priority queue.
-        request_data (dict): A dictionary to store request data.
         qc_manager (tools.qc.qc_manager.QCManager): Quality control manager for logging.
         state_manager (orchestration.state_manager.StateManager): Manager for handling request states.
     """
@@ -49,21 +47,17 @@ class Queue:
         
         os.makedirs(os.path.dirname(self._queue_file), exist_ok=True)
         
-        self.clear_queue()
         self._load_queue_from_state()
 
     def _load_queue_from_state(self):
         """
         Load queued and in-progress requests from the state manager into the queue.
         """
-        all_requests = self.state_manager.get_all_requests_state()
-        for request_id, request_state in all_requests.items():
-            if request_state.get('status') in ['queued', 'in_progress']:
-                request_details = request_state.get('request_details')
-                if request_details:
-                    priority = request_details.get('priority', 100)
-                    self.memory_queue.put((priority, request_id))
-                    self.state_manager.update_request_state(request_id, 'queued')
+        active_requests = self.state_manager.get_active_requests()
+        for request_id, request_state in active_requests.items():
+            request_details = request_state.get('request_details', {})
+            priority = request_details.get('priority', 100)
+            self.memory_queue.put((priority, request_id))
         self.qc_manager.log_info(f"Loaded {self.memory_queue.qsize()} requests from state manager", context="Queue")
 
     def _load_queue_file(self):
@@ -118,22 +112,20 @@ class Queue:
         Get the next request from the queue.
 
         Returns:
-            dict: The next request, or None if the queue is empty.
+            dict: The next request or None if the queue is empty.
         """
         if self.memory_queue.empty():
-            self.qc_manager.log_debug("Attempted to get request from empty queue", context="Queue")
+            return None
+        priority, request_id = self.memory_queue.get()
+        request_state = self.state_manager.get_request_state(request_id)
+
+        if request_id is None or not request_state:
+            self.qc_manager.log_warning("Skipping request with missing ID or data", context="Queue")
             return None
 
-        _, request_id = self.memory_queue.get()
-        current_state = self.state_manager.get_request_state(request_id)
-        
-        if current_state:
-            self.qc_manager.log_debug(f"Retrieved request {request_id} from queue. Current status: {current_state.get('status', 'unknown')}", context="Queue")
-            self._save_queue()
-            return current_state.get('request_details')
-        else:
-            self.qc_manager.log_warning(f"Request {request_id} not found in state manager", context="Queue")
-            return None
+        self.qc_manager.log_debug(f"Retrieved request {request_id} from queue. Current status: {request_state.get('status', 'unknown')}", context="Queue")
+        self._save_queue()
+        return request_state.get('request_details')
 
     def complete(self, request_id):
         """
@@ -143,11 +135,8 @@ class Queue:
             request_id (str): The ID of the request to mark as completed.
         """
         self.qc_manager.log_debug(f"Marking request {request_id} as completed", context="Queue")
-        if request_id in self.request_data:
-            self.request_data[request_id]['status'] = 'completed'
-            self.qc_manager.log_debug(f"Request {request_id} marked as completed", context="Queue")
-        else:
-            self.qc_manager.log_warning(f"Request {request_id} not found for completion", context="Queue")
+        self.state_manager.update_request_state(request_id, 'completed')
+        self.qc_manager.log_debug(f"Request {request_id} marked as completed", context="Queue")
 
     def fail(self, request_id, error):
         """
@@ -158,12 +147,8 @@ class Queue:
             error (str): The error message.
         """
         self.qc_manager.log_debug(f"Marking request {request_id} as failed", context="Queue")
-        if request_id in self.request_data:
-            self.request_data[request_id]['status'] = 'failed'
-            self.request_data[request_id]['error'] = str(error)
-            self.qc_manager.log_debug(f"Request {request_id} marked as failed", context="Queue")
-        else:
-            self.qc_manager.log_warning(f"Request {request_id} not found for failure logging", context="Queue")
+        self.state_manager.update_request_state(request_id, 'failed', error=str(error))
+        self.qc_manager.log_debug(f"Request {request_id} marked as failed", context="Queue")
 
     def get_status(self, request_id):
         """
@@ -175,7 +160,7 @@ class Queue:
         Returns:
             dict: The status of the request.
         """
-        return self.request_data.get(request_id)
+        return self.state_manager.get_request_state(request_id)
 
     def get_all_statuses(self):
         """
@@ -184,7 +169,7 @@ class Queue:
         Returns:
             dict: A dictionary containing the statuses of all requests.
         """
-        return self.request_data
+        return self.state_manager.get_all_requests_state()
 
     def clear_queue(self):
         """
@@ -205,7 +190,8 @@ class Queue:
         if self.memory_queue.empty():
             return None
         _, request_id = self.memory_queue.queue[0]
-        return self.request_data.get(request_id, {}).get('request')
+        request_state = self.state_manager.get_request_state(request_id)
+        return request_state.get('request_details')
 
     def _generate_request_id(self, request):
         """

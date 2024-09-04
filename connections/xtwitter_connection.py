@@ -28,10 +28,12 @@ class XTwitterConnection(APIConnection):
         Sets up the QCManager and configures the base URL for the XTwitter API.
         """
         self.qc_manager = QCManager()
+        self.qc_manager.log_debug("Initializing XTwitterConnection", context="XTwitterConnection")
         
         super().__init__()
         self.base_url = global_settings.get('twitter.BASE_URL') or global_settings.get('twitter.BASE_URL_LOCAL')
         self.success_wait_time = global_settings.get('twitter.SUCCESS_WAIT_TIME', 5)
+        self.qc_manager.log_debug(f"XTwitterConnection initialized with base URL: {self.base_url}", context="XTwitterConnection")
 
     def get_headers(self):
         """
@@ -58,6 +60,7 @@ class XTwitterConnection(APIConnection):
         Raises:
             APIException: If there's an error in making the request or processing the response.
         """
+        self.qc_manager.log_debug(f"Making API request with query: {date_range_query}, count: {count}", context="XTwitterConnection")
         url = format_url(self.base_url, api_endpoint)
         data = {'query': date_range_query, 'count': count}
         response = self._make_request('POST', url, data=data)

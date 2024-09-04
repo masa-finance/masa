@@ -42,7 +42,7 @@ class RequestManager:
         self.queue_file = self.config.get('request_manager.QUEUE_FILE')
         self.state_manager = StateManager(self.state_file)
         self.request_router = RequestRouter(self.qc_manager, self.state_manager)
-        self.queue = Queue(self.state_manager, self.queue_file)
+        self.queue = None  # We'll initialize this later
 
     def process_requests(self, request_list_file=None):
         """
@@ -58,10 +58,33 @@ class RequestManager:
         Returns:
             None
         """
+        # Load state first
+        self.state_manager.load_state()
+
+        # If a request list file is provided, update the state with new requests
         if request_list_file:
-            self.add_requests_from_file(request_list_file)
-            self.qc_manager.log_info(f"Loaded requests from file: {request_list_file}")
-    
+            self._update_state_from_file(request_list_file)
+
+        # Now initialize the queue based on the updated state
+        self.queue = Queue(self.state_manager, self.queue_file)
+
+        # Process the requests
+        self._process_queue()
+
+    def _update_state_from_file(self, request_list_file):
+        self.qc_manager.log_debug(f"Updating state from file: {request_list_file}", context="RequestManager")
+        with open(request_list_file, 'r') as file:
+            requests = json.load(file)
+            if isinstance(requests, list):
+                for request in requests:
+                    request_id = self._generate_request_id(request)
+                    if not self.state_manager.request_exists(request_id):
+                        self.state_manager.update_request_state(request_id, 'queued', request_details=request)
+                self.qc_manager.log_info(f"Updated state with new requests from file")
+            else:
+                self.qc_manager.log_error("Invalid JSON structure in request_list.json. Expected a list of requests.", context="RequestManager")
+
+    def _process_queue(self):
         queue_summary = self.queue.get_queue_summary()
         self.qc_manager.log_info("Queue Summary:")
         for item in queue_summary:
@@ -112,25 +135,6 @@ class RequestManager:
             self.qc_manager.log_error(f"Error in request {request_id}: {str(e)}")
             self.state_manager.update_request_state(request_id, 'failed', error=str(e), request_details=request)
             raise
-
-    def add_requests_from_file(self, request_list_file):
-        """
-        Add requests from a JSON file to the queue.
-
-        Args:
-            request_list_file (str): Path to the JSON file containing requests.
-        """
-        self.qc_manager.log_debug(f"Loading requests from file: {request_list_file}", context="RequestManager")
-        with open(request_list_file, 'r') as file:
-            requests = json.load(file)
-            if isinstance(requests, list):
-                for request in requests:
-                    generated_id = self._generate_request_id(request)
-                    request['id'] = generated_id
-                    self.queue.add(request)
-                self.qc_manager.log_info(f"Added {len(requests)} new requests from file")
-            else:
-                self.qc_manager.log_error("Invalid JSON structure in request_list.json. Expected a list of requests.", context="RequestManager")
 
     def _generate_request_id(self, request):
         """
@@ -225,6 +229,7 @@ class RequestManager:
         Args:
             request (dict): The request to add.
         """
+        
         request_id = request['id']
         self.qc_manager.log_debug(f"Adding request {request_id} to system", context="RequestManager")
         

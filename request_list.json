@@ -2,18 +2,9 @@
   {
     "retriever": "XTwitterRetriever",
     "endpoint": "data/twitter/tweets/recent",
-    "priority": 1,
-    "params": {
-      "query": "#Bitcoin since:2023-01-01 until:2023-01-02", 
-      "count": 100
-    }
-  },
-  {
-    "retriever": "XTwitterRetriever",
-    "endpoint": "data/twitter/tweets/recent",
     "priority": 2,
     "params": {
-      "query": "Ethereum lang:en -filter:retweets since:2023-06-10 until:2023-06-12",
+      "query": "Ethereum lang:en -filter:retweets since:2024-06-01 until:2024-06-03",
       "count": 75
     }
   },
@@ -22,7 +13,7 @@
     "endpoint": "data/twitter/tweets/recent",
     "priority": 3,
     "params": {
-      "query": "Cardano OR ADA min_faves:100 since:2023-09-20 until:2023-09-22",
+      "query": "Cardano OR ADA min_faves:100 since:2024-06-04 until:2024-06-06",
       "count": 50
     }
   },
@@ -31,7 +22,7 @@
     "endpoint": "data/twitter/tweets/recent",
     "priority": 4,
     "params": {
-      "query": "Polkadot from:gavofyork since:2023-03-15 until:2023-03-20",
+      "query": "Polkadot since:2024-06-07 until:2024-06-12",
       "count": 25
     }
   },
@@ -40,7 +31,7 @@
     "endpoint": "data/twitter/tweets/recent",
     "priority": 5,
     "params": {
-      "query": "Solana min_retweets:50 since:2023-11-01 until:2023-11-05",
+      "query": "Solana min_retweets:50 since:2024-06-13 until:2024-06-17",
       "count": 60
     }
   },
@@ -49,7 +40,7 @@
     "endpoint": "data/twitter/tweets/recent",
     "priority": 6,
     "params": {
-      "query": "\"Binance Coin\" OR BNB since:2023-07-20 until:2023-07-25",
+      "query": "\"Binance Coin\" OR BNB since:2024-06-18 until:2024-06-23",
       "count": 80
     }
   },
@@ -58,7 +49,7 @@
     "endpoint": "data/twitter/tweets/recent",
     "priority": 7,
     "params": {
-      "query": "Chainlink filter:safe since:2023-02-10 until:2023-02-15",
+      "query": "Chainlink filter:safe since:2024-06-24 until:2024-06-29",
       "count": 40
     }
   },
@@ -67,7 +58,7 @@
     "endpoint": "data/twitter/tweets/recent",
     "priority": 8,
     "params": {
-      "query": "Uniswap -moon since:2023-08-05 until:2023-08-10",
+      "query": "#memcoin -moon since:2024-06-30 until:2024-07-05",
       "count": 30
     }
   },
@@ -76,7 +67,7 @@
     "endpoint": "data/twitter/tweets/recent",
     "priority": 9,
     "params": {
-      "query": "Aave lang:en since:2023-04-25 until:2023-04-30",
+      "query": "Aave lang:en since:2024-07-06 until:2024-07-11",
       "count": 55
     }
   },
@@ -85,7 +76,7 @@
     "endpoint": "data/twitter/tweets/recent",
     "priority": 10,
     "params": {
-      "query": "Cosmos OR ATOM since:2023-12-15 until:2023-12-20",
+      "query": "Cosmos OR ATOM since:2024-07-12 until:2024-07-17",
       "count": 90
     }
   }
