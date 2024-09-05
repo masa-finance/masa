@@ -73,3 +73,5 @@ napoleon_use_rtype = True
 napoleon_preprocess_types = False
 napoleon_type_aliases = None
 napoleon_attr_annotations = True
+
+os.environ['BUILDING_DOCS'] = 'True'

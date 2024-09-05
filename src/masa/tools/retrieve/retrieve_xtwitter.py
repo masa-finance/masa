@@ -24,11 +24,11 @@ class XTwitterRetriever:
     including pagination, error handling, and data storage.
 
     Attributes:
-        qc_manager (QCManager): The quality control manager for logging and error handling.
-        state_manager (StateManager): The state manager to track retrieval progress.
+        qc_manager (tools.qc.qc_manager.QCManager): The quality control manager for logging and error handling.
+        state_manager (tools.state_manager.StateManager): The state manager to track retrieval progress.
         request (dict): The request configuration for tweet retrieval.
-        twitter_connection (XTwitterConnection): The connection to the XTwitter API.
-        data_storage (DataStorage): The data storage for saving retrieved tweets.
+        twitter_connection (tools.connections.xtwitter_connection.XTwitterConnection): The connection to the XTwitter API.
+        data_storage (tools.utils.data_storage.DataStorage): The data storage for saving retrieved tweets.
     """
 
     def __init__(self, state_manager, request):
@@ -36,7 +36,7 @@ class XTwitterRetriever:
         Initialize the XTwitterRetriever.
 
         Args:
-            state_manager (StateManager): The state manager to track retrieval progress.
+            state_manager (tools.state_manager.StateManager): The state manager to track retrieval progress.
             request (dict): The request configuration for tweet retrieval.
         """
         self.qc_manager = QCManager()

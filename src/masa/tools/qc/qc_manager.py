@@ -25,8 +25,8 @@ class QCManager:
 
     Attributes:
         logger (logging.Logger): The logger instance for this QCManager.
-        error_handler (ErrorHandler): An instance of ErrorHandler for managing errors.
-        retry_manager (RetryPolicy): An instance of RetryPolicy for managing retries.
+        error_handler (tools.qc.error_handler.ErrorHandler): An instance of ErrorHandler for managing errors.
+        retry_manager (tools.retry_manager.RetryPolicy): An instance of RetryPolicy for managing retries.
     """
 
     _instance = None
