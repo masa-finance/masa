@@ -39,11 +39,12 @@ class RequestRouter:
         self.state_manager = state_manager
         self.retrievers = {}
     
-    def route_request(self, request):
+    def route_request(self, request_id, request):
         """
         Route the request to the appropriate retriever based on the request parameters.
 
         Args:
+            request_id (str): The ID of the request.
             request (dict): Dictionary containing the request parameters.
 
         Returns:
@@ -52,11 +53,6 @@ class RequestRouter:
         Raises:
             ValueError: If an unknown retriever or endpoint is specified.
         """
-        # Add a check to ensure the request has a valid ID
-        request_id = request.get('id')
-        if request_id is None:
-            self.qc_manager.log_error("Request is missing a valid ID", context="RequestRouter")
-            raise ValueError("Request is missing a valid ID")
 
         retriever_name = request['retriever']
         endpoint = request['endpoint']

@@ -19,11 +19,13 @@ class RetryConfiguration:
         self.base_wait_time = config.get('BASE_WAIT_TIME', 10)
         self.backoff_factor = config.get('BACKOFF_FACTOR', 2)
         self.max_wait_time = config.get('MAX_WAIT_TIME', 960)
+        self.initial_wait_times = config.get('INITIAL_WAIT_TIMES', {})
+        self.success_wait_time = config.get('SUCCESS_WAIT_TIME', 10)
         self.retryable_exceptions = [
             globals().get(exc_name) for exc_name in config.get('RETRYABLE_EXCEPTIONS', 
-            ['NetworkException', 'RateLimitException', 'APIException'])
+            ['NetworkException', 'RateLimitException', 'APIException', 'NoWorkersAvailableException', 'GatewayTimeoutException'])
         ]
-        self.initial_wait_times = config.get('INITIAL_WAIT_TIMES', {})
+
 
 class RetryPolicy:
     def __init__(self, settings, qc_manager):
@@ -52,7 +54,11 @@ class RetryPolicy:
         :return: The calculated wait time in seconds
         """
         if isinstance(exception, RateLimitException):
-            wait = config.max_wait_time
+            wait = config.initial_wait_times.get('429')
+        elif isinstance(exception, NoWorkersAvailableException):
+            wait = config.initial_wait_times.get('417')
+        elif isinstance(exception, GatewayTimeoutException):
+            wait = config.initial_wait_times.get('504') or config.base_wait_time
         elif attempt == 1 and isinstance(exception, APIException) and exception.status_code:
             wait = config.initial_wait_times.get(str(exception.status_code), config.base_wait_time)
         else:

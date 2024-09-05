@@ -1,14 +1,14 @@
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "masa"
-version = "0.0.1"
+version = "0.1.0"
 authors = [
-  { name="Your Name", email="your.email@example.com" },
+  { name = "Masa Finance", email = "engineering@masa.ai" },
 ]
-description = "A brief description of your package"
+description = "Multi-Agent System Architecture (MASA) project"
 readme = "README.md"
 requires-python = ">=3.8"
 classifiers = [
@@ -16,3 +16,54 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
+dependencies = [
+    "pyyaml",
+    "requests",
+    "numpy",
+    "pandas",
+    "python-dotenv",
+    "tqdm",
+    "colorlog",
+    "dynaconf",
+    "scikit-learn",
+    "torch",
+    "transformers",
+    "streamlit",
+    "streamlit-extras",
+    "TikTokApi",
+    "langchain",
+    "langchain_community",
+    "langchain-openai",
+    "langchainhub",
+    "langchain-ollama",
+    "openai",
+    "tiktoken",
+    "nomic[local]",
+    "ollama",
+    "pinecone-client[grpc]",
+    "matplotlib",
+    "jupyter",
+    "notebook",
+    "ipykernel",
+    "sphinx",
+    "sphinx_rtd_theme",
+    "recommonmark",
+    "myst-parser",
+    "psycopg2",
+    "feedparser",
+    "tavily-python",
+    "langgraph",
+    "assemblyai",
+    "pytube",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/masa-finance/masa"
+"Bug Tracker" = "https://github.com/masa-finance/masa/issues"
+
+[project.scripts]
+masa = "masa.masa:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+packages = ["masa"]

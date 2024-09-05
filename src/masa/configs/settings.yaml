@@ -18,6 +18,12 @@ default:
       - NetworkException
       - RateLimitException
       - APIException
+      - NoWorkersAvailableException
+      - GatewayTimeoutException
+    INITIAL_WAIT_TIMES:
+      '429': 900  # 15 minutes for rate limit
+      '417': 3600  # 1 hour for no workers available
+      '504': 60   # 1 minute for gateway timeout
     DEFAULT_TIMEFRAME_MONTHS: 3  # Default timeframe of 3 months
 
   request_manager:

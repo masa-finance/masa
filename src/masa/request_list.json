@@ -1,0 +1,83 @@
+[
+  {
+    "retriever": "XTwitterRetriever",
+    "endpoint": "data/twitter/tweets/recent",
+    "priority": 1,
+    "params": {
+      "query": "#elonmusk min_faves:50 since:2024-08-01 until:2024-08-05",
+      "count": 100
+    }
+  },
+  {
+    "retriever": "XTwitterRetriever", 
+    "endpoint": "data/twitter/tweets/recent",
+    "priority": 2,
+    "params": {
+      "query": "from:getmasafi -filter:retweets since:2024-08-06 until:2024-08-10",
+      "count": 75
+    }
+  },
+  {
+    "retriever": "XTwitterRetriever",
+    "endpoint": "data/twitter/tweets/recent", 
+    "priority": 3,
+    "params": {
+      "query": "to:BrendanPlayford Masa OR Oracle since:2024-08-11 until:2024-08-15",
+      "count": 60
+    }
+  },
+  {
+    "retriever": "XTwitterRetriever",
+    "endpoint": "data/twitter/tweets/recent",
+    "priority": 4, 
+    "params": {
+      "query": "\"Decentralized AI\" lang:en min_retweets:25 since:2024-08-16 until:2024-08-20",
+      "count": 80
+    }
+  },
+  {
+    "retriever": "XTwitterRetriever",
+    "endpoint": "data/twitter/tweets/recent",
+    "priority": 5,
+    "params": {
+      "query": "Masa Node geocode:37.781157,-122.398720,50mi since:2024-08-21 until:2024-08-25",
+      "count": 50
+    }
+  },
+  {
+    "retriever": "XTwitterRetriever",
+    "endpoint": "data/twitter/tweets/recent",
+    "priority": 6,
+    "params": {
+      "query": "url:\"https://www.masa.finance\" filter:safe since:2024-08-26 until:2024-08-31", 
+      "count": 40
+    }
+  },
+  {
+    "retriever": "XTwitterRetriever",
+    "endpoint": "data/twitter/tweets/recent",
+    "priority": 7,
+    "params": {
+      "query": "\"Masa Finance\" ? since:2024-09-01 until:2024-09-05",
+      "count": 90
+    }
+  },
+  {
+    "retriever": "XTwitterRetriever",
+    "endpoint": "data/twitter/tweets/recent",
+    "priority": 8,
+    "params": {
+      "query": "@github since:2024-09-06 until:2024-09-10",
+      "count": 70 
+    }
+  },
+  {
+    "retriever": "XTwitterRetriever",
+    "endpoint": "data/twitter/tweets/recent",
+    "priority": 9,
+    "params": {
+      "query": "@calanthiaaa since:2024-09-11 until:2024-09-15",
+      "count": 30
+    }
+  }
+]

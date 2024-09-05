@@ -132,6 +132,13 @@ class XTwitterRetriever:
             current_date -= timedelta(days=1)
             self.state_manager.update_request_state(request_id, 'in_progress', {'last_processed_time': current_date.isoformat()})
 
+            # Pause for the configured success wait time before the next iteration
+            success_wait_time = global_settings.get('twitter.SUCCESS_WAIT_TIME', 5)
+            self.qc_manager.log_debug(f"Pausing for {success_wait_time} seconds before the next iteration", context="XTwitterRetriever")
+            time.sleep(success_wait_time)
+
+       
+
         self.qc_manager.log_info(f"Tweet retrieval completed for query: {query} over {total_days} days. Total tweets: {records_fetched}, API calls: {api_calls_count}", context="XTwitterRetriever")
         return all_tweets, api_calls_count, records_fetched
 

@@ -26,6 +26,12 @@ class APIException(MASAException):
 class NetworkException(APIException):
     """Exception for network-related errors"""
 
+class NoWorkersAvailableException(APIException):
+    """Exception for no workers available errors"""
+
+class GatewayTimeoutException(APIException):
+    """Exception for gateway timeout errors"""
+
 class RateLimitException(APIException):
     """Exception for rate limiting errors"""
 

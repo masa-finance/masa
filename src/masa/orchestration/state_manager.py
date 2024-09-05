@@ -110,14 +110,16 @@ class StateManager:
                 request_details_copy.pop('status', None)
                 self._state['requests'][request_id]['request_details'] = request_details_copy
 
-            if progress is not None:
+            if progress:
                 self._state['requests'][request_id]['progress'] = progress
-            elif status == 'completed':
-                self._state['requests'][request_id]['result'] = result
-                self._state['requests'][request_id].pop('progress', None)
-            elif status == 'failed':
-                self._state['requests'][request_id]['error'] = error
-                self._state['requests'][request_id].pop('progress', None)
+
+            if result:
+                # Store only the records fetched and API calls count from the result
+                result_summary = {
+                    'records_fetched': result[2],
+                    'api_calls_count': result[1]
+                }
+                self._state['requests'][request_id]['result'] = result_summary
 
             self._state['last_updated'] = current_time
             self._save_state()

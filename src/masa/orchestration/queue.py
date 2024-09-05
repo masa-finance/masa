@@ -112,20 +112,20 @@ class Queue:
         Get the next request from the queue.
 
         Returns:
-            dict: The next request or None if the queue is empty.
+            tuple: A tuple containing (request_id, request_details) or (None, None) if the queue is empty.
         """
         if self.memory_queue.empty():
-            return None
+            return None, None
         priority, request_id = self.memory_queue.get()
         request_state = self.state_manager.get_request_state(request_id)
 
         if request_id is None or not request_state:
             self.qc_manager.log_warning("Skipping request with missing ID or data", context="Queue")
-            return None
+            return None, None
 
         self.qc_manager.log_debug(f"Retrieved request {request_id} from queue. Current status: {request_state.get('status', 'unknown')}", context="Queue")
         self._save_queue()
-        return request_state.get('request_details')
+        return request_id, request_state.get('request_details')
 
     def complete(self, request_id):
         """

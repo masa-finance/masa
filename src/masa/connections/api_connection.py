@@ -71,7 +71,7 @@ class APIConnection(ABC):
         """
         pass
 
-    @QCManager().handle_error()
+    @QCManager().handle_error_with_retry('twitter')
     def _make_request(self, method, url, data=None, params=None):
         """
         Make an API request.

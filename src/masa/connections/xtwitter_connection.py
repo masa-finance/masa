@@ -10,7 +10,7 @@ from .api_connection import APIConnection
 from configs.config import global_settings
 from tools.qc.qc_manager import QCManager
 from tools.utils.helper_functions import format_url
-from tools.qc.exceptions import AuthenticationException, APIException, RateLimitException
+from tools.qc.exceptions import AuthenticationException, APIException, RateLimitException, NoWorkersAvailableException
 import time
 
 class XTwitterConnection(APIConnection):
@@ -32,7 +32,6 @@ class XTwitterConnection(APIConnection):
         
         super().__init__()
         self.base_url = global_settings.get('twitter.BASE_URL') or global_settings.get('twitter.BASE_URL_LOCAL')
-        self.success_wait_time = global_settings.get('twitter.SUCCESS_WAIT_TIME', 5)
         self.qc_manager.log_debug(f"XTwitterConnection initialized with base URL: {self.base_url}", context="XTwitterConnection")
 
     def get_headers(self):
@@ -65,7 +64,6 @@ class XTwitterConnection(APIConnection):
         data = {'query': date_range_query, 'count': count}
         response = self._make_request('POST', url, data=data)
         result = self.handle_response(response)
-        self.pause_after_success()
         return result
 
     @QCManager().handle_error()
@@ -87,19 +85,12 @@ class XTwitterConnection(APIConnection):
         if response.status_code == 200:
             return response.json()
         elif response.status_code == 429:
-            self.qc_manager.log_warning(f"Rate limit exceeded. Status code: {response.status_code}", context="XTwitterConnection")
-            raise RateLimitException(f"Rate limit exceeded. Status code: {response.status_code}", status_code=response.status_code)
+            raise RateLimitException("Rate limit exceeded", status_code=response.status_code)
+        elif response.status_code == 417:
+            raise NoWorkersAvailableException("No workers available on the network", status_code=response.status_code)
+        elif response.status_code == 504:
+            raise APIException("Gateway Timeout", status_code=response.status_code)
         elif response.status_code in (401, 403):
             raise AuthenticationException("Authentication failed", status_code=response.status_code)
         else:
             raise APIException(f"HTTP error {response.status_code}: {response.text}", status_code=response.status_code)
-
-    def pause_after_success(self):
-        """
-        Pause after a successful API call.
-
-        This method is called after a successful API call to introduce a pause.
-        The duration of the pause is controlled by the `SUCCESS_WAIT_TIME` setting.
-        """
-        self.qc_manager.log_info(f"Pausing for {self.success_wait_time} seconds after successful request", context="XTwitterConnection")
-        time.sleep(self.success_wait_time)

@@ -95,32 +95,36 @@ class RequestManager:
 
         processed_requests = 0
         while True:
-            request = self.queue.get()
-            if request is None:
+            request_id, request = self.queue.get()
+            if request_id is None:
                 break
 
             processed_requests += 1
             self.qc_manager.log_info(f"Processing request {processed_requests} of {total_requests}")
 
             try:
-                self._process_single_request(request)
+                self._process_single_request(request_id, request)
             except Exception as e:
                 self.qc_manager.log_error(f"Error processing request: {str(e)}")
 
         self.qc_manager.log_info(f"Completed processing all {total_requests} requests")
 
-    def _process_single_request(self, request):
+    def _process_single_request(self, request_id, request):
         """
         Process a single request.
 
         Args:
+            request_id (str): The ID of the request.
             request (dict): The request to process.
 
         Raises:
             Exception: If an error occurs during request processing.
         """
-        request_id = request['id']
-        current_state = self.state_manager.get_request_state(request_id)
+        try:
+            current_state = self.state_manager.get_request_state(request_id)
+        except KeyError:
+            self.qc_manager.log_error(f"Request {request_id} not found in the state manager", context="RequestManager")
+            return
 
         self.qc_manager.log_debug(f"Processing request {request_id}, Current status: {current_state['status']}", context="RequestManager")
 
@@ -128,7 +132,7 @@ class RequestManager:
             self.state_manager.update_request_state(request_id, 'in_progress', request_details=request)
 
         try:
-            result = self.request_router.route_request(request)
+            result = self.request_router.route_request(request_id, request)
             self.state_manager.update_request_state(request_id, 'completed', result=result, request_details=request)
             self.qc_manager.log_info(f"Request completed: {request_id}")
         except Exception as e:

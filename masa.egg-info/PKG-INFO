@@ -1,3 +1,55 @@
+Metadata-Version: 2.1
+Name: masa
+Version: 0.1.0
+Summary: Multi-Agent System Architecture (MASA) project
+Author-email: Masa Finance <engineering@masa.ai>
+Project-URL: Homepage, https://github.com/masa-finance/masa
+Project-URL: Bug Tracker, https://github.com/masa-finance/masa/issues
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: pyyaml
+Requires-Dist: requests
+Requires-Dist: numpy
+Requires-Dist: pandas
+Requires-Dist: python-dotenv
+Requires-Dist: tqdm
+Requires-Dist: colorlog
+Requires-Dist: dynaconf
+Requires-Dist: scikit-learn
+Requires-Dist: torch
+Requires-Dist: transformers
+Requires-Dist: streamlit
+Requires-Dist: streamlit-extras
+Requires-Dist: TikTokApi
+Requires-Dist: langchain
+Requires-Dist: langchain_community
+Requires-Dist: langchain-openai
+Requires-Dist: langchainhub
+Requires-Dist: langchain-ollama
+Requires-Dist: openai
+Requires-Dist: tiktoken
+Requires-Dist: nomic[local]
+Requires-Dist: ollama
+Requires-Dist: pinecone-client[grpc]
+Requires-Dist: matplotlib
+Requires-Dist: jupyter
+Requires-Dist: notebook
+Requires-Dist: ipykernel
+Requires-Dist: sphinx
+Requires-Dist: sphinx_rtd_theme
+Requires-Dist: recommonmark
+Requires-Dist: myst-parser
+Requires-Dist: psycopg2
+Requires-Dist: feedparser
+Requires-Dist: tavily-python
+Requires-Dist: langgraph
+Requires-Dist: assemblyai
+Requires-Dist: pytube
+
 # MASA Project
 
 MASA is a project for data retrieval, quality control, and orchestration. It currently provides tools to retrieve data from Twitter using the Masa Oracle Node API, with plans to expand to other data sources and functionalities in the future.

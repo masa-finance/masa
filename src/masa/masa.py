@@ -34,41 +34,33 @@ def main(action, json_file_path=None):
         None
     """
     try:
-        # Initialize configurations
         initialize_config()
         
         qc_manager = QCManager()
-        qc_manager.log_debug("Initialized QCManager", context="Main")
+        qc_manager.log_debug("Initialized QCManager", context="Masa")
         
         try:
             request_manager = RequestManager()
-            qc_manager.log_debug("Initialized RequestManager", context="Main")  # Change log_debug to debug
+            qc_manager.log_debug("Initialized RequestManager", context="Masa")
         except Exception as e:
-            qc_manager.log_error(f"Error initializing RequestManager: {str(e)}", error_info=e, context="Main")
+            qc_manager.log_error(f"Error initializing RequestManager: {str(e)}", error_info=e, context="Masa")
             raise
 
-        if action == 'process':
-            qc_manager.log_debug(f"Processing requests from file: {json_file_path}", context="Main")
-            try:
+        try:
+            if action == 'process':
+                qc_manager.log_debug(f"Processing requests from file: {json_file_path}", context="Masa")
                 request_manager.process_requests(json_file_path)
-                qc_manager.log_info("Processing all requests", context="Main")
-            except Exception as e:
-                qc_manager.log_error(f"Error processing requests: {str(e)}", error_info=e, context="Main")
-                raise
-        elif action == 'request_history':
-            try:
-                all_requests_status = request_manager.get_all_requests_status()
-                print(json.dumps(all_requests_status, indent=4))
-            except Exception as e:
-                qc_manager.log_error(f"Error getting request history: {str(e)}", error_info=e, context="Main")
-                raise
-        else:
-            print("Invalid action. Allowable options are:")
-            print("- 'process': Process all requests (both resumed and new)")
-            print("- 'request_history': Get a history of all requests")
-            sys.exit(1)
+                qc_manager.log_info("Processing all requests", context="Masa")
+            else:
+                print("Invalid action. Allowable options are:")
+                print("- 'process': Process all requests (both resumed and new)")
+                print("- 'request_history': Get a history of all requests")
+                sys.exit(1)
+        except KeyboardInterrupt:
+            qc_manager.log_info("Keyboard interrupt received. Exiting gracefully...", context="Masa")
+            sys.exit(0)
     except Exception as e:
-        qc_manager.log_error(f"An error occurred during initialization: {str(e)}", error_info=e, context="Main")
+        qc_manager.log_error(f"An error occurred during initialization: {str(e)}", error_info=e, context="Masa")
         sys.exit(1)
 
 if __name__ == '__main__':
@@ -84,4 +76,8 @@ if __name__ == '__main__':
         subprocess.run([sys.executable, 'view_docs.py', page] if page else [sys.executable, 'view_docs.py'])
     else:
         json_file_path = sys.argv[2] if len(sys.argv) == 3 else None
-        main(action, json_file_path)
+        try:
+            main(action, json_file_path)
+        except KeyboardInterrupt:
+            print("\nKeyboard interrupt received. Stopping procecess...")
+            sys.exit(0)
