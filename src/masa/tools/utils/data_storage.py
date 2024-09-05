@@ -77,15 +77,30 @@ class DataStorage:
 
     def _save_json(self, file_path, data):
         """
-        Save data to a JSON file.
+        Save data to a JSON file. If the file already exists and contains valid JSON data,
+        the new data will be appended to the existing data if both are lists. Otherwise,
+        the new data will overwrite the existing data.
 
         :param file_path: The file path for saving the JSON data.
         :type file_path: str
         :param data: The data to be saved as JSON.
         :type data: Any
         """
+        existing_data = []
+        if os.path.exists(file_path):
+            with open(file_path, 'r') as file:
+                try:
+                    existing_data = json.load(file)
+                except json.JSONDecodeError:
+                    self.qc_manager.log_warning(f"Existing file {file_path} is not valid JSON. It will be overwritten.", context="DataStorage")
+
+        if isinstance(existing_data, list) and isinstance(data, list):
+            combined_data = existing_data + data
+        else:
+            combined_data = data  # If types don't match, use new data
+
         with open(file_path, 'w') as file:
-            json.dump(data, file, indent=4)
+            json.dump(combined_data, file, indent=4)
 
     def _save_csv(self, file_path, data):
         """

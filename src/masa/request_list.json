@@ -4,7 +4,7 @@
     "endpoint": "data/twitter/tweets/recent",
     "priority": 1,
     "params": {
-      "query": "from:elonmusk since:2024-08-01 until:2024-08-05",
+      "query": "#EPL since:2024-08-01 until:2024-08-05",
       "count": 150
     }
   },
@@ -13,7 +13,7 @@
     "endpoint": "data/twitter/tweets/recent",
     "priority": 2,
     "params": {
-      "query": "from:getmasafi -filter:retweets since:2024-08-06 until:2024-08-10",
+      "query": "@elonmusk -filter:retweets since:2024-08-15 until:2024-08-20",
       "count": 75
     }
   },
@@ -22,62 +22,25 @@
     "endpoint": "data/twitter/tweets/recent", 
     "priority": 3,
     "params": {
-      "query": "to:BrendanPlayford Masa OR Oracle since:2024-08-11 until:2024-08-15",
+      "query": "#AI since:2024-08-12 until:2024-08-17",
       "count": 60
     }
   },
   {
     "retriever": "XTwitterRetriever",
     "endpoint": "data/twitter/tweets/recent",
-    "priority": 4, 
     "params": {
-      "query": "\"Decentralized AI\" lang:en min_retweets:25 since:2024-08-16 until:2024-08-20",
-      "count": 80
+      "query": "#LoveIsland since:2024-08-18 until:2024-08-23",
+      "count": 60
     }
   },
   {
     "retriever": "XTwitterRetriever",
     "endpoint": "data/twitter/tweets/recent",
-    "priority": 5,
+    "priority": 1,
     "params": {
-      "query": "Masa Node geocode:37.781157,-122.398720,50mi since:2024-08-21 until:2024-08-25",
-      "count": 50
-    }
-  },
-  {
-    "retriever": "XTwitterRetriever",
-    "endpoint": "data/twitter/tweets/recent",
-    "priority": 6,
-    "params": {
-      "query": "url:\"https://www.masa.finance\" filter:safe since:2024-08-26 until:2024-08-31", 
-      "count": 40
-    }
-  },
-  {
-    "retriever": "XTwitterRetriever",
-    "endpoint": "data/twitter/tweets/recent",
-    "priority": 7,
-    "params": {
-      "query": "\"Masa Finance\" ? since:2024-09-01 until:2024-09-05",
-      "count": 90
-    }
-  },
-  {
-    "retriever": "XTwitterRetriever",
-    "endpoint": "data/twitter/tweets/recent",
-    "priority": 8,
-    "params": {
-      "query": "@github since:2024-09-06 until:2024-09-10",
-      "count": 70 
-    }
-  },
-  {
-    "retriever": "XTwitterRetriever",
-    "endpoint": "data/twitter/tweets/recent",
-    "priority": 9,
-    "params": {
-      "query": "@calanthiaaa since:2024-09-11 until:2024-09-15",
-      "count": 30
+      "query": "#COYS since:2024-08-24 until:2024-08-29",
+      "count": 60
     }
   }
 ]

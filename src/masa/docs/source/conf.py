@@ -24,7 +24,7 @@ extensions = [
     'sphinx.ext.napoleon',
     'sphinx.ext.viewcode',
     'sphinx_rtd_theme',
-    'myst_parser',  # This replaces recommonmark for better Markdown support
+    'myst_parser',
 ]
 
 templates_path = ['_templates']

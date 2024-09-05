@@ -34,7 +34,7 @@ def setup_logger(name):
         >>> logger.info('This is an informational message')
     """
     logger = logging.getLogger(name)
-    
+    logger.setLevel(logging.INFO)
     # Check if we're building docs
     if 'READTHEDOCS' in os.environ or 'BUILDING_DOCS' in os.environ:
         # Use a NullHandler when building docs
@@ -43,8 +43,8 @@ def setup_logger(name):
         # Get settings
         log_settings = global_settings.get('logging', {})
         
-        # Use an absolute path for the log file
-        default_log_path = os.path.join(os.path.dirname(__file__), '..', '..', 'logs', 'masa.log')
+        # Use an absolute path for the log file within the src/masa path
+        default_log_path = os.path.join(os.path.dirname(__file__), '..', 'logs', 'masa.log')
         log_file = log_settings.get('LOG_FILE', default_log_path)
         
         # Ensure the log directory exists

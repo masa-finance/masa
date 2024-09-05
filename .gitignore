@@ -25,6 +25,10 @@ share/python-wheels/
 .installed.cfg
 *.egg
 MANIFEST
+**/masa.egg-info/
+**/PKG-INFO
+**/SOURCES.txt
+**/PKG-INFO
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
@@ -161,12 +165,12 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 
-# Ignore the data directory
-data/
+# Ignore the contents of the data directory
+src/masa/data/*
 
 # ignore the orchestration files
-orchestration/request_queue.json
-orchestration/request_manager_state.json
+src/masa/orchestration/request_queue.json
+src/masa/orchestration/request_manager_state.json
 
 # Ignore TODO files
 TODO.md
@@ -174,7 +178,6 @@ TODO.md
 # Ignore everything inside the logs directory
 logs/*
 
-
-
-
-orchestration/request_manager_state.json
+src/masa/orchestration/request_manager_state.json
+src/masa.egg-info/SOURCES.txt
+src/masa.egg-info/PKG-INFO

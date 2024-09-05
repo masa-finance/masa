@@ -9,9 +9,8 @@ Usage:
 
 The script performs the following tasks:
 1. Checks if Anaconda is installed.
-2. Creates the folder structure for the MASA project.
-3. Creates a new Conda environment using the provided environment.yml file.
-4. Installs required packages in the Conda environment.
+2. Creates a new Conda environment using the provided environment.yml file.
+3. Installs required packages in the Conda environment.
 
 Note: This script should be run from the root directory of the MASA project.
 """
@@ -65,9 +64,6 @@ def install_requirements(env_name):
         subprocess.run(['bash', '-c', f'source activate {env_name} && conda env update -f environment.yml'])
     print(f"Updated conda environment: {env_name}")
 
-    # The pip packages from requirements.txt will be installed automatically
-    # due to the reference in environment.yml
-
 def get_env_name(yaml_path):
     """
     Get the name of the conda environment from the YAML file.
@@ -86,7 +82,7 @@ def main():
     Main function to set up the MASA project environment.
 
     This function orchestrates the checking of Anaconda installation,
-    creation of the folder structure, Conda environment setup, and package installation.
+    Conda environment setup, and package installation.
     """
     if not check_anaconda_installed():
         print("Anaconda is not installed. Please install Anaconda and try again.")

@@ -54,7 +54,7 @@ def main(action, json_file_path=None):
             else:
                 print("Invalid action. Allowable options are:")
                 print("- 'process': Process all requests (both resumed and new)")
-                print("- 'request_history': Get a history of all requests")
+                print("- '--docs [page_name]': View the documentation for the specified page (page_name is optional)")
                 sys.exit(1)
         except KeyboardInterrupt:
             qc_manager.log_info("Keyboard interrupt received. Exiting gracefully...", context="Masa")
@@ -66,14 +66,14 @@ def main(action, json_file_path=None):
 if __name__ == '__main__':
     if len(sys.argv) < 2:
         print("Usage: python main.py <action> [path_to_requests_json]")
-        print("Actions: 'process', 'request_history', or '--docs [page_name]'")
+        print("Actions: 'process' or '--docs [page_name]'")
         sys.exit(1)
 
     action = sys.argv[1]
 
     if action == '--docs':
         page = sys.argv[2] if len(sys.argv) > 2 else None
-        subprocess.run([sys.executable, 'view_docs.py', page] if page else [sys.executable, 'view_docs.py'])
+        subprocess.run([sys.executable, 'docs/view_docs.py', page] if page else [sys.executable, 'docs/view_docs.py'])
     else:
         json_file_path = sys.argv[2] if len(sys.argv) == 3 else None
         try:

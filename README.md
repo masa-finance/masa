@@ -6,10 +6,10 @@ MASA is a project for data retrieval, quality control, and orchestration. It cur
 
 > Currently, you need to use anaconda to use this masa package. We recommend using miniconda. You can install miniconda [here](https://docs.anaconda.com/miniconda/).
 
-1. Install the project:
+1. Initialize the project:
 
    ```bash
-   masa-init
+   python quickstart.py
    ```
 
 2. Activate the environment:
@@ -18,7 +18,7 @@ MASA is a project for data retrieval, quality control, and orchestration. It cur
    conda activate masa
    ```
 
-3. For detailed usage instructions, please refer to the [Usage Guide](docs/source/usage.rst).
+3. For detailed usage instructions, please refer to the [Usage Guide](usage.rst).
 
 ## Configuration
 
@@ -69,7 +69,7 @@ For a full list of dependencies, refer to `environment.yml` and `requirements.tx
 
 ## Contributing
 
-We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for more information on how to get started, including documentation best practices.
+We welcome contributions! Please see our [Contributing Guidelines](../../../../CONTRIBUTING.md) for more information on how to get started, including documentation best practices.
 
 ## Documentation
 
@@ -77,4 +77,4 @@ For detailed documentation, including API reference and advanced usage, please r
 
 ## License
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License. See the [LICENSE](../../../../LICENSE) file for details.

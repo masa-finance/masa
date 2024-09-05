@@ -47,7 +47,7 @@ Thank you for your interest in contributing to the MASA Project! This guide will
 
      ```bash
      cd docs
-     make html
+     python update_docs.py
      ```
 
    - Check the output in `docs/build/html` to ensure your changes appear correctly.
