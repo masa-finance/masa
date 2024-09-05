@@ -38,8 +38,8 @@ class XTwitterConnection(APIConnection):
         """
         Get headers for XTwitter API requests.
 
-        Returns:
-            dict: A dictionary of headers to be used in the API request.
+        :return: A dictionary of headers to be used in the API request.
+        :rtype: dict
         """
         return global_settings.get('twitter.HEADERS', {})  # Get headers from global settings
 
@@ -48,16 +48,15 @@ class XTwitterConnection(APIConnection):
         """
         Get tweets from the XTwitter API.
 
-        Args:
-            api_endpoint (str): The API endpoint to request.
-            date_range_query (str): The search query for tweets.
-            count (int): The number of tweets to retrieve.
-
-        Returns:
-            dict: The processed response data containing the retrieved tweets.
-
-        Raises:
-            APIException: If there's an error in making the request or processing the response.
+        :param api_endpoint: The API endpoint to request.
+        :type api_endpoint: str
+        :param date_range_query: The search query for tweets.
+        :type date_range_query: str
+        :param count: The number of tweets to retrieve.
+        :type count: int
+        :return: The processed response data containing the retrieved tweets.
+        :rtype: dict
+        :raises APIException: If there's an error in making the request or processing the response.
         """
         self.qc_manager.log_debug(f"Making API request with query: {date_range_query}, count: {count}", context="XTwitterConnection")
         url = format_url(self.base_url, api_endpoint)
@@ -71,16 +70,13 @@ class XTwitterConnection(APIConnection):
         """
         Handle the XTwitter API response.
 
-        Args:
-            response (requests.Response): The response object from the API request.
-
-        Returns:
-            dict: The processed response data.
-
-        Raises:
-            RateLimitException: If the API rate limit is exceeded.
-            AuthenticationException: If authentication fails.
-            APIException: For other HTTP errors.
+        :param response: The response object from the API request.
+        :type response: requests.Response
+        :return: The processed response data.
+        :rtype: dict
+        :raises RateLimitException: If the API rate limit is exceeded.
+        :raises AuthenticationException: If authentication fails.
+        :raises APIException: For other HTTP errors.
         """
         if response.status_code == 200:
             return response.json()

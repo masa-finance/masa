@@ -30,9 +30,10 @@ class RequestRouter:
         """
         Initialize the RequestRouter.
 
-        Args:
-            qc_manager (tools.qc.qc_manager.QCManager): Quality control manager for logging and error handling.
-            state_manager (orchestration.state_manager.StateManager): Manager for handling request states.
+        :param qc_manager: Quality control manager for logging and error handling.
+        :type qc_manager: tools.qc.qc_manager.QCManager
+        :param state_manager: Manager for handling request states.
+        :type state_manager: orchestration.state_manager.StateManager
         """
         self.qc_manager = qc_manager
         self.config = global_settings
@@ -43,15 +44,13 @@ class RequestRouter:
         """
         Route the request to the appropriate retriever based on the request parameters.
 
-        Args:
-            request_id (str): The ID of the request.
-            request (dict): Dictionary containing the request parameters.
-
-        Returns:
-            dict: The result of processing the request.
-
-        Raises:
-            ValueError: If an unknown retriever or endpoint is specified.
+        :param request_id: The ID of the request.
+        :type request_id: str
+        :param request: Dictionary containing the request parameters.
+        :type request: dict
+        :return: The result of processing the request.
+        :rtype: dict
+        :raises ValueError: If an unknown retriever or endpoint is specified.
         """
 
         retriever_name = request['retriever']
@@ -90,15 +89,13 @@ class RequestRouter:
         """
         Get the retriever object for a given retriever name.
 
-        Args:
-            retriever_name (str): Name of the retriever.
-            request (dict): Dictionary containing the request parameters.
-
-        Returns:
-            object: Initialized retriever object.
-
-        Raises:
-            ValueError: If an unknown retriever name is provided.
+        :param retriever_name: Name of the retriever.
+        :type retriever_name: str
+        :param request: Dictionary containing the request parameters.
+        :type request: dict
+        :return: Initialized retriever object.
+        :rtype: object
+        :raises ValueError: If an unknown retriever name is provided.
         """
         if retriever_name not in self.retrievers:
             if retriever_name == 'XTwitterRetriever':

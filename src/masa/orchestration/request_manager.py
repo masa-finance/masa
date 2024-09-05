@@ -3,6 +3,17 @@ Request Manager module for the MASA project.
 
 This module provides the RequestManager class, which is responsible for
 orchestrating the overall request processing workflow in the MASA system.
+
+The RequestManager class manages the lifecycle of requests, including queueing,
+routing, processing, and state management. It integrates various components of 
+the MASA system to ensure efficient and reliable request handling.
+
+Attributes:
+    qc_manager (tools.qc.qc_manager.QCManager): Quality control manager for logging and error handling.
+    config (dict): Configuration settings for the request manager.
+    state_manager (orchestration.state_manager.StateManager): Manager for handling request states.
+    request_router (orchestration.request_router.RequestRouter): Router for directing requests to appropriate handlers.
+    queue (orchestration.queue.Queue): Priority queue for managing requests.
 """
 
 import os
@@ -19,18 +30,6 @@ import traceback
 class RequestManager:
     """
     RequestManager class for orchestrating request processing.
-
-    This class manages the lifecycle of requests, including queueing,
-    routing, processing, and state management. It integrates various
-    components of the MASA system to ensure efficient and reliable
-    request handling.
-
-    Attributes:
-        qc_manager (tools.qc.qc_manager.QCManager): Quality control manager for logging and error handling.
-        config (dict): Configuration settings for the request manager.
-        state_manager (orchestration.state_manager.StateManager): Manager for handling request states.
-        request_router (orchestration.request_router.RequestRouter): Router for directing requests to appropriate handlers.
-        queue (orchestration.queue.Queue): Priority queue for managing requests.
     """
     def __init__(self):
         """
@@ -72,6 +71,12 @@ class RequestManager:
         self._process_queue()
 
     def _update_state_from_file(self, request_list_file):
+        """
+        Update the state manager with new requests from a file.
+
+        Args:
+            request_list_file (str): Path to a JSON file containing requests.
+        """
         self.qc_manager.log_debug(f"Updating state from file: {request_list_file}", context="RequestManager")
         with open(request_list_file, 'r') as file:
             requests = json.load(file)
@@ -85,6 +90,9 @@ class RequestManager:
                 self.qc_manager.log_error("Invalid JSON structure in request_list.json. Expected a list of requests.", context="RequestManager")
 
     def _process_queue(self):
+        """
+        Process requests from the queue.
+        """
         queue_summary = self.queue.get_queue_summary()
         self.qc_manager.log_info("Queue Summary:")
         for item in queue_summary:

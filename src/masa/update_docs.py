@@ -2,7 +2,7 @@ import os
 import subprocess
 
 def update_docs():
-    # Change to the project root directory
+   
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
     # Run sphinx-apidoc

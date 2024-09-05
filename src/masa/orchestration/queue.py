@@ -209,6 +209,12 @@ class Queue:
         return hashlib.sha256(request_json).hexdigest()
 
     def get_queue_summary(self):
+        """
+        Get a summary of the requests in the queue.
+
+        Returns:
+            list: A list of dictionaries containing request details.
+        """
         summary = []
         for priority, request_id in sorted(self.memory_queue.queue):
             request_state = self.state_manager.get_request_state(request_id)

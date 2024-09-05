@@ -19,10 +19,18 @@ def setup_logger(name):
     """
     Set up a logger with colored output based on global settings.
 
+    This function configures a logger with the specified name based on the global
+    settings defined in the project's configuration. It sets up console and file
+    handlers, applies formatting, and returns the configured logger.
+
     :param name: The name of the logger.
     :type name: str
     :return: The configured logger.
     :rtype: logging.Logger
+
+    Example:
+        >>> logger = setup_logger('my_logger')
+        >>> logger.info('This is an informational message')
     """
     logger = logging.getLogger(name)
     logger.setLevel(logging.INFO)  # Set to lowest level, handlers will filter

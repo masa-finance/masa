@@ -4,8 +4,8 @@
     "endpoint": "data/twitter/tweets/recent",
     "priority": 1,
     "params": {
-      "query": "#elonmusk min_faves:50 since:2024-08-01 until:2024-08-05",
-      "count": 100
+      "query": "from:elonmusk since:2024-08-01 until:2024-08-05",
+      "count": 150
     }
   },
   {

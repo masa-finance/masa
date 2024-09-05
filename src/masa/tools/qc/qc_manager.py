@@ -3,6 +3,9 @@ QC Manager module for the MASA project.
 
 This module provides the QCManager class, which centralizes quality control
 tasks such as logging, error handling, and retry management.
+
+Attributes:
+    QCManager: The Quality Control Manager class for the MASA project.
 """
 
 from .logging_config import setup_logger
@@ -21,26 +24,39 @@ class QCManager:
     instance is used throughout the application.
 
     Attributes:
-        logger: The logger instance for this QCManager.
-        error_handler: An instance of ErrorHandler for managing errors.
-        retry_manager: An instance of RetryPolicy for managing retries.
+        logger (logging.Logger): The logger instance for this QCManager.
+        error_handler (ErrorHandler): An instance of ErrorHandler for managing errors.
+        retry_manager (RetryPolicy): An instance of RetryPolicy for managing retries.
     """
 
     _instance = None
     _initialized = False
 
     def __new__(cls):
+        """
+        Create a new instance of QCManager if one does not exist, otherwise return the existing instance.
+
+        Returns:
+            QCManager: The singleton instance of QCManager.
+        """
         if cls._instance is None:
             cls._instance = super().__new__(cls)
         return cls._instance
 
     def __init__(self):
+        """
+        Initialize the QCManager instance if it has not been initialized.
+        """
         if not self._initialized:
             self.initialize()
             self._initialized = True
 
     def initialize(self):
-        """Initialize the QCManager instance."""
+        """
+        Initialize the QCManager instance.
+
+        This method sets up the logger, error handler, and retry manager for the QCManager.
+        """
         self.logger = setup_logger("QCManager")
         self.error_handler = ErrorHandler(self)
         self.retry_manager = RetryManager.RetryPolicy(global_settings, self)
@@ -139,6 +155,6 @@ class QCManager:
             **kwargs: Keyword arguments for the function.
 
         Returns:
-            The result of the function execution.
+            Any: The result of the function execution.
         """
         return self.retry_manager.execute_with_retry(func, config_key, *args, **kwargs)

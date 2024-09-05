@@ -22,6 +22,13 @@ class XTwitterRetriever:
 
     This class handles the retrieval of tweets from the XTwitter API,
     including pagination, error handling, and data storage.
+
+    Attributes:
+        qc_manager (QCManager): The quality control manager for logging and error handling.
+        state_manager (StateManager): The state manager to track retrieval progress.
+        request (dict): The request configuration for tweet retrieval.
+        twitter_connection (XTwitterConnection): The connection to the XTwitter API.
+        data_storage (DataStorage): The data storage for saving retrieved tweets.
     """
 
     def __init__(self, state_manager, request):
@@ -29,7 +36,7 @@ class XTwitterRetriever:
         Initialize the XTwitterRetriever.
 
         Args:
-            state_manager: The state manager to track retrieval progress.
+            state_manager (StateManager): The state manager to track retrieval progress.
             request (dict): The request configuration for tweet retrieval.
         """
         self.qc_manager = QCManager()
@@ -144,6 +151,22 @@ class XTwitterRetriever:
 
     @QCManager().handle_error()
     def _handle_response(self, response, request_id, query, current_date, all_tweets, records_fetched):
+        """
+        Handle the response from the XTwitter API.
+
+        This method processes the API response, saves the retrieved tweets, and updates the request state.
+
+        Args:
+            response (dict): The response from the XTwitter API.
+            request_id (str): The ID of the current request.
+            query (str): The search query used for retrieving tweets.
+            current_date (datetime): The current date being processed.
+            all_tweets (list): The list to store all retrieved tweets.
+            records_fetched (int): The total number of records fetched so far.
+
+        Returns:
+            int: The number of new tweets processed from the API response.
+        """
         self.qc_manager.log_debug(f"Handling API response for request ID: {request_id}, query: {query}, date: {current_date}", context="XTwitterRetriever")
         if 'data' in response and response['data'] is not None:
             tweets = response['data']
@@ -184,6 +207,18 @@ class XTwitterRetriever:
         })
 
     def _extract_date_range(self, query):
+        """
+        Extract the date range from the search query.
+
+        This method parses the search query to extract the 'since' and 'until' dates,
+        and returns the cleaned query without the date range parameters.
+
+        Args:
+            query (str): The search query to extract the date range from.
+
+        Returns:
+            tuple: A tuple containing the start date, end date, and cleaned query.
+        """
         self.qc_manager.log_debug(f"Query: {query}", context="XTwitterRetriever")
         start_date = None
         end_date = None

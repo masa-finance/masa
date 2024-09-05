@@ -3,6 +3,16 @@ State Manager module for the MASA project.
 
 This module provides the StateManager class, which is responsible for
 managing the state of requests throughout their lifecycle in the MASA system.
+
+The StateManager class handles the state transitions of requests and maintains
+consistency with the priority queue implementation. It provides methods
+for updating, retrieving, and removing request states.
+
+Attributes:
+    _state_file (str): File path to store the state data.
+    _lock (threading.Lock): Lock for thread-safe operations.
+    qc_manager (tools.qc.qc_manager.QCManager): Quality control manager for logging.
+    _state (dict): In-memory representation of the current state.
 """
 
 import json
@@ -43,16 +53,15 @@ class StateManager:
         self._state = None
 
     def load_state(self):
-        """
-        Load the state data from the state file.
-        """
+        """Load the state data from the state file."""
         self._state = self._load_state()
 
     def _load_state(self):
         """
         Load the state data from the state file or create a new state if the file doesn't exist.
 
-        :return: Loaded state data or default state if file doesn't exist or is invalid.
+        Returns:
+            dict: Loaded state data or default state if file doesn't exist or is invalid.
         """
         if os.path.exists(self._state_file):
             try:
@@ -72,9 +81,7 @@ class StateManager:
         return {'requests': {}, 'last_updated': datetime.now().isoformat()}
 
     def _save_state(self):
-        """
-        Save the current state data to the state file.
-        """
+        """Save the current state data to the state file."""
         self.qc_manager.log_debug("Saving state to file", context="StateManager")
         with open(self._state_file, 'w') as file:
             json.dump(self._state, file, indent=4)
@@ -126,6 +133,12 @@ class StateManager:
             self.qc_manager.log_debug(f"State updated and saved for request {request_id}", context="StateManager")
 
     def get_all_requests_state(self):
+        """
+        Get the state of all requests.
+
+        Returns:
+            dict: A dictionary containing the state of all requests, excluding any 'null' entries.
+        """
         with self._lock:
             return {k: v for k, v in self._state['requests'].items() if k != 'null'}
 

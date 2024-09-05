@@ -22,8 +22,8 @@ class DataStorage:
         """
         Initialize the DataStorage class.
 
-        Args:
-            base_directory (str): The base directory for storing data files. Defaults to 'data'.
+        :param base_directory: The base directory for storing data files. Defaults to 'data'.
+        :type base_directory: str
         """
         self.base_directory = base_directory
         self.qc_manager = qc.QCManager()
@@ -32,13 +32,14 @@ class DataStorage:
         """
         Get the file path for storing data.
 
-        Args:
-            source (str): The data source.
-            query (str): The query associated with the data.
-            file_format (str): The file format for storing the data. Defaults to 'json'.
-
-        Returns:
-            str: The file path.
+        :param source: The data source.
+        :type source: str
+        :param query: The query associated with the data.
+        :type query: str
+        :param file_format: The file format for storing the data. Defaults to 'json'.
+        :type file_format: str
+        :return: The file path.
+        :rtype: str
         """
         directory = os.path.join(self.base_directory, source)
         os.makedirs(directory, exist_ok=True)
@@ -49,14 +50,15 @@ class DataStorage:
         """
         Save data to a file.
 
-        Args:
-            data: The data to be saved.
-            source (str): The data source.
-            query (str): The query associated with the data.
-            file_format (str): The file format for storing the data. Defaults to 'json'.
-
-        Raises:
-            ValueError: If an unsupported file format is specified.
+        :param data: The data to be saved.
+        :type data: Any
+        :param source: The data source.
+        :type source: str
+        :param query: The query associated with the data.
+        :type query: str
+        :param file_format: The file format for storing the data. Defaults to 'json'.
+        :type file_format: str
+        :raises ValueError: If an unsupported file format is specified.
         """
         file_path = self.get_file_path(source, query, file_format)
         
@@ -77,9 +79,10 @@ class DataStorage:
         """
         Save data to a JSON file.
 
-        Args:
-            file_path (str): The file path for saving the JSON data.
-            data: The data to be saved as JSON.
+        :param file_path: The file path for saving the JSON data.
+        :type file_path: str
+        :param data: The data to be saved as JSON.
+        :type data: Any
         """
         with open(file_path, 'w') as file:
             json.dump(data, file, indent=4)
@@ -88,11 +91,12 @@ class DataStorage:
         """
         Save data to a CSV file.
 
-        Args:
-            file_path (str): The file path for saving the CSV data.
-            data: The data to be saved as CSV.
+        :param file_path: The file path for saving the CSV data.
+        :type file_path: str
+        :param data: The data to be saved as CSV.
+        :type data: Any
 
-        Note:
+        .. note::
             This method is not implemented yet.
         """
         # Implement CSV saving logic here
