@@ -4,18 +4,29 @@ MASA is a project for data retrieval, quality control, and orchestration. It cur
 
 ## Quick Start
 
-> Currently, you need to use anaconda to use this masa package. We recommend using miniconda. You can install miniconda [here](https://docs.anaconda.com/miniconda/).
-
-1. Initialize the project:
+1. Install the MASA package:
 
    ```bash
-   python quickstart.py
+   pip install masa
    ```
 
-2. Activate the environment:
+2. Use the MASA CLI:
 
    ```bash
-   conda activate masa
+   masa-cli <action> [arguments]
+   ```
+
+   Available actions:
+   - `process [path_to_requests_json]`: Process all requests (both resumed and new)
+   - `--docs [page_name]`: View the documentation for the specified page
+   - `--data`: List the scraped data files
+
+   For example:
+
+   ```bash
+   masa-cli process /path/to/request_list.json
+   masa-cli --docs usage
+   masa-cli --data
    ```
 
 3. For detailed usage instructions, please refer to the [Usage Guide](usage.rst).
@@ -69,12 +80,18 @@ For a full list of dependencies, refer to `environment.yml` and `requirements.tx
 
 ## Contributing
 
-We welcome contributions! Please see our [Contributing Guidelines](../../../../CONTRIBUTING.md) for more information on how to get started, including documentation best practices.
+We welcome contributions! Please see our [Contributing Guidelines](../../CONTRIBUTING.md) for more information on how to get started, including documentation best practices.
 
 ## Documentation
 
-For detailed documentation, including API reference and advanced usage, please run `python masa.py --docs` from the root directory of the project. This will open the Sphinx-generated documentation in your default web browser.
+To build and view the documentation:
+
+1. Build the docs: `python -m masa.docs.update_docs`
+2. View the docs: `python -m masa.docs.view_docs`
+
+You can also specify a specific page to view:
+`python -m masa.docs.view_docs some_page`
 
 ## License
 
-This project is licensed under the MIT License. See the [LICENSE](../../../../LICENSE) file for details.
+This project is licensed under the MIT License. See the [LICENSE](../../LICENSE) file for details.

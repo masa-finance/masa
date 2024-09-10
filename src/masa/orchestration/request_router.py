@@ -5,12 +5,10 @@ This module provides the RequestRouter class, which is responsible for
 routing requests to the appropriate retriever based on the request parameters.
 """
 
-import uuid
-from tools.retrieve.retrieve_xtwitter import XTwitterRetriever
-from tools.qc.qc_manager import QCManager
+from ..tools.retrieve.retrieve_xtwitter import XTwitterRetriever
+from ..tools.qc.qc_manager import QCManager
 import traceback
-from configs.config import global_settings
-from datetime import datetime
+from ..configs.config import global_settings
 
 class RequestRouter:
     """
@@ -26,7 +24,7 @@ class RequestRouter:
         retrievers (dict): Dictionary to store initialized retriever objects.
     """
 
-    def __init__(self, qc_manager, state_manager):
+    def __init__(self, qc_manager: QCManager, state_manager):
         """
         Initialize the RequestRouter.
 

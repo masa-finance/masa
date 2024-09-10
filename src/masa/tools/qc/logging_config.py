@@ -1,78 +1,65 @@
 """
 Logging configuration module for the MASA project.
 
-This module provides functions to set up loggers with colored output based on
-the global settings defined in the project's configuration.
-
-Functions:
-    setup_logger(name: str) -> logging.Logger:
-        Set up a logger with the specified name and colored output based on
-        the global settings.
+This module provides functions to set up loggers with colored output and
+file rotation capabilities.
 """
 
 import logging
 from logging.handlers import RotatingFileHandler
-import colorlog
-from configs.config import global_settings
-import os
+from colorlog import ColoredFormatter
 
-def setup_logger(name):
+def setup_logger(name, log_file, level=logging.INFO, log_format=None, date_format=None, color_enabled=True):
     """
-    Set up a logger with colored output based on global settings.
+    Set up a logger with file and console handlers.
 
-    This function configures a logger with the specified name based on the global
-    settings defined in the project's configuration. It sets up console and file
-    handlers, applies formatting, and returns the configured logger.
-
-    :param name: The name of the logger.
+    :param name: Name of the logger
     :type name: str
-    :return: The configured logger.
+    :param log_file: Path to the log file
+    :type log_file: str
+    :param level: Logging level, defaults to logging.INFO
+    :type level: int, optional
+    :param log_format: Custom log format, defaults to None
+    :type log_format: str, optional
+    :param date_format: Custom date format, defaults to None
+    :type date_format: str, optional
+    :param color_enabled: Enable color logging, defaults to True
+    :type color_enabled: bool, optional
+    :return: Configured logger
     :rtype: logging.Logger
-
-    Example:
-        >>> logger = setup_logger('my_logger')
-        >>> logger.info('This is an informational message')
     """
     logger = logging.getLogger(name)
-    logger.setLevel(logging.INFO)
-    # Check if we're building docs
-    if 'READTHEDOCS' in os.environ or 'BUILDING_DOCS' in os.environ:
-        # Use a NullHandler when building docs
-        logger.addHandler(logging.NullHandler())
+    logger.setLevel(level)
+
+    # File handler
+    file_handler = RotatingFileHandler(log_file, maxBytes=10*1024*1024, backupCount=5)
+    file_handler.setLevel(level)
+    file_formatter = logging.Formatter(log_format or '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+                                       datefmt=date_format or '%Y-%m-%d %H:%M:%S')
+    file_handler.setFormatter(file_formatter)
+    logger.addHandler(file_handler)
+
+    # Console handler
+    console_handler = logging.StreamHandler()
+    console_handler.setLevel(level)
+    if color_enabled:
+        console_formatter = ColoredFormatter(
+            "%(log_color)s%(asctime)s - %(name)s - %(levelname)s - %(message)s%(reset)s",
+            datefmt=date_format or '%Y-%m-%d %H:%M:%S',
+            log_colors={
+                'DEBUG': 'cyan',
+                'INFO': 'green',
+                'WARNING': 'yellow',
+                'ERROR': 'red',
+                'CRITICAL': 'red,bg_white',
+            },
+            secondary_log_colors={},
+            style='%'
+        )
     else:
-        # Get settings
-        log_settings = global_settings.get('logging', {})
-        
-        # Use an absolute path for the log file within the src/masa path
-        default_log_path = os.path.join(os.path.dirname(__file__), '..', 'logs', 'masa.log')
-        log_file = log_settings.get('LOG_FILE', default_log_path)
-        
-        # Ensure the log directory exists
-        os.makedirs(os.path.dirname(log_file), exist_ok=True)
-
-        log_format = log_settings.get('LOG_FORMAT', '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        date_format = log_settings.get('LOG_DATE_FORMAT', '%Y-%m-%d %H:%M:%S')
-        console_level = getattr(logging, log_settings.get('CONSOLE_LOG_LEVEL', 'INFO'))
-        file_level = getattr(logging, log_settings.get('FILE_LOG_LEVEL', 'DEBUG'))
-        color_enabled = log_settings.get('COLOR_ENABLED', True)
-
-        # Console Handler
-        console_handler = logging.StreamHandler()
-        console_handler.setLevel(console_level)
-
-        # File Handler
-        file_handler = RotatingFileHandler(log_file, maxBytes=10*1024*1024, backupCount=5)
-        file_handler.setLevel(file_level)
-
-        if color_enabled:
-            formatter = colorlog.ColoredFormatter(log_format, date_format)
-        else:
-            formatter = logging.Formatter(log_format, date_format)
-
-        console_handler.setFormatter(formatter)
-        file_handler.setFormatter(formatter)
-
-        logger.addHandler(console_handler)
-        logger.addHandler(file_handler)
+        console_formatter = logging.Formatter(log_format or '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+                                              datefmt=date_format or '%Y-%m-%d %H:%M:%S')
+    console_handler.setFormatter(console_formatter)
+    logger.addHandler(console_handler)
 
     return logger

@@ -1,2 +1,2 @@
 [console_scripts]
-masa = masa.masa:main
+masa-cli = masa.cli:main

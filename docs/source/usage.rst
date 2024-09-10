@@ -1,7 +1,16 @@
 Usage
 =====
 
-The MASA application is designed to process data retrieval requests, primarily from Twitter (now X). The main entry point is the `main.py` script, which accepts a JSON file containing a list of requests.
+The MASA application is designed to process data retrieval requests, primarily from Twitter (now X). The main entry point is the `masa-cli` command, which provides various actions for processing requests, viewing documentation, and listing scraped data.
+
+Installation
+------------
+
+To install the MASA package, use pip:
+
+.. code-block:: bash
+
+    pip install masa
 
 Command Line Usage
 ------------------
@@ -10,16 +19,20 @@ To use the MASA application, you can run the following command:
 
 .. code-block:: bash
 
-    python masa.py <action> [path_to_requests_json]
+    masa-cli <action> [arguments]
 
 Actions:
-    - 'process': Process all requests (both resumed and new)
+    - 'process [path_to_requests_json]': Process all requests (both resumed and new)
+    - '--docs [page_name]': View the documentation for the specified page
+    - '--data': List the scraped data files
 
 Example usage:
 
 .. code-block:: bash
 
-    python masa.py process /path/to/request_list.json
+    masa-cli process /path/to/request_list.json
+    masa-cli --docs usage
+    masa-cli --data
 
 Request Format
 --------------

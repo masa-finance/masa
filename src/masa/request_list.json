@@ -4,8 +4,8 @@
     "endpoint": "data/twitter/tweets/recent",
     "priority": 1,
     "params": {
-      "query": "#EPL since:2024-08-01 until:2024-08-05",
-      "count": 150
+      "query": "#EPL since:2024-08-05 until:2024-08-10",
+      "count": 100
     }
   },
   {
@@ -13,8 +13,8 @@
     "endpoint": "data/twitter/tweets/recent",
     "priority": 2,
     "params": {
-      "query": "@elonmusk -filter:retweets since:2024-08-15 until:2024-08-20",
-      "count": 75
+      "query": "@elonmusk since:2024-08-15 until:2024-08-20",
+      "count": 35
     }
   },
   {
@@ -22,8 +22,8 @@
     "endpoint": "data/twitter/tweets/recent", 
     "priority": 3,
     "params": {
-      "query": "#AI since:2024-08-12 until:2024-08-17",
-      "count": 60
+      "query": "#AI since:2024-08-18 until:2024-08-23",
+      "count": 38
     }
   },
   {

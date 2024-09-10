@@ -16,10 +16,11 @@ Attributes:
 """
 
 import json
-import os
 import threading
+from pathlib import Path
 from datetime import datetime
-from tools.qc.qc_manager import QCManager
+from ..tools.qc.qc_manager import QCManager
+from ..tools.utils.paths import ensure_dir
 
 class StateManager:
     """
@@ -36,19 +37,19 @@ class StateManager:
         _state (dict): In-memory representation of the current state.
     """
 
-    def __init__(self, state_file):
+    def __init__(self, state_file: Path):
         """
         Initialize the StateManager.
 
-        Args:
-            state_file (str): File path to store the state data.
+        :param state_file: File path to store the state data.
+        :type state_file: Path
         """
         self._state_file = state_file
         self._lock = threading.Lock()
         self.qc_manager = QCManager()
         
         # Ensure the directory exists
-        os.makedirs(os.path.dirname(self._state_file), exist_ok=True)
+        self._state_file.parent.mkdir(parents=True, exist_ok=True)
         
         self._state = None
 
@@ -63,9 +64,9 @@ class StateManager:
         Returns:
             dict: Loaded state data or default state if file doesn't exist or is invalid.
         """
-        if os.path.exists(self._state_file):
+        if self._state_file.exists():
             try:
-                with open(self._state_file, 'r') as file:
+                with self._state_file.open('r') as file:
                     state = json.load(file)
                 # Remove any 'null' entries
                 if 'requests' in state:
@@ -83,7 +84,7 @@ class StateManager:
     def _save_state(self):
         """Save the current state data to the state file."""
         self.qc_manager.log_debug("Saving state to file", context="StateManager")
-        with open(self._state_file, 'w') as file:
+        with self._state_file.open('w') as file:
             json.dump(self._state, file, indent=4)
         self.qc_manager.log_debug("State saved successfully", context="StateManager")
 

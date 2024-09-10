@@ -16,16 +16,15 @@ Attributes:
     queue (orchestration.queue.Queue): Priority queue for managing requests.
 """
 
-import os
 import hashlib
 import json
-from datetime import datetime
-from .request_router import RequestRouter
-from .queue import Queue
-from .state_manager import StateManager
-from tools.qc.qc_manager import QCManager
-from configs.config import global_settings
-import traceback
+from pathlib import Path
+from masa.orchestration.request_router import RequestRouter
+from masa.orchestration.queue import Queue
+from masa.orchestration.state_manager import StateManager
+from ..tools.qc.qc_manager import QCManager
+from ..configs.config import global_settings
+from ..tools.utils.paths import ensure_dir, ORCHESTRATION_DIR
 
 class RequestManager:
     """
@@ -37,11 +36,16 @@ class RequestManager:
         """
         self.qc_manager = QCManager()
         self.config = global_settings
-        self.state_file = self.config.get('request_manager.STATE_FILE')
-        self.queue_file = self.config.get('request_manager.QUEUE_FILE')
+        self.state_file = ORCHESTRATION_DIR / "request_manager_state.json"
+        self.queue_file = ORCHESTRATION_DIR / "request_queue.json"
+        
+        # Ensure directories exist
+        ensure_dir(self.state_file.parent)
+        ensure_dir(self.queue_file.parent)
+        
         self.state_manager = StateManager(self.state_file)
         self.request_router = RequestRouter(self.qc_manager, self.state_manager)
-        self.queue = None  # We'll initialize this later
+        self.queue = None
 
     def process_requests(self, request_list_file=None):
         """
@@ -70,15 +74,15 @@ class RequestManager:
         # Process the requests
         self._process_queue()
 
-    def _update_state_from_file(self, request_list_file):
+    def _update_state_from_file(self, request_list_file: Path):
         """
         Update the state manager with new requests from a file.
 
         Args:
-            request_list_file (str): Path to a JSON file containing requests.
+            request_list_file (Path): Path to a JSON file containing requests.
         """
         self.qc_manager.log_debug(f"Updating state from file: {request_list_file}", context="RequestManager")
-        with open(request_list_file, 'r') as file:
+        with request_list_file.open('r') as file:
             requests = json.load(file)
             if isinstance(requests, list):
                 for request in requests:
@@ -194,7 +198,7 @@ class RequestManager:
         else:
             self.qc_manager.log_error("Invalid action. Please enter 'process', 'cancel', or 'skip'.", context="RequestManager")
 
-    def load_request_list(self, request_list_file):
+    def load_request_list(self, request_list_file: str) -> list:
         """
         Load the request list from a JSON file.
 
@@ -205,7 +209,8 @@ class RequestManager:
             list: The loaded request list.
         """
         try:
-            with open(request_list_file, 'r') as file:
+            request_list_path = Path(request_list_file)
+            with request_list_path.open('r') as file:
                 request_list = json.load(file)
                 return request_list
         except FileNotFoundError:

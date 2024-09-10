@@ -1,5 +1,5 @@
 import time
-from tools.qc.exceptions import *
+from .exceptions import *
 from tqdm.auto import tqdm
 import threading
 
@@ -116,10 +116,11 @@ class RetryPolicy:
         with tqdm(total=wait_time, desc="Wait Time", unit="s", leave=False) as pbar:
             start_time = time.time()
             while time.time() - start_time < wait_time:
-                time.sleep(0.1)
+                time.sleep(0.2)
                 elapsed = time.time() - start_time
-                pbar.update(elapsed - pbar.n)
-            pbar.update(wait_time - pbar.n)  # Ensure we reach 100%
+                update_value = min(elapsed - pbar.n, wait_time - pbar.n)
+                pbar.update(update_value)
+            pbar.update(wait_time - pbar.n)
 
     def reload_configurations(self):
         """Reload all the retry configurations.

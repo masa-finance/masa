@@ -7,8 +7,7 @@ to files in various formats, primarily JSON and CSV.
 
 import os
 import json
-from datetime import datetime
-from tools.qc import qc_manager as qc
+from ...constants import DATA_DIR
 
 class DataStorage:
     """
@@ -18,15 +17,24 @@ class DataStorage:
     manage file paths for data storage.
     """
 
-    def __init__(self, base_directory='data'):
+    def __init__(self):
         """
         Initialize the DataStorage class.
-
-        :param base_directory: The base directory for storing data files. Defaults to 'data'.
-        :type base_directory: str
         """
-        self.base_directory = base_directory
-        self.qc_manager = qc.QCManager()
+        self.base_directory = self._get_base_directory()
+        from ..qc.qc_manager import QCManager
+        self.qc_manager = QCManager()
+
+    def _get_base_directory(self):
+        """
+        Get the base directory for storing data files.
+        If a custom directory is specified in the settings, use that.
+        Otherwise, use the default directory.
+
+        :return: The base directory for storing data files.
+        :rtype: str
+        """
+        return str(DATA_DIR)
 
     def get_file_path(self, source, query, file_format='json'):
         """

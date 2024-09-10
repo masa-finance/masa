@@ -10,11 +10,11 @@ import json
 import time
 from datetime import datetime, timedelta
 import re
-from connections.xtwitter_connection import XTwitterConnection
-from tools.utils.data_storage import DataStorage
-from tools.qc.qc_manager import QCManager
-from tools.qc.exceptions import ConfigurationException, APIException, DataProcessingException, RateLimitException
-from configs.config import global_settings
+from ...connections.xtwitter_connection import XTwitterConnection
+from ..utils.data_storage import DataStorage
+from ..qc.qc_manager import QCManager
+from ..qc.exceptions import ConfigurationException, APIException, DataProcessingException, RateLimitException
+from ...configs.config import global_settings
 
 class XTwitterRetriever:
     """

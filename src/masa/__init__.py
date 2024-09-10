@@ -12,20 +12,23 @@ currently in development and will be added in future releases.
 
 """
 
-from . import tools
-from . import configs
-from . import connections
-from . import masa
-from . import requests
-from . import orchestration
+from importlib import import_module
+
+def lazy_import(name):
+    return import_module(f'.{name}', __name__)
+
+configs = lazy_import('configs')
+tools = lazy_import('tools')
+connections = lazy_import('connections')
+orchestration = lazy_import('orchestration')
+
+
 __all__ = [
     'tools',
     'configs',
     'connections',
-    'masa',
-    'requests',
     'orchestration'
 ]
 
-__version__ = '0.1.0'
+__version__ = '0.1.11'
 """str: Current version of the MASA package."""

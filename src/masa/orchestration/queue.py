@@ -14,10 +14,11 @@ Attributes:
 """
 
 import json
-import os
+from pathlib import Path
 from queue import PriorityQueue
 from datetime import datetime
-from tools.qc.qc_manager import QCManager
+from ..tools.qc.qc_manager import QCManager
+from ..tools.utils.paths import ensure_dir
 
 class Queue:
     """
@@ -32,20 +33,21 @@ class Queue:
         state_manager (orchestration.state_manager.StateManager): Manager for handling request states.
     """
 
-    def __init__(self, state_manager, queue_file):
+    def __init__(self, state_manager, queue_file: Path):
         """
         Initialize the Queue.
 
-        Args:
-            state_manager (orchestration.state_manager.StateManager): The StateManager instance for managing request states.
-            queue_file (str): File path to store the queue data.
+        :param state_manager: StateManager instance for managing request states.
+        :param queue_file: File path to store the queue data.
+        :type queue_file: Path
         """
+        self._queue_file = queue_file
         self.memory_queue = PriorityQueue()
         self.state_manager = state_manager
         self.qc_manager = QCManager()
-        self._queue_file = queue_file
+        self._queue_file.parent.mkdir(parents=True, exist_ok=True)
         
-        os.makedirs(os.path.dirname(self._queue_file), exist_ok=True)
+        ensure_dir(self._queue_file.parent)
         
         self._load_queue_from_state()
 
@@ -64,9 +66,9 @@ class Queue:
         """
         Load the queue data from the queue file, avoiding duplicates.
         """
-        if os.path.exists(self._queue_file):
+        if self._queue_file.exists():
             try:
-                with open(self._queue_file, 'r') as file:
+                with self._queue_file.open('r') as file:
                     queue_data = json.load(file)
                 for priority, request_id in queue_data:
                     if not any(item[1] == request_id for item in self.memory_queue.queue):
@@ -87,7 +89,7 @@ class Queue:
         """
         self.qc_manager.log_debug("Saving queue to file", context="Queue")
         queue_data = list(self.memory_queue.queue)
-        with open(self._queue_file, 'w') as file:
+        with self._queue_file.open('w') as file:
             json.dump(queue_data, file, indent=4)
         self.qc_manager.log_debug("Queue saved successfully", context="Queue")
 

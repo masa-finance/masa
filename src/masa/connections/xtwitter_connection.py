@@ -6,12 +6,11 @@ specifically for interacting with the XTwitter API. It handles authentication,
 request formatting, and response processing for XTwitter-specific endpoints.
 """
 
-from .api_connection import APIConnection
-from configs.config import global_settings
-from tools.qc.qc_manager import QCManager
-from tools.utils.helper_functions import format_url
-from tools.qc.exceptions import AuthenticationException, APIException, RateLimitException, NoWorkersAvailableException
-import time
+from ..connections.api_connection import APIConnection
+from ..configs.config import global_settings
+from ..tools.qc.qc_manager import QCManager
+from ..tools.utils.helper_functions import format_url
+from ..tools.qc.exceptions import AuthenticationException, APIException, RateLimitException, NoWorkersAvailableException
 
 class XTwitterConnection(APIConnection):
     """

@@ -4,12 +4,13 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "masa"
-version = "0.1.0"
+version = "0.1.11"
 authors = [
-  { name = "Masa Finance", email = "engineering@masa.ai" },
+  { name = "Masa AI", email = "engineering@masa.ai" },
 ]
-description = "Multi-Agent System Architecture (MASA) project"
+description = "Masa SDK - Entrypoint for all Masa projects"
 readme = "README.md"
+license = {file = "LICENSE"}
 requires-python = ">=3.8"
 classifiers = [
     "Programming Language :: Python :: 3",
@@ -17,7 +18,7 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 dependencies = [
-    "pyyaml",
+    "pyyaml>=5.4",
     "requests",
     "numpy",
     "pandas",
@@ -62,8 +63,11 @@ dependencies = [
 "Bug Tracker" = "https://github.com/masa-finance/masa/issues"
 
 [project.scripts]
-masa = "masa.masa:main"
+masa-cli = "masa.cli:main"
 
-[tool.setuptools]
-package-dir = {"" = "src"}
-packages = ["masa"]
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["masa*"]
+
+[tool.setuptools.package-data]
+masa = ["*.json", "*.yaml", "*.txt", "docs/*.py", "configs/*.yaml", "request_list.json"]

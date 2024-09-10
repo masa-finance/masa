@@ -3,15 +3,8 @@ QC Manager module for the MASA project.
 
 This module provides the QCManager class, which centralizes quality control
 tasks such as logging, error handling, and retry management.
-
-Attributes:
-    QCManager: The Quality Control Manager class for the MASA project.
 """
 
-from .logging_config import setup_logger
-from .error_handler import ErrorHandler
-from . import retry_manager as RetryManager
-from configs.config import global_settings
 import traceback
 import inspect
 
@@ -57,7 +50,23 @@ class QCManager:
 
         This method sets up the logger, error handler, and retry manager for the QCManager.
         """
-        self.logger = setup_logger("QCManager")
+        from .logging_config import setup_logger
+        from .error_handler import ErrorHandler
+        from . import retry_manager as RetryManager
+        from ...configs.config import global_settings
+        from ...tools.utils.paths import get_log_path, ensure_dir
+
+        log_file = get_log_path('masa.log')
+        ensure_dir(log_file.parent)
+        
+        self.logger = setup_logger(
+            "QCManager",
+            str(log_file),
+            level=global_settings.get('logging.LOG_LEVEL', 'INFO'),
+            log_format=global_settings.get('logging.LOG_FORMAT'),
+            date_format=global_settings.get('logging.LOG_DATE_FORMAT'),
+            color_enabled=global_settings.get('logging.COLOR_ENABLED', True)
+        )
         self.error_handler = ErrorHandler(self)
         self.retry_manager = RetryManager.RetryPolicy(global_settings, self)
 

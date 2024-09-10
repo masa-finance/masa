@@ -1,4 +1,5 @@
 assemblyai  # AssemblyAI API client library
+dynaconf  # Dynaconf configuration management library
 langchain  # Building applications with LLMs through composability
 langchain-ollama  # Langchain integration for Ollama
 langchain-openai  # Langchain integration for OpenAI
@@ -10,9 +11,10 @@ ollama  # Ollama language model
 pinecone-client[grpc]  # Pinecone vector database client with gRPC support
 psycopg2  # PostgreSQL database adapter
 pytube  # Python library for downloading YouTube videos
-pyyaml
+pyyaml  # Python library for YAML
 streamlit-extras  # Additional components for Streamlit
 tavily-python  # Tavily API client library
 TikTokApi  # Unofficial TikTok API wrapper
 torch  # PyTorch deep learning framework
 transformers  # State-of-the-art natural language processing library
+import-linter  # Import Linter for Python
