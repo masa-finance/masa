@@ -8,9 +8,9 @@ error handling and logging functionality using the QCManager.
 
 import requests
 from abc import ABC, abstractmethod
-from ..configs.config import global_settings
-from ..tools.qc.qc_manager import QCManager
-from ..tools.qc.exceptions import APIException, NetworkException, ConfigurationException, RateLimitException
+from masa.configs.config import global_settings
+from masa.tools.qc.qc_manager import QCManager
+from masa.tools.qc.exceptions import APIException, NetworkException, ConfigurationException, RateLimitException
 
 class APIConnection(ABC):
     """

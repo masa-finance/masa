@@ -1,11 +1,10 @@
-Welcome to MASA Project's documentation!
+Welcome to Masa's Project documentation!
 ========================================
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 4
    :caption: Contents:
 
-   installation
    contributing
    readme
    modules/index

@@ -16,7 +16,7 @@ sys.path.insert(0, str(project_root / 'src'))
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-project = 'MASA'
+project = 'Masa'
 copyright = '2024, Masa'
 author = 'Masa Team'
 version = '0.1'
@@ -60,7 +60,7 @@ html_theme_options = {
     'navigation_depth': 4,
     'includehidden': True,
     'titles_only': False,
-    'body_max_width': None,  # This removes the max-width constraint
+    'body_max_width': None,
 }
 
 # -- Extension configuration -------------------------------------------------

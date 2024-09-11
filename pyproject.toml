@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "masa"
-version = "0.1.11"
+version = "0.1.12"
 authors = [
   { name = "Masa AI", email = "engineering@masa.ai" },
 ]
@@ -70,4 +70,14 @@ where = ["src"]
 include = ["masa*"]
 
 [tool.setuptools.package-data]
-masa = ["*.json", "*.yaml", "*.txt", "docs/*.py", "configs/*.yaml", "request_list.json"]
+masa = [
+    "*.json",
+    "*.yaml",
+    "*.txt",
+    "docs/*.py",
+    "docs/source/**/*.md",
+    "docs/source/**/*.rst",
+    "docs/source/**/*.py",
+    "configs/*.yaml",
+    "request_list.json"
+]

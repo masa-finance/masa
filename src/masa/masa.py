@@ -10,7 +10,7 @@ Usage:
     
     Actions:
     - 'process': Process all requests (both resumed and new)
-    - '--docs [page_name]': View the documentation for the specified page
+    - '--docs [page_name]': Rebuild and view the documentation for the specified page
     - '--data': List the scraped data files
 """
 
@@ -55,6 +55,7 @@ class Masa:
     def view_docs(self, page: Optional[str] = None) -> None:
         """
         View documentation for the specified page or the main documentation.
+        Always rebuilds the documentation before viewing.
 
         Args:
             page (str, optional): The name of the documentation page to view.
@@ -72,10 +73,9 @@ class Masa:
             if not view_docs_path.exists():
                 raise FileNotFoundError(f"view_docs.py not found in {docs_path}")
 
-            # Check if the documentation has been built
-            if not (docs_path / 'build' / 'html').exists():
-                print("Documentation not built. Building now...")
-                subprocess.run([sys.executable, str(update_docs_path)], check=True)
+            # Always rebuild the documentation
+            print("Rebuilding documentation...")
+            subprocess.run([sys.executable, str(update_docs_path)], check=True)
 
             # View the documentation
             cmd = [sys.executable, str(view_docs_path)]

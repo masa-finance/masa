@@ -6,18 +6,18 @@ specifically for interacting with the XTwitter API. It handles authentication,
 request formatting, and response processing for XTwitter-specific endpoints.
 """
 
-from ..connections.api_connection import APIConnection
-from ..configs.config import global_settings
-from ..tools.qc.qc_manager import QCManager
-from ..tools.utils.helper_functions import format_url
-from ..tools.qc.exceptions import AuthenticationException, APIException, RateLimitException, NoWorkersAvailableException
+from masa.connections.api_connection import APIConnection
+from masa.configs.config import global_settings
+from masa.tools.qc.qc_manager import QCManager
+from masa.tools.utils.helper_functions import format_url
+from masa.tools.qc.exceptions import AuthenticationException, APIException, RateLimitException, NoWorkersAvailableException
 
 class XTwitterConnection(APIConnection):
     """
-    XTwitter API connection class.
+    masa.connections.XTwitterConnection class.
 
-    This class implements the APIConnection interface for the XTwitter API.
-    It handles XTwitter-specific configuration, headers, and response handling.
+    This class implements the masa.connections.APIConnection interface for the masa.connections.XTwitter API.
+    It handles masa.connections.XTwitter-specific configuration, headers, and response handling.
     """
 
     def __init__(self):
@@ -55,7 +55,7 @@ class XTwitterConnection(APIConnection):
         :type count: int
         :return: The processed response data containing the retrieved tweets.
         :rtype: dict
-        :raises APIException: If there's an error in making the request or processing the response.
+        :raises masa.tools.qc.exceptions.APIException: If there's an error in making the request or processing the response.
         """
         self.qc_manager.log_debug(f"Making API request with query: {date_range_query}, count: {count}", context="XTwitterConnection")
         url = format_url(self.base_url, api_endpoint)
@@ -75,7 +75,7 @@ class XTwitterConnection(APIConnection):
         :rtype: dict
         :raises RateLimitException: If the API rate limit is exceeded.
         :raises AuthenticationException: If authentication fails.
-        :raises APIException: For other HTTP errors.
+        :raises masa.tools.qc.exceptions.APIException: For other HTTP errors.
         """
         if response.status_code == 200:
             return response.json()

@@ -17,8 +17,8 @@ import json
 from pathlib import Path
 from queue import PriorityQueue
 from datetime import datetime
-from ..tools.qc.qc_manager import QCManager
-from ..tools.utils.paths import ensure_dir
+from masa.tools.qc.qc_manager import QCManager
+from masa.tools.utils.paths import ensure_dir
 
 class Queue:
     """
@@ -29,8 +29,8 @@ class Queue:
 
     Attributes:
         memory_queue (queue.PriorityQueue): The in-memory priority queue.
-        qc_manager (tools.qc.qc_manager.QCManager): Quality control manager for logging.
-        state_manager (orchestration.state_manager.StateManager): Manager for handling request states.
+        qc_manager (masa.tools.qc.qc_manager.QCManager): Quality control manager for logging.
+        state_manager (masa.orchestration.state_manager.StateManager): Manager for handling request states.
     """
 
     def __init__(self, state_manager, queue_file: Path):

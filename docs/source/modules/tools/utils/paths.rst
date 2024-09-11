@@ -1,7 +1,11 @@
-Config
-======
+paths
+=====
 
-.. automodule:: masa.configs.config
+.. automodule:: paths
    :members:
    :undoc-members:
    :show-inheritance:
+
+
+   
+

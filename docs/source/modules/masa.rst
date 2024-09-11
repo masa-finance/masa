@@ -23,18 +23,18 @@ masa.cli module
    :undoc-members:
    :show-inheritance:
 
-masa.masa module
-----------------
+masa.constants module
+---------------------
 
-.. automodule:: masa.masa
+.. automodule:: masa.constants
    :members:
    :undoc-members:
    :show-inheritance:
 
-masa.quickstart module
-----------------------
+masa.masa module
+----------------
 
-.. automodule:: masa.quickstart
+.. automodule:: masa.masa
    :members:
    :undoc-members:
    :show-inheritance:

@@ -1,7 +1,7 @@
 API Connection
 ==============
 
-.. automodule:: connections.api_connection
+.. automodule:: masa.connections.api_connection
    :members:
    :undoc-members:
    :show-inheritance:

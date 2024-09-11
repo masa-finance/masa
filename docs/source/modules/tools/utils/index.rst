@@ -1,12 +1,14 @@
 Utils
 =====
 
-.. automodule:: tools.utils
+.. automodule:: masa.tools.utils
    :members:
    :undoc-members:
    :show-inheritance:
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
    
-   helper_functions
+   utils.helper_functions
+   utils.paths
+   utils.data_storage

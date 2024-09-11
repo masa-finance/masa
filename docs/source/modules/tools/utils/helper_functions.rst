@@ -1,7 +1,7 @@
 Helper Functions
 ================
 
-.. automodule:: tools.utils.helper_functions
+.. automodule:: helper_functions
    :members:
    :undoc-members:
    :show-inheritance:

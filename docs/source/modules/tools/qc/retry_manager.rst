@@ -2,6 +2,6 @@
 Retry Manager
 =============
 
-.. automodule:: tools.qc.retry_manager
+.. automodule:: retry_manager
    :members:
    :undoc-members:

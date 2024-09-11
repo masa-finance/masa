@@ -1,13 +1,17 @@
 """
-MASA:
+MASA: Decentralized Data Retrieval and Processing Framework
 
-Decentralized Data Retrieval and Processing Framework
+This package serves as the core of the MASA project, providing essential components
+for data retrieval, quality control, and orchestration. The framework is designed
+to be modular and extensible, allowing for future enhancements and integrations.
 
-Key components:
-- Retrieval: Fetch data from various sources
-- Quality Control: Validate data and handle errors
+Key Components:
+- Retrieval: Fetch data from various sources.
+- Quality Control: Validate data and handle errors.
+- Orchestration: Manage the overall processing of requests.
 
-Other components (Augmentation, Structuring, Ecosystem integration) are
+Note:
+Other components such as Augmentation, Structuring, and Ecosystem Integration are
 currently in development and will be added in future releases.
 
 """
@@ -30,5 +34,5 @@ __all__ = [
     'orchestration'
 ]
 
-__version__ = '0.1.11'
+__version__ = '0.1.12'
 """str: Current version of the MASA package."""

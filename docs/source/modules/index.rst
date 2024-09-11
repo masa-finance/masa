@@ -1,5 +1,10 @@
-MASA Package Modules
+Masa Package Modules
 ====================
+
+.. automodule:: modules
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 .. toctree::
    :maxdepth: 4

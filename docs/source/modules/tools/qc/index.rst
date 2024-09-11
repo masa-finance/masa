@@ -1,15 +1,16 @@
 Quality Control
 ===============
 
-.. toctree::
-   :maxdepth: 2
-   
-   qc_manager
-   error_handler
-   logging_config 
-   retry_manager
-
-.. automodule:: tools.qc
+.. automodule:: masa.tools.qc
    :members:
    :undoc-members:
    :show-inheritance:
+
+.. toctree::
+   :maxdepth: 2
+   
+   tools.qc.qc_manager
+   tools.qc.error_handler
+   tools.qc.logging_config 
+   tools.qc.retry_manager
+

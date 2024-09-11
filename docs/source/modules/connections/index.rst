@@ -1,13 +1,14 @@
 Connections
 ===========
 
-.. toctree::
-   :maxdepth: 4
-
-   api_connection
-   xtwitter_connection
-
-.. automodule:: connections
+.. automodule:: masa.connections
    :members:
    :undoc-members:
    :show-inheritance:
+
+.. toctree::
+   :maxdepth: 4
+
+   connections.api_connection
+   connections.xtwitter_connection
+

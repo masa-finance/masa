@@ -2,6 +2,6 @@ masa
 ====
 
 .. toctree::
-   :maxdepth: 4
+   :maxdepth: 5
 
-   masa
+   masa/modules

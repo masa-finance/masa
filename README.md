@@ -1,10 +1,10 @@
-# MASA Project
+# Masa Project
 
-MASA is a project for data retrieval, quality control, and orchestration. It currently provides tools to retrieve data from Twitter using the Masa Oracle Node API, with plans to expand to other data sources and functionalities in the future.
+Masa is a project for data retrieval, quality control, and orchestration. It currently provides tools to retrieve data from Twitter using the Masa Oracle Node API, with plans to expand to other data sources and functionalities in the future.
 
 ## Quick Start
 
-1. Install the MASA package:
+1. Install the Masa package:
 
    ```bash
    pip install masa
@@ -18,7 +18,7 @@ MASA is a project for data retrieval, quality control, and orchestration. It cur
 
    Available actions:
    - `process [path_to_requests_json]`: Process all requests (both resumed and new)
-   - `--docs [page_name]`: View the documentation for the specified page
+   - `--docs [page_name]`: Rebuild and view the documentation for the specified page
    - `--data`: List the scraped data files
 
    For example:
@@ -59,7 +59,7 @@ For more details, refer to the [Masa Oracle Twitter Docs](https://developers.mas
 - `masa/`: Main package directory
   - `configs/`: Configuration files
   - `connections/`: API connection handlers
-  - `masa_tools/`: Core functionality modules
+  - `tools/`: Core functionality modules
     - `qc/`: Quality control tools
     - `retrieve/`: Data retrieval tools
     - `utils/`: Utility functions
@@ -76,21 +76,23 @@ Key dependencies include:
 - Natural Language Processing: langchain, openai
 - Data visualization: matplotlib, streamlit
 
-For a full list of dependencies, refer to `environment.yml` and `requirements.txt`.
+For a full list of dependencies, refer to `pyproject.toml`.
 
 ## Contributing
 
-We welcome contributions! Please see our [Contributing Guidelines](../../CONTRIBUTING.md) for more information on how to get started, including documentation best practices.
+We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for more information on how to get started, including documentation best practices.
 
 ## Documentation
 
-To build and view the documentation:
+The Masa project uses Sphinx to generate its documentation. The documentation is automatically rebuilt and viewed when using the `--docs` option with the `masa-cli` command.
 
-1. Build the docs: `python -m masa.docs.update_docs`
-2. View the docs: `python -m masa.docs.view_docs`
+To view the documentation:
 
-You can also specify a specific page to view:
-`python -m masa.docs.view_docs some_page`
+```bash
+masa-cli --docs [page_name]
+```
+
+This command will rebuild and view the documentation for the specified page.
 
 ## License
 

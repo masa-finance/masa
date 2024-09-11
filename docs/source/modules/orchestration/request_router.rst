@@ -1,7 +1,7 @@
 Request Router
 ==============
 
-.. automodule:: orchestration.request_router
+.. automodule:: request_router
    :members:
    :undoc-members:
    :show-inheritance:

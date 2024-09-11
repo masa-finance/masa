@@ -1,7 +1,7 @@
 Configs
 =======
 
-.. automodule:: configs
+.. automodule:: masa.configs
    :members:
    :undoc-members:
    :show-inheritance:

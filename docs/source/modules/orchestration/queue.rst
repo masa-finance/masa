@@ -1,7 +1,7 @@
 Queue
 =====
 
-.. automodule:: orchestration.queue
+.. automodule:: queue
    :members:
    :undoc-members:
    :show-inheritance:

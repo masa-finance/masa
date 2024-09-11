@@ -6,15 +6,14 @@ of tweets from the XTwitter API, including pagination, error handling, and
 data storage.
 """
 
-import json
 import time
 from datetime import datetime, timedelta
 import re
 from ...connections.xtwitter_connection import XTwitterConnection
-from ..utils.data_storage import DataStorage
-from ..qc.qc_manager import QCManager
-from ..qc.exceptions import ConfigurationException, APIException, DataProcessingException, RateLimitException
-from ...configs.config import global_settings
+from masa.tools.utils.data_storage import DataStorage
+from masa.tools.qc.qc_manager import QCManager
+from masa.tools.qc.exceptions import ConfigurationException, DataProcessingException
+from masa.configs.config import global_settings
 
 class XTwitterRetriever:
     """
@@ -24,19 +23,19 @@ class XTwitterRetriever:
     including pagination, error handling, and data storage.
 
     Attributes:
-        qc_manager (tools.qc.qc_manager.QCManager): The quality control manager for logging and error handling.
-        state_manager (tools.state_manager.StateManager): The state manager to track retrieval progress.
+        qc_manager (masa.tools.qc.qc_manager.QCManager): The quality control manager for logging and error handling.
+        state_manager (masa.orchestration.state_manager.StateManager): The state manager to track retrieval progress.
         request (dict): The request configuration for tweet retrieval.
-        twitter_connection (tools.connections.xtwitter_connection.XTwitterConnection): The connection to the XTwitter API.
-        data_storage (tools.utils.data_storage.DataStorage): The data storage for saving retrieved tweets.
+        twitter_connection (masa.connections.xtwitter_connection.XTwitterConnection): The connection to the XTwitter API.
+        data_storage (masa.tools.utils.data_storage.DataStorage): The data storage for saving retrieved tweets.
     """
 
     def __init__(self, state_manager, request):
         """
-        Initialize the XTwitterRetriever.
+        Initialize the masa.tools.retrieve.XTwitterRetriever.
 
         Args:
-            state_manager (tools.state_manager.StateManager): The state manager to track retrieval progress.
+            state_manager (masa.orchestration.state_manager.StateManager): The state manager to track retrieval progress.
             request (dict): The request configuration for tweet retrieval.
         """
         self.qc_manager = QCManager()
