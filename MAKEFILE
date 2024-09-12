@@ -41,6 +41,9 @@ run:
 release: clean build
 	twine upload dist/*
 
+test-release: clean build
+	twine upload --repository testpypi dist/*
+
 # Set up pre-commit hooks
 setup-hooks:
 	pre-commit install

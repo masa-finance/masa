@@ -9,6 +9,7 @@ Welcome to Masa's Project documentation!
    readme
    modules/index
    usage
+   xtwitter_advanced
 
 Indices and tables
 ==================

@@ -1,17 +1,39 @@
 Metadata-Version: 2.1
 Name: masa
-Version: 0.1.0
-Summary: Multi-Agent System Architecture (MASA) project
-Author-email: Masa Finance <engineering@masa.ai>
+Version: 0.1.16
+Summary: MASA SDK - Masa's AI Software Architecture
+Author-email: Masa AI <engineering@masa.ai>
+License: # MIT License
+        
+        Copyright (c) 2024 Masa
+        
+        Permission is hereby granted, free of charge, to any person obtaining a copy
+        of this software and associated documentation files (the "Software"), to deal
+        in the Software without restriction, including without limitation the rights
+        to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+        copies of the Software, and to permit persons to whom the Software is
+        furnished to do so, subject to the following conditions:
+        
+        The above copyright notice and this permission notice shall be included in all
+        copies or substantial portions of the Software.
+        
+        THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+        IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+        FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+        AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+        LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+        OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+        SOFTWARE.
+        
 Project-URL: Homepage, https://github.com/masa-finance/masa
 Project-URL: Bug Tracker, https://github.com/masa-finance/masa/issues
 Classifier: Programming Language :: Python :: 3
 Classifier: License :: OSI Approved :: MIT License
 Classifier: Operating System :: OS Independent
-Requires-Python: >=3.8
+Requires-Python: >=3.12
 Description-Content-Type: text/markdown
 License-File: LICENSE
-Requires-Dist: pyyaml
+Requires-Dist: pyyaml>=5.4
 Requires-Dist: requests
 Requires-Dist: numpy
 Requires-Dist: pandas
@@ -24,7 +46,6 @@ Requires-Dist: torch
 Requires-Dist: transformers
 Requires-Dist: streamlit
 Requires-Dist: streamlit-extras
-Requires-Dist: TikTokApi
 Requires-Dist: langchain
 Requires-Dist: langchain_community
 Requires-Dist: langchain-openai
@@ -50,27 +71,38 @@ Requires-Dist: langgraph
 Requires-Dist: assemblyai
 Requires-Dist: pytube
 
-# MASA Project
+# Masa Project
 
-MASA is a project for data retrieval, quality control, and orchestration. It currently provides tools to retrieve data from Twitter using the Masa Oracle Node API, with plans to expand to other data sources and functionalities in the future.
+Masa is a project for data retrieval, quality control, and orchestration. It currently provides tools to retrieve data from Twitter using the Masa Oracle Node API, with plans to expand to other data sources and functionalities in the future.
 
 ## Quick Start
 
-> Currently, you need to use anaconda to use this masa package. We recommend using miniconda. You can install miniconda [here](https://docs.anaconda.com/miniconda/).
-
-1. Install the project:
+1. Install the Masa package:
 
    ```bash
-   masa-init
+   pip install masa
    ```
 
-2. Activate the environment:
+2. Use the MASA CLI:
 
    ```bash
-   conda activate masa
+   masa-cli <action> [arguments]
    ```
 
-3. For detailed usage instructions, please refer to the [Usage Guide](docs/source/usage.rst).
+   Available actions:
+   - `process [path_to_requests_json]`: Process all requests (both resumed and new)
+   - `--docs [page_name]`: Rebuild and view the documentation for the specified page
+   - `--data`: List the scraped data files
+
+   For example:
+
+   ```bash
+   masa-cli process /path/to/request_list.json
+   masa-cli --docs usage
+   masa-cli --data
+   ```
+
+3. For detailed usage instructions, please refer to the [Usage Guide](usage.rst).
 
 ## Configuration
 
@@ -93,14 +125,14 @@ The Masa Oracle Node API provides advanced search capabilities for retrieving Tw
 - Geo-location Based Search: `geocode:latitude,longitude,radius`
 - Language-Specific Search: `lang:language_code`
 
-For more details, refer to the [Masa Oracle Twitter Docs](https://developers.masa.ai/docs/masa-oracle/oracle-node/twitter-data#advanced-search).
+For more details, refer to the [Masa Oracle Twitter Docs](xtwitter_advanced.rst).
 
 ## Project Structure
 
 - `masa/`: Main package directory
   - `configs/`: Configuration files
   - `connections/`: API connection handlers
-  - `masa_tools/`: Core functionality modules
+  - `tools/`: Core functionality modules
     - `qc/`: Quality control tools
     - `retrieve/`: Data retrieval tools
     - `utils/`: Utility functions
@@ -117,7 +149,7 @@ Key dependencies include:
 - Natural Language Processing: langchain, openai
 - Data visualization: matplotlib, streamlit
 
-For a full list of dependencies, refer to `environment.yml` and `requirements.txt`.
+For a full list of dependencies, refer to `pyproject.toml`.
 
 ## Contributing
 
@@ -125,8 +157,16 @@ We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.
 
 ## Documentation
 
-For detailed documentation, including API reference and advanced usage, please run `python masa.py --docs` from the root directory of the project. This will open the Sphinx-generated documentation in your default web browser.
+The Masa project uses Sphinx to generate its documentation. The documentation is automatically rebuilt and viewed when using the `--docs` option with the `masa-cli` command.
+
+To view the documentation:
+
+```bash
+masa-cli --docs [page_name]
+```
+
+This command will rebuild and view the documentation for the specified page.
 
 ## License
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License. See the [LICENSE](../../LICENSE) file for details.

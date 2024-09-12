@@ -52,7 +52,7 @@ The Masa Oracle Node API provides advanced search capabilities for retrieving Tw
 - Geo-location Based Search: `geocode:latitude,longitude,radius`
 - Language-Specific Search: `lang:language_code`
 
-For more details, refer to the [Masa Oracle Twitter Docs](https://developers.masa.ai/docs/masa-oracle/oracle-node/twitter-data#advanced-search).
+For more details, refer to the [Masa Oracle Twitter Docs](xtwitter_advanced.rst).
 
 ## Project Structure
 

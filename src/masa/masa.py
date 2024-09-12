@@ -62,7 +62,7 @@ class Masa:
         """
         try:
             # Get the path to the docs directory
-            docs_path = resources.files('masa').joinpath('../../docs')
+            docs_path = Path(__file__).resolve().parent.parent.parent / 'docs'
             
             if not docs_path.exists():
                 raise FileNotFoundError(f"Docs path not found: {docs_path}")

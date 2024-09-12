@@ -1,17 +1,19 @@
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
+requires = ["setuptools>=61.0",
+             "wheel",
+             "numpy"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "masa"
-version = "0.1.12"
+version = "0.1.17"
 authors = [
   { name = "Masa AI", email = "engineering@masa.ai" },
 ]
-description = "Masa SDK - Entrypoint for all Masa projects"
+description = "MASA SDK - Masa's AI Software Architecture"
 readme = "README.md"
 license = {file = "LICENSE"}
-requires-python = ">=3.8"
+requires-python = ">=3.12"
 classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
@@ -31,7 +33,6 @@ dependencies = [
     "transformers",
     "streamlit",
     "streamlit-extras",
-    "TikTokApi",
     "langchain",
     "langchain_community",
     "langchain-openai",
@@ -66,7 +67,7 @@ dependencies = [
 masa-cli = "masa.cli:main"
 
 [tool.setuptools.packages.find]
-where = ["src"]
+where = ["src", "docs"]
 include = ["masa*"]
 
 [tool.setuptools.package-data]
@@ -74,10 +75,8 @@ masa = [
     "*.json",
     "*.yaml",
     "*.txt",
-    "docs/*.py",
-    "docs/source/**/*.md",
-    "docs/source/**/*.rst",
-    "docs/source/**/*.py",
+    "docs/**",
+    "!docs/build",
     "configs/*.yaml",
     "request_list.json"
 ]
