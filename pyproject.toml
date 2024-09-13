@@ -69,3 +69,6 @@ masa-cli = "masa.cli:main"
 [tool.setuptools.packages.find]
 where = ["src"]
 include = ["masa*"]
+
+[tool.setuptools.package-data]
+include = ["docs/**"]
