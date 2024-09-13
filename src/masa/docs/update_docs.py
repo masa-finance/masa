@@ -62,8 +62,8 @@ def generate_api_docs(src_masa_path, modules_dir):
         src_masa_path (Path): Path to the source directory of the MASA project.
         modules_dir (Path): Path to the directory where the generated documentation will be stored.
     """
-    for module_path in src_masa_path.rglob("*"):
-        if module_path.is_dir() and not module_path.name.startswith("__"):
+    for module_path in src_masa_path.iterdir():
+        if module_path.is_dir() and not module_path.name.startswith("__") and module_path.name != "docs":
             relative_path = module_path.relative_to(src_masa_path)
             output_path = modules_dir / relative_path
             output_path.mkdir(parents=True, exist_ok=True)
@@ -92,12 +92,12 @@ def update_docs():
     3. Runs the `make clean` command to clean the previous build files.
     4. Runs the `make html` command to build the HTML documentation.
     """
-    # Get the current file's directory
+    # Get the current file's directory (docs directory)
     current_dir = Path(__file__).resolve().parent
     os.chdir(current_dir)
 
     # Update the src_masa_path calculation
-    src_masa_path = current_dir.parent
+    src_masa_path = current_dir.parent  # This is now the masa package directory
     modules_dir = current_dir / "source/modules"
 
     # Clear existing modules directory

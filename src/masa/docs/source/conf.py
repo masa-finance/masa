@@ -1,8 +1,8 @@
 from pathlib import Path
 import sys
 
-# Get the project root directory
-project_root = Path(__file__).resolve().parent.parent.parent
+# Get the project root directory (two levels up from conf.py)
+project_root = Path(__file__).resolve().parent.parent.parent.parent
 
 # Add the project root and src directories to the Python path
 sys.path.insert(0, str(project_root))
@@ -57,7 +57,6 @@ html_theme_options = {
     'navigation_depth': 4,
     'collapse_navigation': False,
     'sticky_navigation': True,
-    'navigation_depth': 4,
     'includehidden': True,
     'titles_only': False,
     'body_max_width': None,

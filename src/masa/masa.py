@@ -65,10 +65,10 @@ class Masa:
 
             # Always rebuild the documentation
             print("Rebuilding documentation...")
-            subprocess.run([sys.executable, "-m", "masa.docs.update_docs"], check=True, cwd=masa_path)
+            subprocess.run([sys.executable, str(masa_path / "docs" / "update_docs.py")], check=True, cwd=masa_path)
 
             # View the documentation
-            view_docs_args = [sys.executable, "-m", "masa.docs.view_docs"]
+            view_docs_args = [sys.executable, str(masa_path / "docs" / "view_docs.py")]
             if page:
                 view_docs_args.append(page)
             subprocess.run(view_docs_args, check=True, cwd=masa_path)

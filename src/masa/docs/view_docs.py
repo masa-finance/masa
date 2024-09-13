@@ -1,17 +1,23 @@
 import os
 import webbrowser
 import sys
+from pathlib import Path
 
 def open_docs(page=None):
     """Open the documentation in the default web browser."""
-    docs_path = os.path.dirname(__file__)
-    if page:
-        file_path = os.path.join(docs_path, f"{page}.html")
-    else:
-        file_path = os.path.join(docs_path, 'index.html')
+    # Get the path to the docs directory
+    docs_path = Path(__file__).resolve().parent
+    
+    # The HTML files are typically in the 'build/html' directory
+    html_path = docs_path / 'build' / 'html'
 
-    if os.path.exists(file_path):
-        webbrowser.open('file://' + os.path.realpath(file_path))
+    if page:
+        file_path = html_path / f"{page}.html"
+    else:
+        file_path = html_path / 'index.html'
+
+    if file_path.exists():
+        webbrowser.open(file_path.as_uri())
     else:
         print(f"Error: Documentation file not found: {file_path}")
         print("Please ensure the documentation has been built correctly.")
