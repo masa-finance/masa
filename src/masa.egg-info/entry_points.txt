@@ -1,2 +1,0 @@
-[console_scripts]
-masa-cli = masa.cli:main
