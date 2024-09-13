@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "masa"
-version = '0.1.17'
+version = '0.1.18'
 authors = [
   { name = "Masa AI", email = "engineering@masa.ai" },
 ]
