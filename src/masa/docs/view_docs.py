@@ -4,7 +4,7 @@ import sys
 
 def open_docs(page=None):
     """Open the documentation in the default web browser."""
-    docs_path = os.path.join(os.path.dirname(__file__), 'build', 'html') 
+    docs_path = os.path.dirname(__file__)
     if page:
         file_path = os.path.join(docs_path, f"{page}.html")
     else:

@@ -17,6 +17,7 @@ currently in development and will be added in future releases.
 """
 
 from importlib import import_module
+from importlib.metadata import version
 
 def lazy_import(name):
     return import_module(f'.{name}', __name__)

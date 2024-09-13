@@ -70,5 +70,16 @@ masa-cli = "masa.cli:main"
 where = ["src"]
 include = ["masa*"]
 
+[tool.setuptools]
+include-package-data = true
+
 [tool.setuptools.package-data]
-include = ["docs/**"]
+"masa" = [
+    "*.json",
+    "*.yaml",
+    "*.txt",
+    "configs/*.yaml",
+    "request_list.json",
+    "docs/**",
+    "!docs/build"
+]

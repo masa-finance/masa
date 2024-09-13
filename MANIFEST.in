@@ -1,9 +1,0 @@
-include LICENSE
-include README.md
-recursive-include docs *
-prune docs/build
-include src/masa/*.json
-include src/masa/*.yaml
-include src/masa/*.txt
-include src/masa/configs/*.yaml
-include src/masa/request_list.json

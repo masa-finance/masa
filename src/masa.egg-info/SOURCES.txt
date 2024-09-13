@@ -3,6 +3,7 @@ LICENSE
 MANIFEST.in
 README.md
 pyproject.toml
+setup.py
 docs/Makefile
 docs/update_docs.py
 docs/view_docs.py

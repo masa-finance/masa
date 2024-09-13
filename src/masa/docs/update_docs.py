@@ -96,8 +96,8 @@ def update_docs():
     current_dir = Path(__file__).resolve().parent
     os.chdir(current_dir)
 
-    # Get the path to the src/masa directory
-    src_masa_path = current_dir.parent / 'src' / 'masa'
+    # Update the src_masa_path calculation
+    src_masa_path = current_dir.parent
     modules_dir = current_dir / "source/modules"
 
     # Clear existing modules directory

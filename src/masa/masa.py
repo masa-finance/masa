@@ -14,11 +14,10 @@ Usage:
     - '--data': List the scraped data files
 """
 
+import os
 import sys
 import subprocess
 from typing import Optional
-import os
-import importlib.resources as resources
 from pathlib import Path
 
 class Masa:
@@ -61,34 +60,22 @@ class Masa:
             page (str, optional): The name of the documentation page to view.
         """
         try:
-            # Get the path to the docs directory
-            docs_path = Path(__file__).resolve().parent.parent.parent / 'docs'
-            
-            if not docs_path.exists():
-                raise FileNotFoundError(f"Docs path not found: {docs_path}")
-
-            view_docs_path = docs_path / 'view_docs.py'
-            update_docs_path = docs_path / 'update_docs.py'
-
-            if not view_docs_path.exists():
-                raise FileNotFoundError(f"view_docs.py not found in {docs_path}")
+            # Get the path to the masa package
+            masa_path = Path(__file__).resolve().parent
 
             # Always rebuild the documentation
             print("Rebuilding documentation...")
-            subprocess.run([sys.executable, str(update_docs_path)], check=True)
+            subprocess.run([sys.executable, "-m", "masa.docs.update_docs"], check=True, cwd=masa_path)
 
             # View the documentation
-            cmd = [sys.executable, str(view_docs_path)]
+            view_docs_args = [sys.executable, "-m", "masa.docs.view_docs"]
             if page:
-                cmd.append(page)
-            subprocess.run(cmd, check=True)
+                view_docs_args.append(page)
+            subprocess.run(view_docs_args, check=True, cwd=masa_path)
 
-        except FileNotFoundError as e:
+        except subprocess.CalledProcessError as e:
             print(f"Error: {e}")
             print("Please ensure the masa package is correctly installed and the documentation files are present.")
-        except subprocess.CalledProcessError:
-            print("Error: Failed to build or view the documentation.")
-            print("Please try running 'python -m masa.docs.update_docs' manually and check for errors.")
 
     def list_scraped_data(self) -> None:
         """
