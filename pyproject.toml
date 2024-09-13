@@ -67,16 +67,5 @@ dependencies = [
 masa-cli = "masa.cli:main"
 
 [tool.setuptools.packages.find]
-where = ["src", "docs"]
+where = ["src"]
 include = ["masa*"]
-
-[tool.setuptools.package-data]
-masa = [
-    "*.json",
-    "*.yaml",
-    "*.txt",
-    "docs/**",
-    "!docs/build",
-    "configs/*.yaml",
-    "request_list.json"
-]

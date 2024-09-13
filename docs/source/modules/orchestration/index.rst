@@ -1,15 +1,7 @@
 Orchestration
 =============
 
-.. automodule:: masa.orchestration
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 .. toctree::
    :maxdepth: 4
-   
-   orchestration.queue
-   orchestration.request_manager
-   orchestration.request_router
-   orchestration.state_manager
+
+   orchestration

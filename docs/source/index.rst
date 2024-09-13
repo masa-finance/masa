@@ -5,9 +5,8 @@ Welcome to Masa's Project documentation!
    :maxdepth: 4
    :caption: Contents:
 
-   contributing
    readme
-   modules/index
+   modules/modules
    usage
    xtwitter_advanced
 

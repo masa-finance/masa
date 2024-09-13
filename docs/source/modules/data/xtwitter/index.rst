@@ -1,7 +1,6 @@
-Utils
-=====
+Xtwitter
+========
 
 .. toctree::
    :maxdepth: 4
 
-   utils

@@ -3,8 +3,24 @@ import subprocess
 import os
 import shutil
 import logging
+import colorlog
 
-logging.basicConfig(level=logging.INFO)
+
+handler = colorlog.StreamHandler()
+handler.setFormatter(colorlog.ColoredFormatter(
+    '%(log_color)s%(message)s',
+    log_colors={
+        'DEBUG': 'cyan',
+        'INFO': 'green',
+        'WARNING': 'yellow',
+        'ERROR': 'red',
+        'CRITICAL': 'red,bg_white',
+    }
+))
+
+logger = colorlog.getLogger(__name__)
+logger.addHandler(handler)
+logger.setLevel(logging.INFO)
 
 def check_dependencies():
     """
@@ -16,7 +32,7 @@ def check_dependencies():
     try:
         subprocess.run(["sphinx-build", "--version"], check=True)
     except FileNotFoundError:
-        logging.error("Sphinx is not installed or not found in the PATH.")
+        logger.error("Sphinx is not installed or not found in the PATH.")
         return False
     return True
 
@@ -26,8 +42,8 @@ def clean_previous_build():
 
     This function runs the `make clean` command to remove previous build files.
     """
-    logging.info("Cleaning previous build files...")
-    subprocess.run(["make", "clean"], check=True)
+    logger.info("Cleaning previous build files...")
+    subprocess.run(["make", "clean"], check=True, capture_output=True)
 
 def build_html():
     """
@@ -35,8 +51,8 @@ def build_html():
 
     This function runs the `make html` command to generate the HTML documentation.
     """
-    logging.info("Building HTML documentation...")
-    subprocess.run(["make", "html"], check=True)
+    logger.info("Building HTML documentation...")
+    subprocess.run(["make", "html"], check=True, capture_output=True)
 
 def generate_api_docs(src_masa_path, modules_dir):
     """
@@ -52,7 +68,7 @@ def generate_api_docs(src_masa_path, modules_dir):
             output_path = modules_dir / relative_path
             output_path.mkdir(parents=True, exist_ok=True)
 
-            logging.info(f"Generating API documentation for '{relative_path}'...")
+            logger.info(f"Generating API documentation for '{relative_path}'...")
 
             # Run sphinx-apidoc command with `--tocfile index` to generate `index.rst`
             subprocess.run([
@@ -64,7 +80,7 @@ def generate_api_docs(src_masa_path, modules_dir):
                 "-H", relative_path.name.capitalize(),
                 "-e",
                 "--tocfile", "index"  # Ensures that `index.rst` is used instead of `modules.rst`
-            ], check=True)
+            ], check=True, capture_output=True)
 
 def update_docs():
     """
@@ -78,8 +94,6 @@ def update_docs():
     """
     # Get the current file's directory
     current_dir = Path(__file__).resolve().parent
-
-    # Change the current working directory to the directory containing this script
     os.chdir(current_dir)
 
     # Get the path to the src/masa directory

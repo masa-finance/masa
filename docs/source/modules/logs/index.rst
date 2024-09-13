@@ -1,7 +1,6 @@
-Utils
-=====
+Logs
+====
 
 .. toctree::
    :maxdepth: 4
 
-   utils

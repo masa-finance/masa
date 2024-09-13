@@ -1,14 +1,7 @@
 Tools
 =====
 
-.. automodule:: masa.tools
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 .. toctree::
-   :maxdepth: 3
+   :maxdepth: 4
 
-   qc/index
-   retrieve/index
-   utils/index
+   tools

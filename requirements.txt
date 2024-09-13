@@ -18,3 +18,4 @@ TikTokApi  # Unofficial TikTok API wrapper
 torch  # PyTorch deep learning framework
 transformers  # State-of-the-art natural language processing library
 import-linter  # Import Linter for Python
+bump2version  # Bump version for Python projects

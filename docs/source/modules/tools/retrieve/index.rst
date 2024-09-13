@@ -1,12 +1,7 @@
 Retrieve
 ========
 
-.. automodule:: masa.tools.retrieve
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 4
 
-   retrieve.retrieve_xtwitter
+   retrieve

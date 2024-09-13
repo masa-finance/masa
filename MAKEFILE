@@ -1,4 +1,4 @@
-.PHONY: install dev-install test lint format clean docs build
+.PHONY: install dev-install test lint format clean docs build bump-version
 
 # Install the package
 install:
@@ -25,6 +25,10 @@ clean:
 	rm -rf build dist .egg *.egg-info
 	find . -type d -name '__pycache__' -exec rm -rf {} +
 
+# Bump the version number
+bump-version:
+	bump2version patch
+
 # Generate documentation
 docs:
 	cd docs && make html
@@ -38,10 +42,10 @@ run:
 	python -m masa $(ARGS)
 
 # Create a new release
-release: clean build
+release: clean bump-version build
 	twine upload dist/*
 
-test-release: clean build
+test-release: clean bump-version build
 	twine upload --repository testpypi dist/*
 
 # Set up pre-commit hooks
@@ -51,3 +55,4 @@ setup-hooks:
 # Update dependencies
 update-deps:
 	pip-compile --upgrade pyproject.toml
+

@@ -1,12 +1,7 @@
 Configs
 =======
 
-.. automodule:: masa.configs
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 4
 
-   config
+   configs
