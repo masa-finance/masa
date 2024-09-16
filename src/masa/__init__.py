@@ -1,5 +1,5 @@
 """
-MASA: Decentralized Data Retrieval and Processing Framework
+MASA: Masa AI Software Architecture
 
 This package serves as the core of the MASA project, providing essential components
 for data retrieval, quality control, and orchestration. The framework is designed
@@ -35,5 +35,5 @@ __all__ = [
     'orchestration'
 ]
 
-__version__ = '0.1.25'
+__version__ = '0.1.0'
 """str: Current version of the MASA package."""

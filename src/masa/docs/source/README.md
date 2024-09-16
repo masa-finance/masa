@@ -1,6 +1,8 @@
 # Masa Project
 
-Masa is a project for data retrieval, quality control, and orchestration. It currently provides tools to retrieve data from Twitter using the Masa Oracle Node API, with plans to expand to other data sources and functionalities in the future.
+Masa is a project for data retrieval, quality control, and orchestration. It currently provides tools to retrieve data from Twitter using the Masa Protocol Node API, with plans to expand to other data sources and functionalities in the future.
+
+Currently this SDK requires a Masa Protocol Node to be running on the system. Instructions on how to install and run a node can be found [here](https://developers.masa.ai/docs/welcome-to-masa/#masa-protocol).
 
 ## Quick Start
 
@@ -97,7 +99,7 @@ The Masa Oracle Node API provides advanced search capabilities for retrieving Tw
 - Geo-location Based Search: `geocode:latitude,longitude,radius`
 - Language-Specific Search: `lang:language_code`
 
-For more details, refer to the [Masa Oracle Twitter Docs](xtwitter_advanced.rst).
+For more details, refer to the [Masa Protocol Twitter Docs](xtwitter_advanced.rst).
 
 ## Project Structure
 
@@ -137,7 +139,7 @@ To view the documentation:
 masa-cli --docs [page_name]
 ```
 
-This command will rebuild and view the documentation for the specified page.
+This command will rebuild and view the documentation for the specified page. Note that the page name is optional. If no page name is provided, the documentation for the entire project will be displayed.
 
 ## License
 
