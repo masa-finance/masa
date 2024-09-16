@@ -64,7 +64,8 @@ Masa is a project for data retrieval, quality control, and orchestration. It cur
 5. Recommendations for Accessing and Using Scraped Data:
 
    - **Command Line**: You can navigate to the `data` folder using the command line to view and manipulate the files directly. Here is a step-by-step example:
-   > IMPORTANT: The `data` folder is not included in the package. It is only created when you run the `masa-cli process [path_to_requests_json]` command.
+
+   > **IMPORTANT:** The `data` folder is not included in the package. It is only created when you run the `masa-cli process [path_to_requests_json]` command.
 
      ```bash
      # Find the installation path of the masa package
