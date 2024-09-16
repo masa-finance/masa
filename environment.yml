@@ -3,37 +3,45 @@ channels:
   - defaults
   - conda-forge
 dependencies:
+  # Core dependencies
   - python=3.12
   - pip
-  - jupyter
-  - notebook
-  - ipykernel
-  - matplotlib
   - numpy
   - pandas
-  - scikit-learn
-  - streamlit
-  - requests
+  - pyyaml
   - python-dotenv
+  - requests
+  - tqdm
+
+  # Logging and configuration
+  - colorlog
+  - dynaconf
+
+  # Data processing and visualization
+  - matplotlib
+  - scikit-learn
+
+  # Jupyter and IPython
+  - ipykernel
+  - jupyter
+  - notebook
+
+  # Documentation
+  - sphinx
+  - sphinx_rtd_theme
+  - recommonmark
+  - myst-parser
+
+  # Web and API
+  - streamlit
+
+  # Natural Language Processing
+  - tiktoken
+  - openai
+
+  # Miscellaneous
   - feedparser
+
+  # Install additional dependencies from requirements.txt
   - pip:
-    - langchain
-    - tavily-python
-    - langgraph
-    - langchain_community
-    - langchain-openai
-    - langchainhub
-    - langchain-ollama
-    - "nomic[local]"
-    - openai
-    - tiktoken
-    - tqdm
-    - streamlit-extras
-    - "pinecone-client[grpc]"
-    - assemblyai
-    - pytube
-    - TikTokApi
-    - torch
-    - transformers
-    - ollama
-    - colorlog
+    - -r requirements.txt

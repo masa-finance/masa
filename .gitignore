@@ -25,6 +25,10 @@ share/python-wheels/
 .installed.cfg
 *.egg
 MANIFEST
+**/masa.egg-info/
+**/PKG-INFO
+**/SOURCES.txt
+**/PKG-INFO
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
@@ -68,8 +72,12 @@ instance/
 # Scrapy stuff:
 .scrapy
 
+# Ignore conda files
+.conda/
+
 # Sphinx documentation
 docs/_build/
+docs/build/
 
 # PyBuilder
 .pybuilder/
@@ -160,3 +168,33 @@ cython_debug/
 #  and can be added to the global gitignore or merged into this file.  For a more nuclear
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
+
+# Ignore the contents of the data directory
+src/masa/data/*
+
+# ignore the orchestration files
+src/masa/orchestration/request_queue.json
+src/masa/orchestration/request_manager_state.json
+
+# Ignore TODO files
+TODO.md
+
+# Ignore request_list.json
+src/masa/request_list.json
+
+# Ignore everything inside the logs directory
+logs/*
+
+src/masa/orchestration/request_manager_state.json
+src/masa.egg-info/SOURCES.txt
+src/masa.egg-info/PKG-INFO
+
+# ignore notebooks
+notebooks
+*.duckdb
+.cursorrules
+src/masa.egg-info/PKG-INFO
+src/masa.egg-info/requires.txt
+src/masa.egg-info/SOURCES.txt
+src/masa.egg-info/PKG-INFO
+.DS_Store

@@ -1,0 +1,89 @@
+[build-system]
+requires = ["setuptools>=61.0",
+             "wheel",
+             "numpy"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "masa"
+version = '0.1.25'
+authors = [
+  { name = "Masa AI", email = "engineering@masa.ai" },
+]
+description = "MASA SDK - Masa's AI Software Architecture"
+readme = "README.md"
+license = {file = "LICENSE"}
+requires-python = ">=3.12"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "pyyaml>=5.4",
+    "requests",
+    "numpy",
+    "pandas",
+    "python-dotenv",
+    "tqdm",
+    "colorlog",
+    "dynaconf",
+    "scikit-learn",
+    "torch",
+    "transformers",
+    "streamlit",
+    "streamlit-extras",
+    "langchain",
+    "langchain_community",
+    "langchain-openai",
+    "langchainhub",
+    "langchain-ollama",
+    "openai",
+    "tiktoken",
+    "nomic[local]",
+    "ollama",
+    "pinecone-client[grpc]",
+    "matplotlib",
+    "jupyter",
+    "notebook",
+    "ipykernel",
+    "sphinx",
+    "sphinx_rtd_theme",
+    "recommonmark",
+    "myst-parser",
+    "psycopg2",
+    "feedparser",
+    "tavily-python",
+    "langgraph",
+    "assemblyai",
+    "pytube",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/masa-finance/masa"
+"Bug Tracker" = "https://github.com/masa-finance/masa/issues"
+
+[project.scripts]
+masa-cli = "masa.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["masa*"]
+
+[tool.setuptools.package-data]
+"masa" = [
+    "*.json",
+    "*.yaml",
+    "*.txt",
+    "configs/*.yaml",
+    "request_list.json",
+    "docs/source/**",
+    "docs/index.rst",
+    "docs/readme.rst",
+    "docs/usage.rst",
+    "docs/xtwitter_advanced.rst",
+    "docs/conf.py",
+    "docs/update_docs.py",
+    "docs/view_docs.py",
+    "docs/Makefile"
+]
