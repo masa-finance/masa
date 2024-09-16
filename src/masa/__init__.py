@@ -35,5 +35,5 @@ __all__ = [
     'orchestration'
 ]
 
-__version__ = '0.1.21'
+__version__ = '0.1.22'
 """str: Current version of the MASA package."""
