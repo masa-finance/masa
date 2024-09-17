@@ -19,9 +19,9 @@ Attributes:
 import hashlib
 import json
 from pathlib import Path
-from masa.orchestration.request_router import RequestRouter
-from masa.orchestration.queue import Queue
-from masa.orchestration.state_manager import StateManager
+from masa_ai.orchestration.request_router import RequestRouter
+from masa_ai.orchestration.queue import Queue
+from masa_ai.orchestration.state_manager import StateManager
 from ..tools.qc.qc_manager import QCManager
 from ..configs.config import global_settings
 from ..tools.utils.paths import ensure_dir, ORCHESTRATION_DIR

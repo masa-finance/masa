@@ -17,8 +17,8 @@ import json
 from pathlib import Path
 from queue import PriorityQueue
 from datetime import datetime
-from masa.tools.qc.qc_manager import QCManager
-from masa.tools.utils.paths import ensure_dir
+from masa_ai.tools.qc.qc_manager import QCManager
+from masa_ai.tools.utils.paths import ensure_dir
 
 class Queue:
     """

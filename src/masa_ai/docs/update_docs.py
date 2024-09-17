@@ -77,7 +77,7 @@ def generate_api_docs(src_masa_path, modules_dir):
                 "-o", str(output_path),
                 str(module_path),
                 "--separate",
-                "-H", relative_path.name.capitalize(),
+                "-H", "Masa AI" if relative_path.name == "masa_ai" else relative_path.name.capitalize(),
                 "-e",
                 "--tocfile", "index"  # Ensures that `index.rst` is used instead of `modules.rst`
             ], check=True, capture_output=True)
@@ -88,7 +88,7 @@ def update_docs():
 
     This function performs the following steps:
     1. Changes the current working directory to the directory containing this script.
-    2. Runs the `sphinx-apidoc` command to generate the API documentation from the `src/masa` package.
+    2. Runs the `sphinx-apidoc` command to generate the API documentation from the `src/masa_ai` package.
     3. Runs the `make clean` command to clean the previous build files.
     4. Runs the `make html` command to build the HTML documentation.
     """
@@ -97,7 +97,7 @@ def update_docs():
     os.chdir(current_dir)
 
     # Update the src_masa_path calculation
-    src_masa_path = current_dir.parent  # This is now the masa package directory
+    src_masa_path = current_dir.parent  # This points to the masa_ai directory
     modules_dir = current_dir / "source/modules"
 
     # Clear existing modules directory

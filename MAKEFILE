@@ -41,9 +41,11 @@ build:
 run:
 	python -m masa $(ARGS)
 
+
+
 # Create a new release
 release: clean bump-version build
-	twine upload dist/*
+	twine upload --repository pypi dist/*
 
 test-release: clean bump-version build
 	twine upload --repository testpypi dist/*

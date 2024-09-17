@@ -1,15 +1,15 @@
-# Masa Project
+# Masa AI Software Architecture
 
-Masa is a project for data retrieval, quality control, and orchestration. It currently provides tools to retrieve data from Twitter using the Masa Protocol Node API, with plans to expand to other data sources and functionalities in the future.
+MASA is a project for data retrieval, quality control, and orchestration. It currently provides tools to retrieve data from Twitter using the Masa Protocol Node API, with plans to expand to other data sources and functionalities in the future.
 
 Currently this SDK requires a Masa Protocol Node to be running on the system. Instructions on how to install and run a node can be found [here](https://developers.masa.ai/docs/welcome-to-masa/#masa-protocol).
 
 ## Quick Start
 
-1. Install the Masa package:
+1. Install the MASA package:
 
    ```bash
-   pip install masa
+   pip install masa-ai
    ```
 
 2. Create a `request_list.json` file with the queries you'd like to process. This file can be placed anywhere on your system. Here is an example of what the `request_list.json` might look like:
@@ -30,14 +30,14 @@ Currently this SDK requires a Masa Protocol Node to be running on the system. In
    An example `request_list.json` file is included in the package. You can find it using the following command:
 
    ```bash
-   EXAMPLE_PATH=$(pip show masa | grep Location | awk '{print $2"/masa/request_list.json"}')
+   EXAMPLE_PATH=$(pip show masa-ai | grep Location | awk '{print $2"/masa_ai/request_list.json"}')
    echo "Example request_list.json path: $EXAMPLE_PATH"
    ```
 
 3. Use the MASA CLI:
 
    ```bash
-   masa-cli <action> [arguments]
+   masa-ai-cli <action> [arguments]
    ```
 
    Available actions:
@@ -48,9 +48,9 @@ Currently this SDK requires a Masa Protocol Node to be running on the system. In
    For example:
 
    ```bash
-   masa-cli process /path/to/request_list.json
-   masa-cli --docs usage
-   masa-cli --data
+   masa-ai-cli process /path/to/request_list.json
+   masa-ai-cli --docs usage
+   masa-ai-cli --data
    ```
 
 4. Accessing Scraped Data:
@@ -58,7 +58,7 @@ Currently this SDK requires a Masa Protocol Node to be running on the system. In
    The data that is scraped is saved within the package directory under the `data` folder. To list all scraped data files, use the following command:
 
    ```bash
-   masa-cli --data
+   masa-ai-cli --data
    ```
 
    This will display the structure of the `data` folder and list all the files contained within it.
@@ -67,12 +67,13 @@ Currently this SDK requires a Masa Protocol Node to be running on the system. In
 
    - **Command Line**: You can navigate to the `data` folder using the command line to view and manipulate the files directly. Here is a step-by-step example:
 
-   > **IMPORTANT:** The `data` folder is not included in the package. It is only created when you run the `masa-cli process [path_to_requests_json]` command.
+   > **IMPORTANT:** The `data` folder is not included in the package. It is only created when you run the `masa-ai-cli process [path_to_requests_json]` command.
 
      ```bash
      # Find the installation path of the masa package
-     PACKAGE_PATH=$(pip show masa | grep Location | awk '{print $2"/masa"}')
+     PACKAGE_PATH=$(pip show masa-ai | grep Location | awk '{print $2"/masa_ai"}')
      echo "Masa package path: $PACKAGE_PATH"
+     ```
 
      You can use this path to access data for further process, analysis, and utilization with agents.
 
@@ -103,7 +104,7 @@ For more details, refer to the [Masa Protocol Twitter Docs](xtwitter_advanced.rs
 
 ## Project Structure
 
-- `masa/`: Main package directory
+- `masa_ai/`: Main package directory
   - `configs/`: Configuration files
   - `connections/`: API connection handlers
   - `tools/`: Core functionality modules
@@ -131,12 +132,12 @@ We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.
 
 ## Documentation
 
-The Masa project uses Sphinx to generate its documentation. The documentation is automatically rebuilt and viewed when using the `--docs` option with the `masa-cli` command.
+The MASA project uses Sphinx to generate its documentation. The documentation is automatically rebuilt and viewed when using the `--docs` option with the `masa-ai-cli` command.
 
 To view the documentation:
 
 ```bash
-masa-cli --docs [page_name]
+masa-ai-cli --docs [page_name]
 ```
 
 This command will rebuild and view the documentation for the specified page. Note that the page name is optional. If no page name is provided, the documentation for the entire project will be displayed.

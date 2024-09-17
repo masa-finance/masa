@@ -5,8 +5,8 @@ This module provides the main functionality to process requests, view documentat
 It initializes the necessary components and handles both programmatic and command-line interfaces.
 
 Usage:
-    As a library: from masa import Masa
-    As a CLI: python -m masa <action> [path_to_requests_json]
+    As a library: from masa_ai import Masa
+    As a CLI: masa-ai-cli <action> [path_to_requests_json]
     
     Actions:
     - 'process': Process all requests (both resumed and new)
@@ -144,7 +144,7 @@ def main(action: Optional[str] = None, arg: Optional[str] = None) -> int:
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:
-        print("Usage: python -m masa <action> [path_to_requests_json]")
+        print("Usage: masa-ai-cli <action> [path_to_requests_json]")
         print("Actions: 'process' or '--docs [page_name]'")
         sys.exit(1)
 

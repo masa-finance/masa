@@ -1,9 +1,9 @@
 import sys
-from masa.masa import main as masa_main
+from masa_ai.masa import main as masa_main
 
 def main():
     """
-    The main entry point for the masa-cli command.
+    The main entry point for the masa-ai-cli command.
 
     This function calls the `main` function from the `masa` module,
     passing any command-line arguments provided.

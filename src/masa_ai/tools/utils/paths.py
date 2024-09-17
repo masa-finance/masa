@@ -7,13 +7,13 @@ def get_package_root() -> Path:
     """
     Get the root directory of the package.
 
-    This function retrieves the root directory of the 'masa' package using
+    This function retrieves the root directory of the 'masa_ai' package using
     pkg_resources.
 
     :return: Path to the root directory of the package
     :rtype: Path
     """
-    return Path(pkg_resources.resource_filename('masa', ''))
+    return Path(pkg_resources.resource_filename('masa_ai', ''))
 
 PROJECT_ROOT = get_package_root()
 CONFIG_DIR = PROJECT_ROOT / 'configs'
@@ -43,11 +43,11 @@ def get_data_path(filename: str) -> Path:
     """
     return DATA_DIR / filename
 
-def get_log_path(filename: str = 'masa.log') -> Path:
+def get_log_path(filename: str = 'masa_ai.log') -> Path:
     """
     Get the path for a log file within the logs directory.
 
-    :param filename: Name of the log file (default: 'masa.log')
+    :param filename: Name of the log file (default: 'masa_ai.log')
     :type filename: str
     :return: Full path to the log file
     :rtype: Path

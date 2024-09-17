@@ -1,12 +1,13 @@
 from pathlib import Path
 import sys
 
-# Get the project root directory (two levels up from conf.py)
-project_root = Path(__file__).resolve().parent.parent.parent.parent
+# Get the project root directory (four levels up from conf.py)
+project_root = Path(__file__).resolve().parent.parent.parent.parent.parent
 
 # Add the project root and src directories to the Python path
 sys.path.insert(0, str(project_root))
 sys.path.insert(0, str(project_root / 'src'))
+sys.path.insert(0, str(project_root / 'src' / 'masa_ai'))
 
 # Configuration file for the Sphinx documentation builder.
 #
@@ -16,9 +17,9 @@ sys.path.insert(0, str(project_root / 'src'))
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-project = 'Masa'
-copyright = '2024, Masa'
-author = 'Masa Team'
+project = 'Masa AI'
+copyright = '2024, Masa AI'
+author = 'Masa AI Team'
 version = '0.1'
 release = '0.1.0'
 
@@ -34,7 +35,7 @@ extensions = [
 ]
 
 templates_path = ['_templates']
-exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
+exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store', 'tests']
 
 # The suffix(es) of source filenames.
 source_suffix = ['.rst', '.md']
@@ -81,3 +82,8 @@ napoleon_attr_annotations = True
 
 import os
 os.environ['BUILDING_DOCS'] = 'True'
+
+# Add any modules that you want Sphinx to mock during the build process
+autodoc_mock_imports = ['numpy', 'pandas', 'matplotlib', 'seaborn', 'plotly']
+
+autoapi_dirs = [str(project_root / 'src' / 'masa_ai')]

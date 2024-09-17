@@ -5,7 +5,7 @@ requires = ["setuptools>=61.0",
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "masa"
+name = "masa-ai"
 version = '0.1.0'
 authors = [
   { name = "Masa AI", email = "engineering@masa.ai" },
@@ -64,14 +64,14 @@ dependencies = [
 "Bug Tracker" = "https://github.com/masa-finance/masa/issues"
 
 [project.scripts]
-masa-cli = "masa.cli:main"
+masa-ai-cli = "masa_ai.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
-include = ["masa*"]
+include = ["masa_ai*"]
 
 [tool.setuptools.package-data]
-"masa" = [
+"masa_ai" = [
     "*.json",
     "*.yaml",
     "*.txt",
