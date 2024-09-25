@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "masa-ai"
-version = '0.1.1'
+version = '0.1.0'
 authors = [
   { name = "Masa AI", email = "engineering@masa.ai" },
 ]
@@ -35,7 +35,7 @@ dependencies = [
     "sphinx_rtd_theme",
     "recommonmark",
     "myst-parser",
-    "psycopg2-binary",
+    "psycopg[binary]",
     "feedparser",
 ]
 
