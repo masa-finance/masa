@@ -12,6 +12,8 @@ Currently this SDK requires a Masa Protocol Node to be running on the system. In
    pip install masa-ai
    ```
 
+   > If you run into issues running or installing `masa-ai`, please refer to the [System Requirements](#system-requirements) section to ensure you have the necessary system dependencies installed.
+
 2. Create a `request_list.json` file with the queries you'd like to process. This file can be placed anywhere on your system. Here is an example of what the `request_list.json` might look like:
 
    ```json
@@ -67,7 +69,7 @@ Currently this SDK requires a Masa Protocol Node to be running on the system. In
 
    - **Command Line**: You can navigate to the `data` folder using the command line to view and manipulate the files directly. Here is a step-by-step example:
 
-   > **IMPORTANT:** The `data` folder is not included in the package. It is only created when you run the `masa-ai-cli process [path_to_requests_json]` command.
+     > **IMPORTANT:** The `data` folder is not included in the package. It is only created when you run the `masa-ai-cli process [path_to_requests_json]` command.
 
      ```bash
      # Find the installation path of the masa package
@@ -113,16 +115,58 @@ For more details, refer to the [Masa Protocol Twitter Docs](xtwitter_advanced.rs
     - `utils/`: Utility functions
   - `orchestration/`: Request management and processing
 
+## System Requirements
+
+If you run into issues running or installing `masa-ai`, ensure you have the necessary system dependencies installed.
+
+### On Debian-based systems (e.g., Ubuntu)
+
+Install `build-essential`:
+
+```bash
+sudo apt-get update
+sudo apt-get install -y build-essential
+```
+
+### On Red Hat-based systems (e.g., CentOS)
+
+Install Development Tools:
+
+```bash
+sudo yum groupinstall 'Development Tools'
+```
+
+### On macOS
+
+Install Xcode Command Line Tools:
+
+```bash
+xcode-select --install
+```
+
+### On Windows
+
+1. Download and install the [Microsoft Visual C++ Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/).
+2. Ensure that the installation includes the "Desktop development with C++" workload.
+3. Install `make` using [Chocolatey](https://chocolatey.org/):
+
+```bash
+choco install make
+```
+
 ## Dependencies
 
 Key dependencies include:
 
 - Data processing: numpy, pandas
 - API interaction: requests
-- Configuration: dynaconf
+- Configuration: dynaconf, pyyaml, python-dotenv
 - Quality control: colorlog
-- Natural Language Processing: langchain, openai
-- Data visualization: matplotlib, streamlit
+- Progress Display: tqdm
+- Documentation: sphinx, sphinx_rtd_theme, recommonmark, myst-parser
+- Jupyter Notebooks: jupyter, notebook, ipykernel
+- Database Interaction: psycopg2-binary
+- Data Parsing: feedparser
 
 For a full list of dependencies, refer to `pyproject.toml`.
 
