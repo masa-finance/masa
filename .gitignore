@@ -170,39 +170,34 @@ cython_debug/
 #.idea/
 
 # Ignore the contents of the data directory
-src/masa/data/*
+src/masa_ai/data/*
 
 # ignore the orchestration files
-src/masa/orchestration/request_queue.json
-src/masa/orchestration/request_manager_state.json
+src/masa_ai/orchestration/request_queue.json
+src/masa_ai/orchestration/request_manager_state.json
 
 # Ignore TODO files
 TODO.md
 
 # Ignore request_list.json
-src/masa/request_list.json
+src/masa_ai/request_list.json
 
 # Ignore everything inside the logs directory
 logs/*
 
-src/masa/orchestration/request_manager_state.json
-src/masa.egg-info/SOURCES.txt
-src/masa.egg-info/PKG-INFO
-
 # ignore notebooks
 notebooks
+
+# ignore duckdb files
 *.duckdb
+
+# ignore cursor rules
 .cursorrules
-src/masa.egg-info/PKG-INFO
-src/masa.egg-info/requires.txt
-src/masa.egg-info/SOURCES.txt
-src/masa.egg-info/PKG-INFO
+
+# ignore egg info
+src/masa_ai.egg-info/requires.txt
+src/masa_ai.egg-info/SOURCES.txt
+src/masa_ai.egg-info/PKG-INFO
 .DS_Store
 
-# ignore data files
-src/masa_ai/data/*
-
-# ignore state files
-src/masa_ai/orchestration/request_manager_state.json
-src/masa_ai/orchestration/request_queue.json
 Dockerfile
