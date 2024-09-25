@@ -10,7 +10,7 @@ To install the MASA package, use pip:
 
 .. code-block:: bash
 
-    pip install masa
+    pip install masa-ai
 
 Command Line Usage
 ------------------
