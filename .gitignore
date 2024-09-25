@@ -198,3 +198,11 @@ src/masa.egg-info/requires.txt
 src/masa.egg-info/SOURCES.txt
 src/masa.egg-info/PKG-INFO
 .DS_Store
+
+# ignore data files
+src/masa_ai/data/*
+
+# ignore state files
+src/masa_ai/orchestration/request_manager_state.json
+src/masa_ai/orchestration/request_queue.json
+Dockerfile
