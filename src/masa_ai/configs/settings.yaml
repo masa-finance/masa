@@ -26,11 +26,11 @@ default:
     DEFAULT_TIMEFRAME_MONTHS: 1  # Default timeframe of 3 months
 
   request_manager:
-    STATE_FILE: "src/masa/orchestration/request_manager_state.json"
-    QUEUE_FILE: "src/masa/orchestration/request_queue.json"
+    STATE_FILE: "src/masa_ai/orchestration/request_manager_state.json"
+    QUEUE_FILE: "src/masa_ai/orchestration/request_queue.json"
 
   data_storage:
-    BASE_DIRECTORY: "src/masa/data"
+    BASE_DIRECTORY: "src/masa_ai/data"
     CUSTOM_DATA_DIRECTORY: null
 
   logging:
