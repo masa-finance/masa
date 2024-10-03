@@ -25,7 +25,7 @@ include = [
 python = ">=3.12,<4"
 pyyaml = ">=5.4"
 requests = "*"
-numpy = "*"
+numpy = "<2.0.0"
 pandas = "*"
 python-dotenv = "*"
 tqdm = "*"
@@ -34,7 +34,7 @@ dynaconf = "*"
 jupyter = "*"
 notebook = "*"
 ipykernel = "*"
-sphinx = "*"
+sphinx = "<8.0.0"
 sphinx_rtd_theme = "*"
 recommonmark = "*"
 myst-parser = "*"
@@ -55,7 +55,3 @@ version_variable = "src/masa_ai/__init__.py:__version__"
 upload_to_repository = true
 commit_parser = "semantic_release.commit_parser"
 changelog_file = "CHANGELOG.md"
-
-[tool.poetry.repositories]
-pypi = { url = "https://upload.pypi.org/legacy/" }
-testpypi = { url = "https://test.pypi.org/legacy/" }
