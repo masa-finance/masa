@@ -1,12 +1,16 @@
 .PHONY: install dev-install test lint format clean docs build release test-release setup-hooks update-deps run sync-readme
 
-# Install the package
-install:
-	poetry install
+# Define repository names
+PYPI_REPOSITORY = pypi
+TEST_PYPI_REPOSITORY = testpypi
 
-# Install the package with development dependencies
-dev-install:
-	poetry install --with dev
+# Install from TestPyPI
+install-testpypi:
+	poetry install --source $(TEST_PYPI_REPOSITORY)
+
+# Install from PyPI
+install-pypi:
+	poetry install
 
 # Run tests
 test:
@@ -44,7 +48,7 @@ run:
 
 # Create a new test release
 test-release: clean sync-readme
-	PYPI_TOKEN=$(TEST_PYPI_TOKEN) poetry run semantic-release publish -r https://test.pypi.org/legacy/
+	PYPI_TOKEN=$(TEST_PYPI_TOKEN) poetry run semantic-release publish -r $(TEST_PYPI_REPOSITORY)
 
 # Create a new full release
 release: clean sync-readme
