@@ -126,8 +126,11 @@ For more details, refer to the [Masa Protocol Twitter Docs](xtwitter_advanced.rs
     - `retrieve/`: Data retrieval tools
     - `utils/`: Utility functions
   - `orchestration/`: Request management and processing
+  - `logs/`: Log files
+  - `data/`: Scraped data
+  - `examples/`: Example files
 
-## System Requirements
+## System Requirements {#system-requirements}
 
 If you run into issues running or installing `masa-ai`, ensure you have the necessary system dependencies installed.
 
@@ -181,10 +184,6 @@ Key dependencies include:
 - Data Parsing: feedparser
 
 For a full list of dependencies, refer to `pyproject.toml`.
-
-## Contributing
-
-We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for more information on how to get started, including documentation best practices.
 
 ## Documentation
 

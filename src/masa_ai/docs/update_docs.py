@@ -50,9 +50,20 @@ def build_html():
     Build HTML documentation using Sphinx.
 
     This function runs the `make html` command to generate the HTML documentation.
+    If an error occurs, the output and error messages are logged for debugging.
+
+    Raises:
+        subprocess.CalledProcessError: If the `make html` command fails.
     """
     logger.info("Building HTML documentation...")
-    subprocess.run(["make", "html"], check=True, capture_output=True)
+    result = subprocess.run(["make", "html"], capture_output=True, text=True)
+    if result.returncode != 0:
+        logger.error("Error building HTML documentation:")
+        logger.error(result.stdout)
+        logger.error(result.stderr)
+        raise subprocess.CalledProcessError(result.returncode, result.args)
+    else:
+        logger.info("HTML documentation built successfully.")
 
 def generate_api_docs(src_masa_path, modules_dir):
     """
