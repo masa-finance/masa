@@ -1,12 +1,11 @@
 from pathlib import Path
 import sys
+import os
 
-# Get the project root directory (four levels up from conf.py)
-project_root = Path(__file__).resolve().parent.parent.parent.parent.parent
+# Get the project root directory (three levels up from conf.py)
+project_root = Path(__file__).resolve().parent.parent.parent
 
-# Add the project root and src directories to the Python path
-sys.path.insert(0, str(project_root))
-sys.path.insert(0, str(project_root / 'src'))
+# Add the src/masa_ai directory to the Python path
 sys.path.insert(0, str(project_root / 'src' / 'masa_ai'))
 
 # Configuration file for the Sphinx documentation builder.
@@ -21,7 +20,7 @@ project = 'Masa AI'
 copyright = '2024, Masa AI'
 author = 'Masa AI Team'
 version = '0.1'
-release = '0.1.0'
+release = '0.1.2'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
@@ -30,15 +29,18 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.napoleon',
     'sphinx.ext.viewcode',
-    'sphinx_rtd_theme',
     'myst_parser',
+    'sphinx_rtd_theme',
 ]
 
 templates_path = ['_templates']
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store', 'tests']
 
 # The suffix(es) of source filenames.
-source_suffix = ['.rst', '.md']
+source_suffix = {
+    '.rst': 'restructuredtext',
+    '.md': 'myst',
+}
 
 # The master toctree document.
 master_doc = 'index'
@@ -80,10 +82,14 @@ napoleon_preprocess_types = False
 napoleon_type_aliases = None
 napoleon_attr_annotations = True
 
-import os
+# Autodoc settings
+autodoc_typehints = 'description'
+
+# Set environment variable
 os.environ['BUILDING_DOCS'] = 'True'
 
-# Add any modules that you want Sphinx to mock during the build process
+# Mock imports
 autodoc_mock_imports = ['numpy', 'pandas', 'matplotlib', 'seaborn', 'plotly']
 
+# AutoAPI settings
 autoapi_dirs = [str(project_root / 'src' / 'masa_ai')]

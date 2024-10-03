@@ -1,69 +1,57 @@
-[build-system]
-requires = ["setuptools>=61.0",
-             "wheel",
-             "numpy"]
-build-backend = "setuptools.build_meta"
-
-[project]
+[tool.poetry]
 name = "masa-ai"
-version = '0.1.2'
-authors = [
-  { name = "Masa AI", email = "engineering@masa.ai" },
-]
+version = "0.1.2-dev"
 description = "MASA SDK - Masa's AI Software Architecture"
+authors = ["Masa AI <engineering@masa.ai>"]
 readme = "README.md"
-license = {file = "LICENSE"}
-requires-python = ">=3.12"
+license = "MIT"
+homepage = "https://github.com/masa-finance/masa"
+repository = "https://github.com/masa-finance/masa"
 classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
-dependencies = [
-    "pyyaml>=5.4",
-    "requests",
-    "numpy",
-    "pandas",
-    "python-dotenv",
-    "tqdm",
-    "colorlog",
-    "dynaconf",
-    "jupyter",
-    "notebook",
-    "ipykernel",
-    "sphinx",
-    "sphinx_rtd_theme",
-    "recommonmark",
-    "myst-parser",
-    "psycopg[binary]",
-    "feedparser",
+include = [
+    "masa_ai/*.json",
+    "masa_ai/*.yaml",
+    "masa_ai/*.txt",
+    "masa_ai/configs/*.yaml",
+    "masa_ai/request_list.json",
+    "docs/**",
 ]
 
-[project.urls]
-"Homepage" = "https://github.com/masa-finance/masa"
-"Bug Tracker" = "https://github.com/masa-finance/masa/issues"
+[tool.poetry.dependencies]
+python = ">=3.12,<4"
+pyyaml = ">=5.4"
+requests = "*"
+numpy = "<2.0.0"
+pandas = "*"
+python-dotenv = "*"
+tqdm = "*"
+colorlog = "*"
+dynaconf = "*"
+jupyter = "*"
+notebook = "*"
+ipykernel = "*"
+sphinx = "<8.0.0"
+sphinx_rtd_theme = "*"
+recommonmark = "*"
+myst-parser = "*"
+psycopg = {extras = ["binary"], version = "*"}
+feedparser = "*"
 
-[project.scripts]
+[tool.poetry.group.dev.dependencies]
+pytest = "*"
+flake8 = "*"
+black = "*"
+python-semantic-release = "^9.9.0"
+
+[tool.poetry.scripts]
 masa-ai-cli = "masa_ai.cli:main"
 
-[tool.setuptools.packages.find]
-where = ["src"]
-include = ["masa_ai*"]
-
-[tool.setuptools.package-data]
-"masa_ai" = [
-    "*.json",
-    "*.yaml",
-    "*.txt",
-    "configs/*.yaml",
-    "request_list.json",
-    "docs/source/**",
-    "docs/index.rst",
-    "docs/readme.rst",
-    "docs/usage.rst",
-    "docs/xtwitter_advanced.rst",
-    "docs/conf.py",
-    "docs/update_docs.py",
-    "docs/view_docs.py",
-    "docs/Makefile"
-]
+[tool.semantic_release]
+version_variable = "src/masa_ai/__init__.py:__version__"
+upload_to_repository = true
+commit_parser = "semantic_release.commit_parser"
+changelog_file = "CHANGELOG.md"

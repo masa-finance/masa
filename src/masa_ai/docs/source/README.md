@@ -19,15 +19,27 @@ Currently this SDK requires a Masa Protocol Node to be running on the system. In
    ```json
    [
        {
-           "query": "#example",
-           "max_results": 100
+           "retriever": "XTwitterRetriever",
+           "endpoint": "data/twitter/tweets/recent",
+           "priority": 1,
+           "params": {
+               "query": "#example",
+               "max_results": 100
+           }
        },
        {
-           "query": "from:example_user",
-           "max_results": 50
+           "retriever": "XTwitterRetriever",
+           "endpoint": "data/twitter/tweets/recent",
+           "priority": 2,
+           "params": {
+               "query": "from:example_user",
+               "max_results": 50
+           }
        }
    ]
    ```
+
+   > **Note:** `max_results` can be no greater than 450.  To be safe, set it slightly lower than this limit otherwise you may exceed the rate limit.
 
    An example `request_list.json` file is included in the package. You can find it using the following command:
 
@@ -114,8 +126,11 @@ For more details, refer to the [Masa Protocol Twitter Docs](xtwitter_advanced.rs
     - `retrieve/`: Data retrieval tools
     - `utils/`: Utility functions
   - `orchestration/`: Request management and processing
+  - `logs/`: Log files
+  - `data/`: Scraped data
+  - `examples/`: Example files
 
-## System Requirements
+## System Requirements {#system-requirements}
 
 If you run into issues running or installing `masa-ai`, ensure you have the necessary system dependencies installed.
 
@@ -170,10 +185,6 @@ Key dependencies include:
 
 For a full list of dependencies, refer to `pyproject.toml`.
 
-## Contributing
-
-We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for more information on how to get started, including documentation best practices.
-
 ## Documentation
 
 The MASA project uses Sphinx to generate its documentation. The documentation is automatically rebuilt and viewed when using the `--docs` option with the `masa-ai-cli` command.
@@ -185,7 +196,3 @@ masa-ai-cli --docs [page_name]
 ```
 
 This command will rebuild and view the documentation for the specified page. Note that the page name is optional. If no page name is provided, the documentation for the entire project will be displayed.
-
-## License
-
-This project is licensed under the MIT License. See the [LICENSE](../../LICENSE) file for details.

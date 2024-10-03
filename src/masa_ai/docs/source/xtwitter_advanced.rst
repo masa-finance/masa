@@ -1,5 +1,5 @@
 XTwitter Advanced Search
-=======================
+========================
 
 The Advanced Search feature allows users to perform more complex queries to filter tweets according to various criteria such as date ranges, specific users, hashtags, and more. Below you will find detailed information on how to construct advanced search queries.
 
@@ -260,7 +260,7 @@ Exclude adult content from your search results.
     }
 
 Composition Examples
--------------------
+--------------------
 
 Combine multiple search criteria to create more complex queries.
 
