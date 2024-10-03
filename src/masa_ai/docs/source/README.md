@@ -19,15 +19,27 @@ Currently this SDK requires a Masa Protocol Node to be running on the system. In
    ```json
    [
        {
-           "query": "#example",
-           "max_results": 100
+           "retriever": "XTwitterRetriever",
+           "endpoint": "data/twitter/tweets/recent",
+           "priority": 1,
+           "params": {
+               "query": "#example",
+               "max_results": 100
+           }
        },
        {
-           "query": "from:example_user",
-           "max_results": 50
+           "retriever": "XTwitterRetriever",
+           "endpoint": "data/twitter/tweets/recent",
+           "priority": 2,
+           "params": {
+               "query": "from:example_user",
+               "max_results": 50
+           }
        }
    ]
    ```
+
+   > **Note:** `max_results` can be no greater than 450.  To be safe, set it slightly lower than this limit otherwise you may exceed the rate limit.
 
    An example `request_list.json` file is included in the package. You can find it using the following command:
 
