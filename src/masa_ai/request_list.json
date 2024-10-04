@@ -4,7 +4,7 @@
     "endpoint": "data/twitter/tweets/recent",
     "priority": 1,
     "params": {
-      "query": "#EPL since:2024-08-05 until:2024-08-10",
+      "query": "#EPL since:2024-08-08 until:2024-08-13",
       "count": 100
     }
   },

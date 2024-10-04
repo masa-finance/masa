@@ -40,13 +40,17 @@ def initialize_config():
     """
     Initialize the global settings using Dynaconf.
     
-    This function loads environment variables from the .env file and initializes
-    the Dynaconf settings using the specified configuration files and environment.
-    It also validates the presence of required settings.
-
+    This function loads environment variables and initializes the Dynaconf settings.
+    It sets the default data directory to the 'data' subdirectory of the current
+    working directory if not specified.
+    
     Returns:
         Dynaconf: The initialized and validated global settings object.
     """
+    if not global_settings.data_storage.DATA_DIRECTORY:
+        global_settings.data_storage.DATA_DIRECTORY = os.path.join(os.getcwd(), 'data')
+    else:
+        global_settings.data_storage.DATA_DIRECTORY = os.path.abspath(global_settings.data_storage.DATA_DIRECTORY)
     global_settings.validators.validate()
     return global_settings
 
