@@ -19,7 +19,7 @@ Commands:
 import os
 import sys
 import subprocess
-from typing import Optional, Union
+from typing import Optional, Union, List
 from pathlib import Path
 import json
 
@@ -53,6 +53,9 @@ class Masa:
         if requests is None:
             # Handle the case where no requests are provided
             self.qc_manager.log_info("No input provided. Processing existing requests.", context="Masa")
+            self.request_manager.process_requests()
+            self.qc_manager.log_info("Processing existing requests.", context="Masa")
+            return
 
         elif isinstance(requests, (str, Path)):
             # If the input is a string or Path, assume it's a path to a JSON file
@@ -62,15 +65,13 @@ class Masa:
         elif isinstance(requests, dict):
             # If the input is a single request, wrap it in a list
             requests = [requests]
+        elif not isinstance(requests, list):
+            self.qc_manager.log_error("Invalid input for requests.", context="Masa")
+            raise ValueError("Invalid input for requests.")
 
-        if requests is None:
-            self.qc_manager.log_debug("No new requests to process", context="Masa")
-            self.request_manager.process_requests(requests)
-            self.qc_manager.log_info("Processing all requests", context="Masa")
-        else:
-            self.qc_manager.log_debug(f"Processing {len(requests)} new requests", context="Masa")
-            self.request_manager.process_requests(requests)
-            self.qc_manager.log_info("Processing all requests", context="Masa")
+        self.qc_manager.log_debug(f"Processing {len(requests)} new requests", context="Masa")
+        self.request_manager.process_requests(requests)
+        self.qc_manager.log_info("Processing all requests", context="Masa")
 
     def view_docs(self, page: Optional[str] = None) -> None:
         """
@@ -85,7 +86,7 @@ class Masa:
             masa_path = Path(__file__).resolve().parent
 
             # Always rebuild the documentation
-            print("Rebuilding documentation...")
+            self.qc_manager.log_info("Rebuilding documentation...", context="Masa")
             subprocess.run([sys.executable, str(masa_path / "docs" / "update_docs.py")], check=True, cwd=masa_path)
 
             # View the documentation
@@ -95,8 +96,8 @@ class Masa:
             subprocess.run(view_docs_args, check=True, cwd=masa_path)
 
         except subprocess.CalledProcessError as e:
-            print(f"Error: {e}")
-            print("Please ensure the masa package is correctly installed and the documentation files are present.")
+            self.qc_manager.log_error(f"Error: {e}", context="Masa")
+            self.qc_manager.log_error("Please ensure the masa package is correctly installed and the documentation files are present.", context="Masa")
 
     def list_scraped_data(self) -> None:
         """
@@ -122,10 +123,10 @@ class Masa:
             # Calculate the indentation level based on the depth from the data folder
             level = len(Path(root).relative_to(data_folder).parts)
             indent = ' ' * 4 * level
-            print(f"{indent}{os.path.basename(root)}/")
+            self.qc_manager.log_info(f"{indent}{os.path.basename(root)}/", context="Masa")
             sub_indent = ' ' * 4 * (level + 1)
             for file in files:
-                print(f"{sub_indent}{file}")
+                self.qc_manager.log_info(f"{sub_indent}{file}", context="Masa")
 
         # Check if the data folder is empty
         if not any(data_folder.iterdir()):
@@ -169,6 +170,33 @@ class Masa:
         self.global_settings.set(key, value)
         self.global_settings.save(filename=self.global_settings.settings_file)
 
+    def list_requests(self, statuses: Optional[List[str]] = None) -> None:
+        """
+        List all requests, optionally filtering by their status.
+
+        Args:
+            statuses (List[str], optional): List of statuses to filter requests.
+                                            If None, lists 'queued' and 'in_progress' requests.
+        """
+        if statuses is None:
+            statuses = ['queued', 'in_progress']
+        elif statuses == ['all']:
+            statuses = None  # Passing None will retrieve all statuses
+
+        self.qc_manager.log_debug("Delegating request listing to RequestManager", context="Masa")
+        self.request_manager.list_requests(statuses)
+
+    def clear_requests(self, request_ids: Optional[List[str]] = None) -> None:
+        """
+        Clear queued or in-progress requests by changing their status to 'cancelled'.
+
+        Args:
+            request_ids (List[str], optional): List of request IDs to clear.
+                                           If None, clears all queued or in-progress requests.
+        """
+        self.qc_manager.log_debug("Delegating request clearing to RequestManager", context="Masa")
+        self.request_manager.clear_requests(request_ids)
+
 def main(action: Optional[str] = None, arg: Optional[str] = None) -> int:
     """
     Main function to handle CLI operations.
@@ -191,11 +219,17 @@ def main(action: Optional[str] = None, arg: Optional[str] = None) -> int:
             masa.list_scraped_data()
         elif action == 'config get':
             value = masa.get_config(arg)
-            print(f"{arg} = {value}")
+            print(f"{arg} = {value}", context="Masa")
         elif action == 'config set':
             key, value = arg.split(' ', 1)
             masa.set_config(key, value)
-            print(f"Set {key} to {value}")
+            print(f"Set {key} to {value}", context="Masa")
+        elif action == 'list-requests':
+            statuses = arg.split(',') if arg else None
+            masa.list_requests(statuses)
+        elif action == 'clear-requests':
+            request_ids = arg.split(',') if arg else None
+            masa.clear_requests(request_ids)
         else:
             masa.qc_manager.log_error("Invalid action. Allowable options are:", context="Masa")
             masa.qc_manager.log_error("- 'process': Process all requests (both resumed and new)", context="Masa")
@@ -203,20 +237,22 @@ def main(action: Optional[str] = None, arg: Optional[str] = None) -> int:
             masa.qc_manager.log_error("- 'data': List the scraped data files", context="Masa")
             masa.qc_manager.log_error("- 'config get <key>': Get the value of a configuration key", context="Masa")
             masa.qc_manager.log_error("- 'config set <key> <value>': Set the value of a configuration key", context="Masa")
+            masa.qc_manager.log_error("- 'list-requests [statuses]': List requests filtered by statuses (comma-separated)", context="Masa")
+            masa.qc_manager.log_error("- 'clear-requests [request_ids]': Clear queued or in-progress requests by IDs (comma-separated)", context="Masa")
             return 1
     except KeyboardInterrupt:
         # Handle keyboard interrupt gracefully
         masa.qc_manager.log_info("Keyboard interrupt received. Exiting gracefully...", context="Masa")
         return 130  # Exit code for keyboard interrupt
     except Exception as e:
-        print(f"An error occurred: {str(e)}")
+        masa.qc_manager.log_error(f"An error occurred: {str(e)}", context="Masa")
         return 1
     return 0
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:
-        print("Usage: masa-ai-cli <action> [path_to_requests_json]")
-        print("Actions: 'process' or 'docs [page_name]'")
+        print("Usage: masa-cli <action> [path_to_requests_json]", context="Masa")
+        print("Actions: 'process' or 'docs [page_name]'", context="Masa")
         sys.exit(1)
 
     action = sys.argv[1]

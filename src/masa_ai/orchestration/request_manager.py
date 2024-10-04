@@ -19,7 +19,7 @@ Attributes:
 import hashlib
 import json
 from pathlib import Path
-from typing import Optional
+from typing import Optional, List
 from masa_ai.orchestration.request_router import RequestRouter
 from masa_ai.orchestration.queue import Queue
 from masa_ai.orchestration.state_manager import StateManager
@@ -103,12 +103,12 @@ class RequestManager:
                 break
 
             processed_requests += 1
-            self.qc_manager.log_info(f"Processing request {processed_requests} of {total_requests}")
+            self.qc_manager.log_info(f"Processing request {processed_requests} of {total_requests}", context="RequestManager")
 
             try:
                 self._process_single_request(request_id, request)
             except Exception as e:
-                self.qc_manager.log_error(f"Error processing request: {str(e)}")
+                self.qc_manager.log_error(f"Error processing request: {str(e)}", context="RequestManager")
 
         self.qc_manager.log_info(f"Completed processing all {total_requests} requests")
 
@@ -327,3 +327,54 @@ class RequestManager:
             self.qc_manager.log_info(f"Cancelled request {request_id}", context="RequestManager")
         else:
             self.qc_manager.log_warning(f"Request {request_id} not found in the state manager", context="RequestManager")
+
+    def list_requests(self, statuses: Optional[List[str]] = None):
+        """
+        List requests with their ID, status, query, and last updated time.
+
+        Args:
+            statuses (List[str], optional): List of statuses to filter requests.
+                                            If None, lists all requests.
+        """
+        self.qc_manager.log_debug("Listing requests", context="RequestManager")
+        self.state_manager.load_state()
+        requests = self.state_manager.get_requests_by_status(statuses)
+        
+        if not requests:
+            self.qc_manager.log_info("No requests found.", context="RequestManager")
+            return
+
+        # Collect all request details in a single message
+        messages = []
+        for request_id, request_state in requests.items():
+            status = request_state.get('status', 'Unknown')
+            last_updated = request_state.get('last_updated', 'N/A')
+            query = request_state.get('request_details', {}).get('params', {}).get('query', 'N/A')
+            message = (
+                f"\n"
+                f"Request ID: {request_id}\n"
+                f"  Status: {status}\n"
+                f"  Query: {query}\n"
+                f"  Last Updated: {last_updated}\n"
+            )
+            messages.append(message)
+        
+        if messages:
+            self.qc_manager.log_info("".join(messages), context="RequestManager")
+        
+
+    def clear_requests(self, request_ids: Optional[List[str]] = None) -> None:
+        """
+        Clear queued or in-progress requests by changing their status to 'cancelled'.
+
+        Args:
+            request_ids (List[str], optional): List of request IDs to clear.
+                                               If None, clears all queued or in-progress requests.
+        """
+        self.qc_manager.log_debug("Clearing requests", context="RequestManager")
+        self.state_manager.load_state()
+        self.state_manager.clear_requests(request_ids)
+        if request_ids:
+            self.qc_manager.log_info(f"Cleared requests with IDs: {', '.join(request_ids)}", context="RequestManager")
+        else:
+            self.qc_manager.log_info("Cleared all queued and in-progress requests.", context="RequestManager")

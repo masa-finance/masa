@@ -95,7 +95,7 @@ Set the VALUE of a configuration KEY.
 
 \b
 Example:
-  \033[92mmasa-ai-cli config set default.twitter.BASE_URL "https://api.twitter.com/"\033[0m
+  masa-ai-cli config set default.twitter.BASE_URL "https://api.twitter.com/"
 
 This command sets the specified configuration key to the provided value in settings.yaml.
 """)
@@ -110,6 +110,42 @@ def config_set(key, value):
     message = f"Set {key} to {value}"
     click.echo(style(message, fg='green'))
     masa.qc_manager.log_info(message, context="CLI")
+
+@main.command()
+@click.option('--statuses', default='queued,in_progress', help='Comma-separated list of statuses to filter requests.')
+def list_requests(statuses):
+    """
+    List requests filtered by statuses.
+
+    \b
+    STATUS can be:
+    - queued
+    - in_progress
+    - completed
+    - failed
+    - cancelled
+    - all
+
+    By default, it lists requests with statuses 'queued' and 'in_progress'.
+    """
+    masa = Masa()
+    statuses_list = statuses.split(',') if statuses != 'all' else None
+    masa.list_requests(statuses_list)
+
+@main.command()
+@click.argument('request_ids', required=False)
+def clear_requests(request_ids):
+    """
+    Clear queued or in-progress requests.
+
+    \b
+    REQUEST_IDS can be:
+    - A comma-separated list of request IDs to clear.
+    - Omitted to clear all queued and in-progress requests.
+    """
+    masa = Masa()
+    request_ids_list = request_ids.split(',') if request_ids else None
+    masa.clear_requests(request_ids_list)
 
 if __name__ == '__main__':
     main()

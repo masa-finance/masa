@@ -1,8 +1,6 @@
-import os
 from pathlib import Path
 import pkg_resources
-from ...constants import PACKAGE_ROOT, CONFIG_DIR
-from ...configs.config import global_settings
+from ...constants import CONFIG_DIR
 
 def get_package_root() -> Path:
     """

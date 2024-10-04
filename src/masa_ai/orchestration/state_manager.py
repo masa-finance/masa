@@ -21,6 +21,7 @@ from pathlib import Path
 from datetime import datetime
 from ..tools.qc.qc_manager import QCManager
 from ..tools.utils.paths import ensure_dir
+from typing import Optional, List
 
 class StateManager:
     """
@@ -211,3 +212,52 @@ class StateManager:
             k: v for k, v in self._state['requests'].items()
             if v.get('status') in ['queued', 'in_progress']
         }
+
+    def clear_requests(self, request_ids: Optional[List[str]] = None) -> None:
+        """
+        Clear queued or in-progress requests by changing their status to 'cancelled'.
+
+        Args:
+            request_ids (List[str], optional): List of request IDs to clear.
+                                               If None, clears all queued or in-progress requests.
+        """
+        with self._lock:
+            current_time = datetime.now().isoformat()
+            if request_ids is None:
+                # Clear all queued or in-progress requests
+                for request_id, request_data in self._state['requests'].items():
+                    if request_data.get('status') in ['queued', 'in_progress']:
+                        request_data['status'] = 'cancelled'
+                        request_data['last_updated'] = current_time
+            else:
+                # Clear specified requests
+                for request_id in request_ids:
+                    if request_id in self._state['requests']:
+                        self._state['requests'][request_id]['status'] = 'cancelled'
+                        self._state['requests'][request_id]['last_updated'] = current_time
+                    else:
+                        self.qc_manager.log_warning(f"Request ID {request_id} not found.", context="StateManager")
+
+            # Update the last_updated timestamp and save the state
+            self._state['last_updated'] = current_time
+            self._save_state()
+
+    def get_requests_by_status(self, statuses: Optional[List[str]] = None) -> dict:
+        """
+        Retrieve requests filtered by status.
+
+        Args:
+            statuses (List[str], optional): List of statuses to filter by. If None, returns all requests.
+
+        Returns:
+            dict: Dictionary of requests matching the specified statuses.
+        """
+        with self._lock:
+            if statuses is None:
+                return self._state['requests'].copy()
+            else:
+                return {
+                    request_id: data
+                    for request_id, data in self._state['requests'].items()
+                    if data.get('status') in statuses
+                }
