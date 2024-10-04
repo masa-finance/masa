@@ -7,7 +7,10 @@ to files in various formats, primarily JSON and CSV.
 
 import os
 import json
-from ...constants import DATA_DIR
+from pathlib import Path
+import re
+
+
 
 class DataStorage:
     """
@@ -21,20 +24,33 @@ class DataStorage:
         """
         Initialize the DataStorage class.
         """
-        self.base_directory = self._get_base_directory()
+        self.data_directory = self._get_data_directory()
+        self.ensure_dir(Path(self.data_directory))
         from ..qc.qc_manager import QCManager
         self.qc_manager = QCManager()
 
-    def _get_base_directory(self):
+    def _get_data_directory(self):
         """
         Get the base directory for storing data files.
-        If a custom directory is specified in the settings, use that.
-        Otherwise, use the default directory.
 
-        :return: The base directory for storing data files.
-        :rtype: str
+        This method retrieves the data directory from the global settings.
+        If a custom directory is specified in the settings, it uses that.
+        Otherwise, it defaults to the current working directory.
+
+        Returns:
+            str: The base directory for storing data files.
         """
-        return str(DATA_DIR)
+        from ...configs.config import global_settings
+        return global_settings.data_storage.DATA_DIRECTORY
+
+    def ensure_dir(self, directory: Path):
+        """
+        Ensure that a directory exists.
+
+        :param directory: Path to the directory
+        :type directory: Path
+        """
+        directory.mkdir(parents=True, exist_ok=True)
 
     def get_file_path(self, source, query, file_format='json'):
         """
@@ -49,9 +65,9 @@ class DataStorage:
         :return: The file path.
         :rtype: str
         """
-        directory = os.path.join(self.base_directory, source)
-        os.makedirs(directory, exist_ok=True)
-        filename = f"{query}.{file_format}"
+        directory = os.path.join(self.data_directory, source)
+        self.ensure_dir(Path(directory))
+        filename = f"{self.sanitize_filename(query)}.{file_format}"
         return os.path.join(directory, filename)
 
     def save_data(self, data, source, query, file_format='json'):
@@ -124,3 +140,14 @@ class DataStorage:
         """
         # Implement CSV saving logic here
         pass
+
+    def sanitize_filename(self, filename: str) -> str:
+        """
+        Sanitize the filename by removing or replacing invalid characters and spaces.
+
+        :param filename: Original filename
+        :type filename: str
+        :return: Sanitized filename
+        :rtype: str
+        """
+        return re.sub(r'[<>:"/\\|?*\s]', '_', filename)

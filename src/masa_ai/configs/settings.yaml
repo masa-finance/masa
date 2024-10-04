@@ -30,8 +30,7 @@ default:
     QUEUE_FILE: "src/masa_ai/orchestration/request_queue.json"
 
   data_storage:
-    BASE_DIRECTORY: "src/masa_ai/data"
-    CUSTOM_DATA_DIRECTORY: null
+    DATA_DIRECTORY: null
 
   logging:
     LOG_LEVEL: INFO

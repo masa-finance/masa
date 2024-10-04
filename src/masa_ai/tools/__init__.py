@@ -15,11 +15,11 @@ Modules:
 
 from . import utils
 from . import qc
-from . import retrieve
+from . import scrape
 
 __all__ = [
     'utils',
     'qc', 
-    'retrieve'
+    'scrape'
 ]
 

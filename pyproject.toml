@@ -40,6 +40,7 @@ recommonmark = "*"
 myst-parser = "*"
 psycopg = {extras = ["binary"], version = "*"}
 feedparser = "*"
+click = "^8.1.7"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "*"

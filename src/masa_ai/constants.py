@@ -1,3 +1,9 @@
+"""
+Constants module for the MASA project.
+
+This module defines constant paths used throughout the project.
+"""
+
 import os
 from pathlib import Path
 
@@ -9,6 +15,3 @@ PACKAGE_ROOT = Path(__file__).parent.resolve()
 CONFIG_DIR = PACKAGE_ROOT / 'configs'
 """Path: The directory where configuration files are stored."""
 
-# Define data directory
-DATA_DIR = PACKAGE_ROOT / 'data'
-"""Path: The directory where data files are stored."""
