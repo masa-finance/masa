@@ -19,20 +19,20 @@ To use the MASA application, you can run the following command:
 
 .. code-block:: bash
 
-    masa-cli <action> [arguments]
+    masa-cli <command> [arguments]
 
-Actions:
-    - 'process [path_to_requests_json]': Process all requests (both resumed and new)
-    - '--docs [page_name]': View the documentation for the specified page
-    - '--data': List the scraped data files
+Available commands:
+    - `process [path_to_requests_json]`: Process all requests (both resumed and new)
+    - `docs [page_name]`: View the documentation for the specified page
+    - `data`: List the scraped data files
 
 Example usage:
 
 .. code-block:: bash
 
     masa-cli process /path/to/request_list.json
-    masa-cli --docs usage
-    masa-cli --data
+    masa-cli docs usage
+    masa-cli data
 
 Request Format
 --------------

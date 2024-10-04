@@ -51,20 +51,20 @@ Currently this SDK requires a Masa Protocol Node to be running on the system. In
 3. Use the MASA CLI:
 
    ```bash
-   masa-ai-cli <action> [arguments]
+   masa-ai-cli <command> [arguments]
    ```
 
-   Available actions:
+   Available commands:
    - `process [path_to_requests_json]`: Process all requests (both resumed and new)
-   - `--docs [page_name]`: Rebuild and view the documentation for the specified page
-   - `--data`: List the scraped data files
+   - `docs [page_name]`: Rebuild and view the documentation for the specified page
+   - `data`: List the scraped data files
 
    For example:
 
    ```bash
    masa-ai-cli process /path/to/request_list.json
-   masa-ai-cli --docs usage
-   masa-ai-cli --data
+   masa-ai-cli docs usage
+   masa-ai-cli data
    ```
 
 4. Accessing Scraped Data:
@@ -72,7 +72,7 @@ Currently this SDK requires a Masa Protocol Node to be running on the system. In
    The data that is scraped is saved within the package directory under the `data` folder. To list all scraped data files, use the following command:
 
    ```bash
-   masa-ai-cli --data
+   masa-ai-cli data
    ```
 
    This will display the structure of the `data` folder and list all the files contained within it.
@@ -187,15 +187,15 @@ For a full list of dependencies, refer to `pyproject.toml`.
 
 ## Documentation
 
-The MASA project uses Sphinx to generate its documentation. The documentation is automatically rebuilt and viewed when using the `--docs` option with the `masa-ai-cli` command.
+The MASA project uses Sphinx to generate its documentation. The documentation is automatically rebuilt and viewed when using the `docs` command with the `masa-ai-cli` command.
 
 To view the documentation:
 
 ```bash
-masa-ai-cli --docs [page_name]
+masa-ai-cli docs [page_name]
 ```
 
-This command will rebuild and view the documentation for the specified page. Note that the page name is optional. If no page name is provided, the documentation for the entire project will be displayed.
+This command will rebuild and view the documentation for the specified page. Note that the `[page_name]` is optional. If no page name is provided, the documentation for the entire project will be displayed.
 
 ## License
 
