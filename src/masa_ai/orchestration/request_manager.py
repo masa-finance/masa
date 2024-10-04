@@ -19,6 +19,7 @@ Attributes:
 import hashlib
 import json
 from pathlib import Path
+from typing import Optional
 from masa_ai.orchestration.request_router import RequestRouter
 from masa_ai.orchestration.queue import Queue
 from masa_ai.orchestration.state_manager import StateManager
@@ -47,7 +48,7 @@ class RequestManager:
         self.request_router = RequestRouter(self.qc_manager, self.state_manager)
         self.queue = None
 
-    def process_requests(self, request_list_file=None):
+    def process_requests(self, requests: Optional[list] = None):
         """
         Process requests from a file or the existing queue.
 
@@ -56,42 +57,32 @@ class RequestManager:
         the existing queue.
 
         Args:
-            request_list_file (str, optional): Path to a JSON file containing requests to process.
-
-        Returns:
-            None
+            requests (list, optional): List of requests to process. If None, process the existing queue.
         """
-        # Load state first
+        
         self.state_manager.load_state()
 
-        # If a request list file is provided, update the state with new requests
-        if request_list_file:
-            self._update_state_from_file(request_list_file)
+        if requests:
+            self._update_state_with_requests(requests)
 
-        # Initialize the queue
         self.queue = Queue(self.state_manager, self.queue_file)
 
         # Process the requests
         self._process_queue()
 
-    def _update_state_from_file(self, request_list_file: Path):
+    def _update_state_with_requests(self, requests: list):
         """
-        Update the state manager with new requests from a file.
+        Update the state manager with new requests.
 
         Args:
-            request_list_file (Path): Path to a JSON file containing requests.
+            requests (list): List of requests.
         """
-        self.qc_manager.log_debug(f"Updating state from file: {request_list_file}", context="RequestManager")
-        with request_list_file.open('r') as file:
-            requests = json.load(file)
-            if isinstance(requests, list):
-                for request in requests:
-                    request_id = self._generate_request_id(request)
-                    if not self.state_manager.request_exists(request_id):
-                        self.state_manager.update_request_state(request_id, 'queued', request_details=request)
-                self.qc_manager.log_info(f"Updated state with new requests from file")
-            else:
-                self.qc_manager.log_error("Invalid JSON structure in request_list.json. Expected a list of requests.", context="RequestManager")
+        self.qc_manager.log_debug("Updating state with new requests", context="RequestManager")
+        for request in requests:
+            request_id = self._generate_request_id(request)
+            if not self.state_manager.request_exists(request_id):
+                self.state_manager.update_request_state(request_id, 'queued', request_details=request)
+        self.qc_manager.log_info("Updated state with new requests")
 
     def _process_queue(self):
         """
