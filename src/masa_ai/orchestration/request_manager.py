@@ -272,7 +272,7 @@ class RequestManager:
             status_entry = {
                 'request_id': request_id,
                 'status': request_state.get('status', 'Unknown'),
-                'retriever': request_details.get('retriever', 'N/A'),
+                'scraper': request_details.get('scraper', 'N/A'),
                 'endpoint': request_details.get('endpoint', 'N/A'),
                 'query': params.get('query', 'N/A'),
                 'count': params.get('count', 'N/A'),

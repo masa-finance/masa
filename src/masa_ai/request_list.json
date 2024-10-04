@@ -1,6 +1,6 @@
 [
   {
-    "retriever": "XTwitterRetriever",
+    "scraper": "XTwitterScraper",
     "endpoint": "data/twitter/tweets/recent",
     "priority": 1,
     "params": {
@@ -9,7 +9,7 @@
     }
   },
   {
-    "retriever": "XTwitterRetriever", 
+    "scraper": "XTwitterScraper", 
     "endpoint": "data/twitter/tweets/recent",
     "priority": 2,
     "params": {
@@ -18,7 +18,7 @@
     }
   },
   {
-    "retriever": "XTwitterRetriever",
+    "scraper": "XTwitterScraper",
     "endpoint": "data/twitter/tweets/recent", 
     "priority": 3,
     "params": {
@@ -27,7 +27,7 @@
     }
   },
   {
-    "retriever": "XTwitterRetriever",
+    "scraper": "XTwitterScraper",
     "endpoint": "data/twitter/tweets/recent",
     "params": {
       "query": "#LoveIsland since:2024-08-18 until:2024-08-23",
@@ -35,7 +35,7 @@
     }
   },
   {
-    "retriever": "XTwitterRetriever",
+    "scraper": "XTwitterScraper",
     "endpoint": "data/twitter/tweets/recent",
     "priority": 1,
     "params": {

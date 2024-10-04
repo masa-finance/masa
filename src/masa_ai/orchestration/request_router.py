@@ -2,26 +2,26 @@
 Request Router module for the MASA project.
 
 This module provides the RequestRouter class, which is responsible for
-routing requests to the appropriate retriever based on the request parameters.
+routing requests to the appropriate scraper based on the request parameters.
 """
 
-from ..tools.retrieve.retrieve_xtwitter import XTwitterRetriever
+from ..tools.scrape.scrape_xtwitter import XTwitterScraper
 from ..tools.qc.qc_manager import QCManager
 import traceback
 from ..configs.config import global_settings
 
 class RequestRouter:
     """
-    Class for routing requests to the appropriate retriever based on the request parameters.
+    Class for routing requests to the appropriate scraper based on the request parameters.
 
-    This class manages the initialization of retrievers and directs requests
-    to the appropriate retriever based on the request type and endpoint.
+    This class manages the initialization of scrapers and directs requests
+    to the appropriate scraper based on the request type and endpoint.
 
     Attributes:
         qc_manager (tools.qc.qc_manager.QCManager): Quality control manager for logging and error handling.
         config (dict): Configuration settings for the request router.
         state_manager (orchestration.state_manager.StateManager): Manager for handling request states.
-        retrievers (dict): Dictionary to store initialized retriever objects.
+        scrapers (dict): Dictionary to store initialized scraper objects.
     """
 
     def __init__(self, qc_manager: QCManager, state_manager):
@@ -36,11 +36,11 @@ class RequestRouter:
         self.qc_manager = qc_manager
         self.config = global_settings
         self.state_manager = state_manager
-        self.retrievers = {}
+        self.scrapers = {}
     
     def route_request(self, request_id, request):
         """
-        Route the request to the appropriate retriever based on the request parameters.
+        Route the request to the appropriate scraper based on the request parameters.
 
         :param request_id: The ID of the request.
         :type request_id: str
@@ -48,10 +48,10 @@ class RequestRouter:
         :type request: dict
         :return: The result of processing the request.
         :rtype: dict
-        :raises ValueError: If an unknown retriever or endpoint is specified.
+        :raises ValueError: If an unknown scraper or endpoint is specified.
         """
 
-        retriever_name = request['retriever']
+        scraper_name = request['scraper']
         endpoint = request['endpoint']
         params = request['params']
 
@@ -59,45 +59,45 @@ class RequestRouter:
         self.qc_manager.log_debug(f"Request details: Query '{query}' {request}", context="RequestRouter")
 
         try:
-            self.qc_manager.log_debug(f"Routing request: {request_id} to {retriever_name} for endpoint {endpoint}", context="RequestRouter")
+            self.qc_manager.log_debug(f"Routing request: {request_id} to {scraper_name} for endpoint {endpoint}", context="RequestRouter")
 
-            if retriever_name == 'XTwitterRetriever':
+            if scraper_name == 'XTwitterScraper':
                 if endpoint == 'data/twitter/tweets/recent':
-                    retriever = self.get_retriever(retriever_name, request)
-                    self.qc_manager.log_debug(f"Calling retrieve_tweets for request: Query '{query}' (ID: {request_id})", context="RequestRouter")
+                    scraper = self.get_scraper(scraper_name, request)
+                    self.qc_manager.log_debug(f"Calling scrape_tweets for request: Query '{query}' (ID: {request_id})", context="RequestRouter")
                     
                     # Ensure 'query' and 'count' are present in the params
                     if 'query' not in params or 'count' not in params:
                         raise ValueError("Missing 'query' or 'count' parameter in the request")
                     
-                    result = retriever.retrieve_tweets(request_id, params['query'], params['count'])
+                    result = scraper.scrape_tweets(request_id, params['query'], params['count'])
                     self.qc_manager.log_debug(f"Completed request: Query '{query}' (ID: {request_id}).")
                     return result
                 else:
-                    raise ValueError(f"Unknown endpoint for {retriever_name}: {endpoint}")
+                    raise ValueError(f"Unknown endpoint for {scraper_name}: {endpoint}")
             else:
-                raise ValueError(f"Unknown retriever: {retriever_name}")
+                raise ValueError(f"Unknown scraper: {scraper_name}")
 
         except Exception as e:
             self.qc_manager.log_error(f"Error in route_request for Query '{query}' (ID: {request_id}): {str(e)}", error_info=e, context="RequestRouter")
             self.qc_manager.log_error(f"Traceback: {traceback.format_exc()}", context="RequestRouter")
             raise
 
-    def get_retriever(self, retriever_name, request):
+    def get_scraper(self, scraper_name, request):
         """
-        Get the retriever object for a given retriever name.
+        Get the scraper object for a given scraper name.
 
-        :param retriever_name: Name of the retriever.
-        :type retriever_name: str
+        :param scraper_name: Name of the scraper.
+        :type scraper_name: str
         :param request: Dictionary containing the request parameters.
         :type request: dict
-        :return: Initialized retriever object.
+        :return: Initialized scraper object.
         :rtype: object
-        :raises ValueError: If an unknown retriever name is provided.
+        :raises ValueError: If an unknown scraper name is provided.
         """
-        if retriever_name not in self.retrievers:
-            if retriever_name == 'XTwitterRetriever':
-                self.retrievers[retriever_name] = XTwitterRetriever(self.state_manager, request)
+        if scraper_name not in self.scrapers:
+            if scraper_name == 'XTwitterScraper':
+                self.scrapers[scraper_name] = XTwitterScraper(self.state_manager, request)
             else:
-                raise ValueError(f"Unknown retriever: {retriever_name}")
-        return self.retrievers[retriever_name]
+                raise ValueError(f"Unknown scraper: {scraper_name}")
+        return self.scrapers[scraper_name]

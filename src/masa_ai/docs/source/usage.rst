@@ -42,7 +42,7 @@ Requests are defined in a JSON file. Each request should have the following stru
 .. code-block:: json
 
     {
-        "retriever": "XTwitterRetriever",
+        "scraper": "XTwitterScraper",
         "endpoint": "data/twitter/tweets/recent",
         "priority": 5,
         "params": {
@@ -59,7 +59,7 @@ The MASA application uses Python's priority queue to process requests in order o
 .. code-block:: json
 
     {
-        "retriever": "XTwitterRetriever",
+        "scraper": "XTwitterScraper",
         "endpoint": "data/twitter/tweets/recent",
         "priority": 1,  // High priority request
         "params": {
@@ -69,7 +69,7 @@ The MASA application uses Python's priority queue to process requests in order o
     }
 
     {
-        "retriever": "XTwitterRetriever",
+        "scraper": "XTwitterScraper",
         "endpoint": "data/twitter/tweets/recent",
         // No priority specified, default value of 100 will be used
         "params": {
@@ -78,10 +78,10 @@ The MASA application uses Python's priority queue to process requests in order o
         }
     }
 
-XTwitterRetriever and Timeframes
---------------------------------
+XTwitterScraper and Timeframes
+------------------------------
 
-The XTwitterRetriever now handles timeframes more flexibly:
+The XTwitterScraper now handles timeframes more flexibly:
 
 1. If both 'since' and 'until' dates are provided in the query, they will be used as the date range for tweet retrieval.
 
@@ -89,14 +89,14 @@ The XTwitterRetriever now handles timeframes more flexibly:
 
 3. If no dates are provided, the 'until' date will be set to the current date, and the 'since' date will be set to the default timeframe before the current date.
 
-4. The retriever processes the date range in smaller iterations (default is daily) to ensure comprehensive data collection.
+4. The scraper processes the date range in smaller iterations (default is daily) to ensure comprehensive data collection.
 
 Example:
 
 .. code-block:: json
 
     {
-        "retriever": "XTwitterRetriever",
+        "scraper": "XTwitterScraper",
         "endpoint": "data/twitter/tweets/recent",
         "priority": 1,
         "params": {
@@ -106,7 +106,7 @@ Example:
     }
 
     {
-        "retriever": "XTwitterRetriever",
+        "scraper": "XTwitterScraper",
         "endpoint": "data/twitter/tweets/recent",
         "priority": 2,
         "params": {
@@ -118,6 +118,6 @@ Example:
 Request Processing
 ------------------
 
-The RequestManager handles the processing of requests. It reads the JSON file, prioritizes the requests based on the `priority` field, and executes them using the appropriate retriever (currently only XTwitterRetriever is implemented).
+The RequestManager handles the processing of requests. It reads the JSON file, prioritizes the requests based on the `priority` field, and executes them using the appropriate scraper (currently only XTwitterScraper is implemented).
 
 The application will process all requests in the JSON file, handling both new requests and resuming any previously interrupted requests, in the order determined by their priority.

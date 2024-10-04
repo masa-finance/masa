@@ -51,9 +51,9 @@ class XTwitterConnection(APIConnection):
         :type api_endpoint: str
         :param date_range_query: The search query for tweets.
         :type date_range_query: str
-        :param count: The number of tweets to retrieve.
+        :param count: The number of tweets to scrape.
         :type count: int
-        :return: The processed response data containing the retrieved tweets.
+        :return: The processed response data containing the scraped tweets.
         :rtype: dict
         :raises masa_ai.tools.qc.exceptions.APIException: If there's an error in making the request or processing the response.
         """

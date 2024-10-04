@@ -1,5 +1,5 @@
-tools.retrieve package
-======================
+tools.scrape package
+====================
 
 Submodules
 ----------
@@ -7,12 +7,12 @@ Submodules
 .. toctree::
    :maxdepth: 4
 
-   tools.retrieve.retrieve_xtwitter
+   tools.scrape.scrape_xtwitter
 
 Module contents
 ---------------
 
-.. automodule:: tools.retrieve
+.. automodule:: tools.scrape
    :members:
    :undoc-members:
    :show-inheritance:

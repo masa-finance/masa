@@ -8,7 +8,7 @@ Subpackages
    :maxdepth: 4
 
    tools.qc
-   tools.retrieve
+   tools.scrape
    tools.utils
 
 Module contents

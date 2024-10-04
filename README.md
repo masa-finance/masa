@@ -19,7 +19,7 @@ Currently this SDK requires a Masa Protocol Node to be running on the system. In
    ```json
    [
        {
-           "retriever": "XTwitterRetriever",
+           "scraper": "XTwitterScraper",
            "endpoint": "data/twitter/tweets/recent",
            "priority": 1,
            "params": {
@@ -28,7 +28,7 @@ Currently this SDK requires a Masa Protocol Node to be running on the system. In
            }
        },
        {
-           "retriever": "XTwitterRetriever",
+           "scraper": "XTwitterScraper",
            "endpoint": "data/twitter/tweets/recent",
            "priority": 2,
            "params": {
