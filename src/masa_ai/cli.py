@@ -1,5 +1,8 @@
 import click
+import os
+import json
 from masa_ai.masa import Masa
+from click import style
 
 @click.group()
 def main():
@@ -9,15 +12,37 @@ def main():
     pass
 
 @main.command()
-@click.argument('json_file', required=False, type=click.Path(exists=True))
-def process(json_file):
+@click.argument('input', required=False)
+def process(input):
     """
-    Process all requests (both resumed and new).
+    Process requests from a JSON file, a JSON string, a list of requests, or a single request.
 
-    Optionally, provide a JSON_FILE containing requests to process.
+    \b
+    INPUT can be:
+    - A path to a JSON file containing requests.
+    - A JSON string representing a single request or a list of requests.
+    - Omitted to process existing or default requests.
     """
     masa = Masa()
-    masa.process_requests(json_file)
+
+    if input:
+        # Attempt to interpret the input
+        if os.path.isfile(input):
+            # If input is a file path
+            masa.process_requests(input)
+        else:
+            try:
+                # Try to parse the input as JSON
+                requests = json.loads(input)
+                masa.process_requests(requests)
+            except json.JSONDecodeError:
+                message = "Invalid input. Please provide a valid JSON file path or a JSON string representing requests."
+                click.echo(style(message, fg='red'))
+                masa.qc_manager.log_error(message, context="CLI")
+                return
+    else:
+        # No input provided, process default or existing requests
+        masa.process_requests()
 
 @main.command()
 @click.argument('page', required=False)
@@ -61,7 +86,9 @@ def config_get(key):
     """
     masa = Masa()
     value = masa.get_config(key)
-    click.echo(f"{key} = {value}")
+    message = f"{key} = {value}"
+    click.echo(style(message, fg='green'))
+    masa.qc_manager.log_info(message, context="CLI")
 
 @config.command('set', help="""
 Set the VALUE of a configuration KEY.
@@ -80,7 +107,9 @@ def config_set(key, value):
     """
     masa = Masa()
     masa.set_config(key, value)
-    click.echo(f"Set {key} to {value}")
+    message = f"Set {key} to {value}"
+    click.echo(style(message, fg='green'))
+    masa.qc_manager.log_info(message, context="CLI")
 
 if __name__ == '__main__':
     main()

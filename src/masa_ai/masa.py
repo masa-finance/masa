@@ -19,8 +19,9 @@ Commands:
 import os
 import sys
 import subprocess
-from typing import Optional
+from typing import Optional, Union
 from pathlib import Path
+import json
 
 class Masa:
     def __init__(self):
@@ -40,16 +41,36 @@ class Masa:
             self.qc_manager.log_error(f"Error initializing RequestManager: {str(e)}", error_info=e, context="Masa")
             raise
 
-    def process_requests(self, json_file_path: Optional[str]) -> None:
+    def process_requests(self, requests: Optional[Union[str, dict, list, Path]] = None) -> None:
         """
-        Process requests from a JSON file.
+        Process requests from a JSON file, a list of requests, or a single request.
 
         Args:
-            json_file_path (Optional[str]): Path to the JSON file containing requests.
+            requests (Optional[Union[str, dict, list, Path]]): Path to the JSON file containing requests,
+                                                               a list of requests, or a single request.
+                                                               If None, process existing requests.
         """
-        self.qc_manager.log_debug(f"Processing requests from file: {json_file_path}", context="Masa")
-        self.request_manager.process_requests(json_file_path)
-        self.qc_manager.log_info("Processing all requests", context="Masa")
+        if requests is None:
+            # Handle the case where no requests are provided
+            self.qc_manager.log_info("No input provided. Processing existing requests.", context="Masa")
+
+        elif isinstance(requests, (str, Path)):
+            # If the input is a string or Path, assume it's a path to a JSON file
+            self.qc_manager.log_debug(f"Processing requests from file: {requests}", context="Masa")
+            with open(requests, 'r') as file:
+                requests = json.load(file)
+        elif isinstance(requests, dict):
+            # If the input is a single request, wrap it in a list
+            requests = [requests]
+
+        if requests is None:
+            self.qc_manager.log_debug("No new requests to process", context="Masa")
+            self.request_manager.process_requests(requests)
+            self.qc_manager.log_info("Processing all requests", context="Masa")
+        else:
+            self.qc_manager.log_debug(f"Processing {len(requests)} new requests", context="Masa")
+            self.request_manager.process_requests(requests)
+            self.qc_manager.log_info("Processing all requests", context="Masa")
 
     def view_docs(self, page: Optional[str] = None) -> None:
         """
@@ -154,16 +175,15 @@ def main(action: Optional[str] = None, arg: Optional[str] = None) -> int:
 
     Args:
         action (str, optional): The action to perform. Either 'process', 'docs', or 'data'.
-        arg (str, optional): Additional argument (json file path for 'process', page name for 'docs').
+        arg (str, optional): Additional argument (JSON file path for 'process', page name for 'docs').
 
     Returns:
         int: Exit code (0 for success, 1 for error)
     """
+    masa = Masa()
     try:
-        masa = Masa()
-        
         if action == 'process':
-            request_list_file = Path(arg) if arg else None
+            request_list_file = arg if arg else None
             masa.process_requests(request_list_file)
         elif action == 'docs':
             masa.view_docs(arg)
