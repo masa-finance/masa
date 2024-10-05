@@ -48,11 +48,14 @@ flake8 = "*"
 black = "*"
 python-semantic-release = "^9.9.0"
 
+
 [tool.poetry.scripts]
 masa-ai-cli = "masa_ai.cli:main"
 
 [tool.semantic_release]
 version_variable = "src/masa_ai/__init__.py:__version__"
+current_version = "0.1.2"
 upload_to_repository = true
+branch = "dev"
 commit_parser = "semantic_release.commit_parser"
 changelog_file = "CHANGELOG.md"

@@ -47,11 +47,11 @@ run:
 	poetry run masa-ai-cli $(ARGS)
 
 # Create a new test release
-test-release: clean sync-readme
-	PYPI_TOKEN=$(TEST_PYPI_TOKEN) poetry run semantic-release publish -r $(TEST_PYPI_REPOSITORY)
+test-release: clean build sync-readme
+	PYPI_TOKEN=$(TEST_PYPI_TOKEN) poetry run semantic-release publish --repository-url https://test.pypi.org/legacy/
 
 # Create a new full release
-release: clean sync-readme
+release: clean build sync-readme
 	PYPI_TOKEN=$(PYPI_TOKEN) poetry run semantic-release publish
 
 # Set up pre-commit hooks
