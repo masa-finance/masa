@@ -1,14 +1,15 @@
 import unittest
 from masa_ai.tools.validator import TweetValidator
+from masa_ai.tools.validator.main import main as validate_main
 from loguru import logger
 import sys
 
 class TestTweetValidator(unittest.TestCase):
     """
-    A test case class for the TweetValidator.
+    A test case class for the TweetValidator and main function.
 
-    This class contains unit tests for the TweetValidator class, testing its
-    methods for fetching and validating tweets.
+    This class contains unit tests for the TweetValidator class and the main function,
+    testing methods for fetching and validating tweets.
     """
 
     @classmethod
@@ -83,7 +84,7 @@ class TestTweetValidator(unittest.TestCase):
         Test the validate_tweet method of TweetValidator with correct username.
 
         This method tests whether the validate_tweet method correctly validates
-        a tweet when given the correct username.
+        a tweet when given the correct username, using the main function.
 
         Returns:
             None
@@ -93,7 +94,7 @@ class TestTweetValidator(unittest.TestCase):
         """
         logger.info(f"Testing validate_tweet with tweet ID: {self.tweet_id} and expected username: {self.expected_username}")
 
-        is_valid = self.validator.validate_tweet(self.tweet_id, self.expected_username)
+        is_valid = validate_main(self.tweet_id, self.expected_username)
         
         self.assertTrue(is_valid, f"Tweet validation failed for tweet ID: {self.tweet_id}")
         logger.info(f"Tweet validation successful for tweet ID: {self.tweet_id}")
@@ -103,7 +104,7 @@ class TestTweetValidator(unittest.TestCase):
         Test the validate_tweet method of TweetValidator with incorrect username.
 
         This method tests whether the validate_tweet method correctly invalidates
-        a tweet when given an incorrect username.
+        a tweet when given an incorrect username, using the main function.
 
         Returns:
             None
@@ -114,7 +115,7 @@ class TestTweetValidator(unittest.TestCase):
         wrong_username = "wrongusername"
         logger.info(f"Testing validate_tweet with tweet ID: {self.tweet_id} and wrong username: {wrong_username}")
 
-        is_valid = self.validator.validate_tweet(self.tweet_id, wrong_username)
+        is_valid = validate_main(self.tweet_id, wrong_username)
         
         self.assertFalse(is_valid, f"Tweet validation unexpectedly passed for wrong username: {wrong_username}")
         logger.info(f"Tweet validation correctly failed for wrong username: {wrong_username}")
@@ -127,5 +128,26 @@ class TestTweetValidator(unittest.TestCase):
         """
         logger.complete()
 
+def main():
+    """
+    Main function to run the test suite.
+
+    This function sets up the test environment, creates a test suite,
+    and runs the tests using a test runner.
+    """
+    # Set up logging
+    logger.remove()
+    logger.add(sys.stdout, level="DEBUG")
+
+    # Create a test suite
+    suite = unittest.TestLoader().loadTestsFromTestCase(TestTweetValidator)
+
+    # Run the tests
+    runner = unittest.TextTestRunner(verbosity=2)
+    result = runner.run(suite)
+
+    # Return the result (useful for CI/CD pipelines)
+    return 0 if result.wasSuccessful() else 1
+
 if __name__ == '__main__':
-    unittest.main()
+    sys.exit(main())

@@ -1,26 +1,41 @@
+import argparse
 from loguru import logger
 from masa_ai.tools.validator.validate_tweet import TweetValidator
 
-def main():
+def main(tweet_id: str, expected_username: str) -> bool:
     """
     Main function to validate a tweet.
 
     This function creates a TweetValidator instance, validates a specific tweet,
     and logs the result.
 
+    Parameters:
+    - tweet_id (str): The ID of the tweet to validate.
+    - expected_username (str): The expected username of the tweet author.
+
     Returns:
-        None
+    - bool: True if the tweet is valid and posted by the expected username, False otherwise.
     """
     validator = TweetValidator()
-    tweet_id = "1841569771898450238"
-    expected_username = "getmasafi"
     
     is_valid = validator.validate_tweet(tweet_id, expected_username)
     if is_valid:
         logger.info(f"Tweet {tweet_id} is valid and posted by {expected_username}")
     else:
         logger.warning(f"Tweet {tweet_id} validation failed")
+    
+    return is_valid
 
 if __name__ == "__main__":
-    logger.add("tweet_scraper.log", rotation="10 MB")
-    main()
+    parser = argparse.ArgumentParser(description="Validate a tweet")
+    parser.add_argument("tweet_id", help="The ID of the tweet to validate")
+    parser.add_argument("expected_username", help="The expected username of the tweet author")
+    parser.add_argument("--log-file", default="tweet_scraper.log", help="Path to the log file")
+    parser.add_argument("--log-rotation", default="10 MB", help="Log rotation size")
+    
+    args = parser.parse_args()
+
+    logger.add(args.log_file, rotation=args.log_rotation)
+    
+    result = main(args.tweet_id, args.expected_username)
+    print(f"Validation result: {result}")
