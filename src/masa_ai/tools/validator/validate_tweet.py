@@ -101,24 +101,105 @@ class TweetValidator:
             response = self.session.get(full_url, headers=headers)
             response.raise_for_status()
             logger.debug(f"Raw response from Twitter API: {response.text}")
-            return response.json()
+            
+            # Check if the response is valid JSON
+            try:
+                return response.json()
+            except requests.exceptions.JSONDecodeError:
+                logger.error(f"Invalid JSON response: {response.text}")
+                return None
+
         except requests.RequestException as e:
-            logger.error(f"Error fetching tweet: {e}")
-            if hasattr(e, 'response'):
+            logger.error(f"Error fetching tweet: {str(e)}")
+            if hasattr(e, 'response') and e.response is not None:
                 logger.error(f"Response status code: {e.response.status_code}")
                 logger.error(f"Response content: {e.response.text}")
+            else:
+                logger.error("No response received from the server")
             return None
+
+    def validate_tweet(self, tweet_id, tweet_json):
+        fetched_data = self.fetch_tweet(tweet_id)
+        if not fetched_data:
+            logger.error(f"Failed to fetch tweet data for ID: {tweet_id}")
+            return False
+
+        try:
+            fetched_tweet = fetched_data['data']['tweetResult']['result']
+            
+            # Validate tweet ID
+            if fetched_tweet['rest_id'] != tweet_json['ID']:
+                logger.error(f"Tweet ID mismatch: {fetched_tweet['rest_id']} != {tweet_json['ID']}")
+                return False
+
+            # Validate tweet author's username
+            fetched_username = fetched_tweet['core']['user_results']['result']['legacy']['screen_name']
+            if fetched_username != tweet_json['Username']:
+                logger.error(f"Tweet author username mismatch: {fetched_username} != {tweet_json['Username']}")
+                return False
+
+            logger.info(f"Tweet validation successful for ID: {tweet_id}")
+            return True
+
+        except KeyError as e:
+            logger.error(f"KeyError during tweet validation: {e}")
+            return False
 
 def main():
     validator = TweetValidator()
-    tweet_id = "1841569771898450238"
+    tweet_id = "1842280371695612109"
     
-    data = validator.fetch_tweet(tweet_id)
-    if data:
-        logger.info(f"Tweet data fetched successfully for tweet ID: {tweet_id}")
-        logger.debug(f"Response data: {json.dumps(data, indent=2)}")
+    tweet_json = {
+        "ConversationID": "1841568881716167072",
+        "GIFs": None,
+        "HTML": "<a href=\"https://twitter.com/NEARProtocol\">@NEARProtocol</a> Ready to start building innovative <a href=\"https://twitter.com/hashtag/AI\">#AI</a> Agents &amp; applications with Masa Data?<br><br>Check out our QuickStart Guide: <a href=\"https://docs.google.com/document/d/1uBE7Om78wdu-scFfo0Bm5r9nV5jyQkCx5ZdhXK-utpQ/edit\">https://t.co/PaGOvzY2x7</a><br><br>If you have questions - join our Discord channel. Our team is ready to assist you.<br><a href=\"https://discord.gg/ZdX3ah4v\">https://t.co/CwuzEWo9a6</a>",
+        "Hashtags": ["AI"],
+        "ID": "1842280371695612109",
+        "InReplyToStatus": None,
+        "InReplyToStatusID": "1841568881716167072",
+        "IsPin": False,
+        "IsQuoted": False,
+        "IsReply": True,
+        "IsRetweet": False,
+        "IsSelfThread": False,
+        "Likes": 6,
+        "Mentions": [
+            {
+                "ID": "1031949518609121280",
+                "Name": "NEAR Protocol",
+                "Username": "NEARProtocol"
+            }
+        ],
+        "Name": "Masa",
+        "PermanentURL": "https://twitter.com/getmasafi/status/1842280371695612109",
+        "Photos": None,
+        "Place": None,
+        "QuotedStatus": None,
+        "QuotedStatusID": "",
+        "Replies": 0,
+        "RetweetedStatus": None,
+        "RetweetedStatusID": "",
+        "Retweets": 0,
+        "SensitiveContent": False,
+        "Text": "@NEARProtocol Ready to start building innovative #AI Agents &amp; applications with Masa Data?\n\nCheck out our QuickStart Guide: https://t.co/PaGOvzY2x7\n\nIf you have questions - join our Discord channel. Our team is ready to assist you.\nhttps://t.co/CwuzEWo9a6",
+        "Thread": None,
+        "TimeParsed": "2024-10-04T19:07:23Z",
+        "Timestamp": 1728068843,
+        "URLs": [
+            "https://docs.google.com/document/d/1uBE7Om78wdu-scFfo0Bm5r9nV5jyQkCx5ZdhXK-utpQ/edit",
+            "https://discord.gg/ZdX3ah4v"
+        ],
+        "UserID": "1419111693112676353",
+        "Username": "getmasafi",
+        "Videos": None,
+        "Views": 221
+    }
+    
+    is_valid = validator.validate_tweet(tweet_id, tweet_json)
+    if is_valid:
+        logger.info(f"Tweet {tweet_id} is valid.")
     else:
-        logger.warning(f"Failed to fetch data for tweet ID: {tweet_id}")
+        logger.warning(f"Tweet {tweet_id} is not valid.")
 
 if __name__ == "__main__":
     logger.add("tweet_scraper.log", rotation="10 MB")
