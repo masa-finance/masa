@@ -1,25 +1,46 @@
 import requests
 import json
 import uuid
-import time
 from urllib.parse import urlencode
 from loguru import logger
-
-BEARER_TOKEN = "AAAAAAAAAAAAAAAAAAAAANRILgAAAAAAnNwIzUejRCOuH5E6I8xnZz4puTs%3D1Zv7ttfk8LF81IUq16cHjhLTvJu4FA33AGWWjCpTnA"
+from masa_ai.tools.validator.config import BEARER_TOKEN, USER_AGENT, API_URLS, FEATURES, FIELD_TOGGLES, HEADERS
 
 class TweetValidator:
+    """
+    A class for validating tweets and fetching tweet data from the Twitter API.
+
+    This class provides methods to obtain a guest token, fetch tweet data,
+    and validate if a tweet is posted by an expected user.
+
+    Attributes:
+        guest_token (str): The guest token for API authentication.
+        session (requests.Session): A session object for making HTTP requests.
+    """
+
     def __init__(self):
+        """
+        Initialize the TweetValidator with default settings and a new session.
+        """
         self.guest_token = None
         self.session = requests.Session()
         self.session.headers.update({
-            "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36",
+            "User-Agent": USER_AGENT,
             "Authorization": f"Bearer {BEARER_TOKEN}",
         })
         logger.add("validate_tweet.log", level="DEBUG")
 
     def get_guest_token(self):
+        """
+        Obtain a guest token from the Twitter API.
+
+        Returns:
+            str: The obtained guest token if successful, None otherwise.
+
+        Raises:
+            requests.RequestException: If there's an error in obtaining the guest token.
+        """
         try:
-            response = self.session.post("https://api.twitter.com/1.1/guest/activate.json")
+            response = self.session.post(API_URLS["guest_token"])
             response.raise_for_status()
             self.guest_token = response.json()["guest_token"]
         except requests.RequestException as e:
@@ -28,15 +49,32 @@ class TweetValidator:
         return self.guest_token
 
     def generate_client_transaction_id(self):
+        """
+        Generate a unique client transaction ID.
+
+        Returns:
+            str: A UUID4 string to be used as a client transaction ID.
+        """
         return str(uuid.uuid4())
 
     def fetch_tweet(self, tweet_id):
+        """
+        Fetch tweet data from the Twitter API for a given tweet ID.
+
+        Parameters:
+            tweet_id (str): The ID of the tweet to fetch.
+
+        Returns:
+            dict: The JSON response containing tweet data if successful, None otherwise.
+
+        Raises:
+            requests.RequestException: If there's an error in fetching the tweet data.
+        """
         guest_token = self.get_guest_token()
         if not guest_token:
             logger.error("Failed to obtain guest token")
             return None
 
-        url = "https://api.x.com/graphql/sCU6ckfHY0CyJ4HFjPhjtg/TweetResultByRestId"
         params = {
             "variables": json.dumps({
                 "tweetId": tweet_id,
@@ -44,60 +82,18 @@ class TweetValidator:
                 "includePromotedContent": False,
                 "withVoice": False
             }),
-            "features": json.dumps({
-                "creator_subscriptions_tweet_preview_api_enabled": True,
-                "communities_web_enable_tweet_community_results_fetch": True,
-                "c9s_tweet_anatomy_moderator_badge_enabled": True,
-                "articles_preview_enabled": True,
-                "responsive_web_edit_tweet_api_enabled": True,
-                "graphql_is_translatable_rweb_tweet_is_translatable_enabled": True,
-                "view_counts_everywhere_api_enabled": True,
-                "longform_notetweets_consumption_enabled": True,
-                "responsive_web_twitter_article_tweet_consumption_enabled": True,
-                "tweet_awards_web_tipping_enabled": False,
-                "creator_subscriptions_quote_tweet_preview_enabled": False,
-                "freedom_of_speech_not_reach_fetch_enabled": True,
-                "standardized_nudges_misinfo": True,
-                "tweet_with_visibility_results_prefer_gql_limited_actions_policy_enabled": True,
-                "rweb_video_timestamps_enabled": True,
-                "longform_notetweets_rich_text_read_enabled": True,
-                "longform_notetweets_inline_media_enabled": True,
-                "rweb_tipjar_consumption_enabled": True,
-                "responsive_web_graphql_exclude_directive_enabled": True,
-                "verified_phone_label_enabled": False,
-                "responsive_web_graphql_skip_user_profile_image_extensions_enabled": False,
-                "responsive_web_graphql_timeline_navigation_enabled": True,
-                "responsive_web_enhance_cards_enabled": False
-            }),
-            "fieldToggles": json.dumps({
-                "withArticleRichContentState": True,
-                "withArticlePlainText": False,
-                "withGrokAnalyze": False,
-                "withDisallowedReplyControls": False
-            })
+            "features": json.dumps(FEATURES),
+            "fieldToggles": json.dumps(FIELD_TOGGLES)
         }
 
-        headers = {
-            "Accept": "*/*",
-            "Accept-Language": "en-GB,en-US;q=0.9,en;q=0.8",
-            "Accept-Encoding": "gzip, deflate, br, zstd",
-            "Referer": "https://x.com/",
-            "Content-Type": "application/json",
-            "Origin": "https://x.com",
-            "Sec-Fetch-Dest": "empty",
-            "Sec-Fetch-Mode": "cors",
-            "Sec-Fetch-Site": "same-site",
-            "Sec-Ch-Ua": '"Google Chrome";v="129", "Not=A?Brand";v="8", "Chromium";v="129"',
-            "Sec-Ch-Ua-Mobile": "?0",
-            "Sec-Ch-Ua-Platform": '"macOS"',
+        headers = HEADERS.copy()
+        headers.update({
             "X-Guest-Token": guest_token,
             "X-Client-Transaction-Id": self.generate_client_transaction_id(),
-            "X-Twitter-Active-User": "yes",
-            "X-Twitter-Client-Language": "en-GB"
-        }
+        })
 
         try:
-            full_url = f"{url}?{urlencode(params)}"
+            full_url = f"{API_URLS['tweet_by_id']}?{urlencode(params)}"
             response = self.session.get(full_url, headers=headers)
             response.raise_for_status()
             logger.debug(f"Raw response from Twitter API: {response.text}")
@@ -109,17 +105,38 @@ class TweetValidator:
                 logger.error(f"Response content: {e.response.text}")
             return None
 
-def main():
-    validator = TweetValidator()
-    tweet_id = "1841569771898450238"
-    
-    data = validator.fetch_tweet(tweet_id)
-    if data:
-        logger.info(f"Tweet data fetched successfully for tweet ID: {tweet_id}")
-        logger.debug(f"Response data: {json.dumps(data, indent=2)}")
-    else:
-        logger.warning(f"Failed to fetch data for tweet ID: {tweet_id}")
+    def validate_tweet(self, tweet_id, expected_username):
+        """
+        Validate that the tweet with the given ID is made by the expected username.
 
-if __name__ == "__main__":
-    logger.add("tweet_scraper.log", rotation="10 MB")
-    main()
+        Parameters:
+            tweet_id (str): The ID of the tweet to validate.
+            expected_username (str): The expected username of the tweet author.
+
+        Returns:
+            bool: True if the tweet's username matches the expected username, False otherwise.
+
+        Raises:
+            Exception: If an unexpected error occurs during validation.
+        """
+        try:
+            tweet_data = self.fetch_tweet(tweet_id)
+            if not tweet_data:
+                logger.error(f"Tweet data could not be fetched for tweet ID {tweet_id}")
+                return False
+            
+            actual_username = tweet_data.get('data', {}).get('tweetResult', {}).get('result', {}).get('core', {}).get('user_results', {}).get('result', {}).get('legacy', {}).get('screen_name')
+            
+            if actual_username is None:
+                logger.error(f"Could not extract username from tweet data for tweet ID {tweet_id}")
+                return False
+
+            if actual_username.lower() == expected_username.lower():
+                logger.info(f"Tweet {tweet_id} is valid and posted by the expected user {expected_username}")
+                return True
+            else:
+                logger.warning(f"Username mismatch: expected {expected_username}, got {actual_username}")
+                return False
+        except Exception as e:
+            logger.error(f"An error occurred during validation: {e}")
+            return False
