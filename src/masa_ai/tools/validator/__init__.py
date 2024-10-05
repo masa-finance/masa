@@ -1,13 +1,12 @@
-"""
-The validator module provides functionality for validating and fetching data from various sources.
+"""Provide functionality for validating and fetching data from various sources.
 
 This module contains classes and utilities for validating and fetching data,
 particularly from social media platforms like Twitter.
 
 Classes:
-    TweetValidator: A class for validating and fetching tweet data.
+    TweetValidator: Validate and fetch tweet data.
 
-Constants:
+Attributes:
     BEARER_TOKEN (str): The bearer token for API authentication.
     USER_AGENT (str): The user agent string for HTTP requests.
     API_URLS (dict): A dictionary of API endpoint URLs.

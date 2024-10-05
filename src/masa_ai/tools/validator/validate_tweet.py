@@ -6,8 +6,7 @@ from loguru import logger
 from masa_ai.tools.validator.config import BEARER_TOKEN, USER_AGENT, API_URLS, FEATURES, FIELD_TOGGLES, HEADERS
 
 class TweetValidator:
-    """
-    A class for validating tweets and fetching tweet data from the Twitter API.
+    """Validate tweets and fetch tweet data from the Twitter API.
 
     This class provides methods to obtain a guest token, fetch tweet data,
     and validate if a tweet is posted by an expected user.
@@ -18,9 +17,7 @@ class TweetValidator:
     """
 
     def __init__(self):
-        """
-        Initialize the TweetValidator with default settings and a new session.
-        """
+        """Initialize the TweetValidator with default settings and a new session."""
         self.guest_token = None
         self.session = requests.Session()
         self.session.headers.update({
@@ -30,8 +27,7 @@ class TweetValidator:
         logger.add("validate_tweet.log", level="DEBUG")
 
     def get_guest_token(self):
-        """
-        Obtain a guest token from the Twitter API.
+        """Obtain a guest token from the Twitter API.
 
         Returns:
             str: The obtained guest token if successful, None otherwise.
@@ -49,8 +45,7 @@ class TweetValidator:
         return self.guest_token
 
     def generate_client_transaction_id(self):
-        """
-        Generate a unique client transaction ID.
+        """Generate a unique client transaction ID.
 
         Returns:
             str: A UUID4 string to be used as a client transaction ID.
@@ -58,10 +53,9 @@ class TweetValidator:
         return str(uuid.uuid4())
 
     def fetch_tweet(self, tweet_id):
-        """
-        Fetch tweet data from the Twitter API for a given tweet ID.
+        """Fetch tweet data from the Twitter API for a given tweet ID.
 
-        Parameters:
+        Args:
             tweet_id (str): The ID of the tweet to fetch.
 
         Returns:
@@ -106,10 +100,9 @@ class TweetValidator:
             return None
 
     def validate_tweet(self, tweet_id, expected_username):
-        """
-        Validate that the tweet with the given ID is made by the expected username.
+        """Validate that the tweet with the given ID is made by the expected username.
 
-        Parameters:
+        Args:
             tweet_id (str): The ID of the tweet to validate.
             expected_username (str): The expected username of the tweet author.
 

@@ -5,44 +5,39 @@ from loguru import logger
 import sys
 
 class TestTweetValidator(unittest.TestCase):
-    """
-    A test case class for the TweetValidator and main function.
+    """Test the TweetValidator and main function.
 
     This class contains unit tests for the TweetValidator class and the main function,
     testing methods for fetching and validating tweets.
+
+    Attributes:
+        validator (TweetValidator): An instance of the TweetValidator class.
+        tweet_id (str): The ID of the tweet to be tested.
+        expected_username (str): The expected username of the tweet author.
     """
 
     @classmethod
     def setUpClass(cls):
-        """
-        Set up the test environment for all test methods in this class.
+        """Set up the test environment for all test methods in this class.
 
-        This method removes all existing loggers and adds a new one that
-        outputs to stdout at the DEBUG level.
+        Remove all existing loggers and add a new one that outputs to stdout at the DEBUG level.
         """
         logger.remove() 
         logger.add(sys.stdout, level="DEBUG")
 
     def setUp(self):
-        """
-        Set up the test fixture before each test method.
+        """Set up the test fixture before each test method.
 
-        This method initializes a TweetValidator instance and sets up
-        test data (tweet ID and expected username) for use in the tests.
+        Initialize a TweetValidator instance and set up test data (tweet ID and expected username) for use in the tests.
         """
         self.validator = TweetValidator()
         self.tweet_id = "1841569771898450238"
         self.expected_username = "getmasafi"
 
     def test_fetch_tweet(self):
-        """
-        Test the fetch_tweet method of TweetValidator.
+        """Test the fetch_tweet method of TweetValidator.
 
-        This method tests whether the fetch_tweet method correctly retrieves
-        tweet data and whether the retrieved data has the expected structure.
-
-        Returns:
-            None
+        Verify that the fetch_tweet method correctly retrieves tweet data and that the retrieved data has the expected structure.
 
         Raises:
             AssertionError: If any of the assertions fail.
@@ -80,14 +75,9 @@ class TestTweetValidator(unittest.TestCase):
         logger.info(f"Tweet author: {tweet_data['core']['user_results']['result']['legacy']['screen_name']}")
 
     def test_validate_tweet(self):
-        """
-        Test the validate_tweet method of TweetValidator with correct username.
+        """Test the validate_tweet method of TweetValidator with correct username.
 
-        This method tests whether the validate_tweet method correctly validates
-        a tweet when given the correct username, using the main function.
-
-        Returns:
-            None
+        Verify that the validate_tweet method correctly validates a tweet when given the correct username, using the main function.
 
         Raises:
             AssertionError: If the validation fails unexpectedly.
@@ -100,14 +90,9 @@ class TestTweetValidator(unittest.TestCase):
         logger.info(f"Tweet validation successful for tweet ID: {self.tweet_id}")
 
     def test_validate_tweet_wrong_username(self):
-        """
-        Test the validate_tweet method of TweetValidator with incorrect username.
+        """Test the validate_tweet method of TweetValidator with incorrect username.
 
-        This method tests whether the validate_tweet method correctly invalidates
-        a tweet when given an incorrect username, using the main function.
-
-        Returns:
-            None
+        Verify that the validate_tweet method correctly invalidates a tweet when given an incorrect username, using the main function.
 
         Raises:
             AssertionError: If the validation passes unexpectedly.
@@ -121,19 +106,19 @@ class TestTweetValidator(unittest.TestCase):
         logger.info(f"Tweet validation correctly failed for wrong username: {wrong_username}")
 
     def tearDown(self):
-        """
-        Clean up after each test method.
+        """Clean up after each test method.
 
-        This method ensures that all logging is completed after each test.
+        Ensure that all logging is completed after each test.
         """
         logger.complete()
 
 def main():
-    """
-    Main function to run the test suite.
+    """Run the test suite.
 
-    This function sets up the test environment, creates a test suite,
-    and runs the tests using a test runner.
+    Set up the test environment, create a test suite, and run the tests using a test runner.
+
+    Returns:
+        int: 0 if all tests pass, 1 otherwise.
     """
     # Set up logging
     logger.remove()

@@ -3,18 +3,18 @@ from loguru import logger
 from masa_ai.tools.validator.validate_tweet import TweetValidator
 
 def main(tweet_id: str, expected_username: str) -> bool:
-    """
-    Main function to validate a tweet.
+    """Validate a tweet and log the result.
 
-    This function creates a TweetValidator instance, validates a specific tweet,
+    Creates a TweetValidator instance, validates a specific tweet,
     and logs the result.
 
-    Parameters:
-    - tweet_id (str): The ID of the tweet to validate.
-    - expected_username (str): The expected username of the tweet author.
+    Args:
+        tweet_id (str): The ID of the tweet to validate.
+        expected_username (str): The expected username of the tweet author.
 
     Returns:
-    - bool: True if the tweet is valid and posted by the expected username, False otherwise.
+        bool: True if the tweet is valid and posted by the expected username,
+            False otherwise.
     """
     validator = TweetValidator()
     
