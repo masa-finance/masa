@@ -1,0 +1,20 @@
+name: masa
+channels:
+  - defaults
+  - conda-forge
+dependencies:
+  - python=3.12
+  - pip
+  - numpy
+  - pandas
+  - matplotlib
+  - scikit-learn
+  - scipy
+  - jupyter
+  - ipython
+  - requests
+  - pyyaml
+  - loguru
+  - pytest
+  - pip:
+    - -r requirements.txt
