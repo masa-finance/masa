@@ -21,7 +21,7 @@ def tweet_data():
     return {
         "tweet_id": "1841569771898450238",
         "expected_username": "getmasafi",
-        "expected_created_at": "2024-10-02 13:03:00"
+        "expected_created_at": "Wed Oct 02 20:03:42 +0000 2024"
     }
 
 def test_fetch_tweet(tweet_validator, tweet_data):
@@ -66,7 +66,17 @@ def test_validate_tweet_wrong_username(tweet_data):
     wrong_username = "wrongusername"
     logger.info(f"Testing validate_tweet with tweet ID: {tweet_data['tweet_id']} and wrong username: {wrong_username}")
 
-    is_valid = validate_main(tweet_data['tweet_id'], wrong_username)
+    is_valid = validate_main(tweet_data['tweet_id'], wrong_username, tweet_data['expected_created_at'])
 
     assert not is_valid, f"Tweet validation unexpectedly passed for wrong username: {wrong_username}"
     logger.info(f"Tweet validation correctly failed for wrong username: {wrong_username}")
+
+def test_validate_tweet_wrong_created_at(tweet_data):
+    """Test the validate_tweet method of TweetValidator with incorrect username."""
+    wrong_created_at = "Tue Oct 01 20:03:42 +0000 2024"
+    logger.info(f"Testing validate_tweet with tweet ID: {tweet_data['tweet_id']} and wrong created_at: {wrong_created_at}")
+
+    is_valid = validate_main(tweet_data['tweet_id'], tweet_data['expected_username'], wrong_created_at)
+
+    assert not is_valid, f"Tweet validation unexpectedly passed for wrong created_at: {wrong_created_at}"
+    logger.info(f"Tweet validation correctly failed for wrong created_at: {wrong_created_at}")
