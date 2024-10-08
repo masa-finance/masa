@@ -2,7 +2,7 @@ import argparse
 from loguru import logger
 from masa_ai.tools.validator.validate_tweet import TweetValidator
 
-def main(tweet_id: str, expected_username: str) -> bool:
+def main(tweet_id: str, expected_username: str, expected_created_at: str) -> bool:
     """Validate a tweet and log the result.
 
     Creates a TweetValidator instance, validates a specific tweet,
@@ -11,14 +11,14 @@ def main(tweet_id: str, expected_username: str) -> bool:
     Args:
         tweet_id (str): The ID of the tweet to validate.
         expected_username (str): The expected username of the tweet author.
-
+        expected_created_at (str): The expected created_at of the tweet.
     Returns:
         bool: True if the tweet is valid and posted by the expected username,
             False otherwise.
     """
     validator = TweetValidator()
     
-    is_valid = validator.validate_tweet(tweet_id, expected_username)
+    is_valid = validator.validate_tweet(tweet_id, expected_username, expected_created_at)
     if is_valid:
         logger.info(f"Tweet {tweet_id} is valid and posted by {expected_username}")
     else:

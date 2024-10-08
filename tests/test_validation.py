@@ -20,7 +20,8 @@ def tweet_data():
     """Fixture to provide test data."""
     return {
         "tweet_id": "1841569771898450238",
-        "expected_username": "getmasafi"
+        "expected_username": "getmasafi",
+        "expected_created_at": "2024-10-02 13:03:00"
     }
 
 def test_fetch_tweet(tweet_validator, tweet_data):
@@ -55,7 +56,7 @@ def test_validate_tweet(tweet_data):
     """Test the validate_tweet method of TweetValidator with correct username."""
     logger.info(f"Testing validate_tweet with tweet ID: {tweet_data['tweet_id']} and expected username: {tweet_data['expected_username']}")
 
-    is_valid = validate_main(tweet_data['tweet_id'], tweet_data['expected_username'])
+    is_valid = validate_main(tweet_data['tweet_id'], tweet_data['expected_username'], tweet_data['expected_created_at'])
 
     assert is_valid, f"Tweet validation failed for tweet ID: {tweet_data['tweet_id']}"
     logger.info(f"Tweet validation successful for tweet ID: {tweet_data['tweet_id']}")
