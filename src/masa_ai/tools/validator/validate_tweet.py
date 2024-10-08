@@ -99,12 +99,13 @@ class TweetValidator:
                 logger.error(f"Response content: {e.response.text}")
             return None
 
-    def validate_tweet(self, tweet_id, expected_username):
-        """Validate that the tweet with the given ID is made by the expected username.
+    def validate_tweet(self, tweet_id, expected_username, expected_created_at):
+        """Validate that the tweet with the given ID is made by the expected username, at the expected time.
 
         Args:
             tweet_id (str): The ID of the tweet to validate.
             expected_username (str): The expected username of the tweet author.
+            expected_created_at (str): The expected timestamp of the tweet.
 
         Returns:
             bool: True if the tweet's username matches the expected username, False otherwise.
@@ -119,17 +120,23 @@ class TweetValidator:
                 return False
             
             actual_username = tweet_data.get('data', {}).get('tweetResult', {}).get('result', {}).get('core', {}).get('user_results', {}).get('result', {}).get('legacy', {}).get('screen_name')
-            
-            if actual_username is None:
-                logger.error(f"Could not extract username from tweet data for tweet ID {tweet_id}")
-                return False
+            actual_created_at = tweet_data.get('data', {}).get('tweetResult', {}).get('result', {}).get('legacy', {}).get('created_at')
 
-            if actual_username.lower() == expected_username.lower():
-                logger.info(f"Tweet {tweet_id} is valid and posted by the expected user {expected_username}")
-                return True
-            else:
-                logger.warning(f"Username mismatch: expected {expected_username}, got {actual_username}")
+            if actual_username is None:
+                logger.error(f"Could not extract username from tweet data for tweet ID: {tweet_id}")
                 return False
+            if actual_created_at is None:
+                logger.error(f"Could not extract created_at from tweet data for tweet ID: {tweet_id}")
+                return False
+            if actual_username.lower() != expected_username.lower():
+                logger.info(f"Tweet {tweet_id} is not posted by the expected user: {expected_username}")
+                return False
+            if actual_created_at.lower() != expected_created_at.lower():
+                logger.info(f"Tweet {tweet_id} is not posted at the expected time: {expected_created_at}")
+                return False
+            else:
+                logger.info(f"Tweet {tweet_id} is valid!")
+                return True
         except Exception as e:
             logger.error(f"An error occurred during validation: {e}")
             return False
