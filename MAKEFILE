@@ -1,33 +1,33 @@
-.PHONY: install dev-install test lint format clean docs build bump-version
+.PHONY: install dev-install test lint format clean docs build release test-release setup-hooks update-deps run sync-readme
 
-# Install the package
-install:
-	pip install .
+# Define repository names
+PYPI_REPOSITORY = pypi
+TEST_PYPI_REPOSITORY = testpypi
 
-# Install the package in editable mode with development dependencies
-dev-install:
-	pip install -e ".[dev]"
+# Install from TestPyPI
+install-testpypi:
+	poetry install --source $(TEST_PYPI_REPOSITORY)
+
+# Install from PyPI
+install-pypi:
+	poetry install
 
 # Run tests
 test:
-	pytest tests/
+	poetry run pytest tests/
 
 # Run linter
 lint:
-	flake8 src/masa_ai tests
+	poetry run flake8 src/masa_ai tests
 
 # Format code
 format:
-	black src/masa_ai tests
+	poetry run black src/masa_ai tests
 
 # Clean up build artifacts
 clean:
 	rm -rf build dist .egg *.egg-info
 	find . -type d -name '__pycache__' -exec rm -rf {} +
-
-# Bump the version number
-bump-version:
-	bump2version patch
 
 # Generate documentation
 docs:
@@ -35,26 +35,33 @@ docs:
 
 # Build the package
 build:
-	python -m build
+	poetry build
+
+# Synchronize README files
+sync-readme:
+	poetry run python sync_readme.py
+	@echo "README files synchronized."
 
 # Run the CLI tool
 run:
-	python -m masa_ai $(ARGS)
+	poetry run masa-ai-cli $(ARGS)
 
+# Create a new test release
+test-release: clean build sync-readme
+	PYPI_TOKEN=$(TEST_PYPI_TOKEN) poetry run semantic-release publish --repository-url https://test.pypi.org/legacy/
 
-
-# Create a new release
-release: clean bump-version build
-	twine upload --repository pypi dist/*
-
-test-release: clean bump-version build
-	twine upload --repository testpypi dist/*
+# Create a new full release
+release: clean build sync-readme
+	PYPI_TOKEN=$(PYPI_TOKEN) poetry run semantic-release publish
 
 # Set up pre-commit hooks
 setup-hooks:
-	pre-commit install
+	poetry run pre-commit install
 
 # Update dependencies
 update-deps:
-	pip-compile --upgrade pyproject.toml
+	poetry update
 
+# Generate changelog (if using semantic-release)
+changelog:
+	poetry run semantic-release changelog

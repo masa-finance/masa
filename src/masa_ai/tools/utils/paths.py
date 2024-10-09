@@ -1,7 +1,6 @@
-import os
 from pathlib import Path
 import pkg_resources
-from ...constants import PACKAGE_ROOT, CONFIG_DIR, DATA_DIR
+from ...constants import CONFIG_DIR
 
 def get_package_root() -> Path:
     """
@@ -17,7 +16,6 @@ def get_package_root() -> Path:
 
 PROJECT_ROOT = get_package_root()
 CONFIG_DIR = PROJECT_ROOT / 'configs'
-DATA_DIR = PROJECT_ROOT / 'data'
 LOGS_DIR = PROJECT_ROOT / 'logs'
 ORCHESTRATION_DIR = PROJECT_ROOT / 'orchestration'
 
@@ -31,17 +29,6 @@ def get_config_path(filename: str) -> Path:
     :rtype: Path
     """
     return CONFIG_DIR / filename
-
-def get_data_path(filename: str) -> Path:
-    """
-    Get the path for a data file within the data directory.
-
-    :param filename: Name of the data file
-    :type filename: str
-    :return: Full path to the data file
-    :rtype: Path
-    """
-    return DATA_DIR / filename
 
 def get_log_path(filename: str = 'masa_ai.log') -> Path:
     """
@@ -78,7 +65,26 @@ def ensure_dir(directory: Path):
     """
     Path(directory).mkdir(parents=True, exist_ok=True)
 
-# Environment variable for custom data directory
-CUSTOM_DATA_DIR = os.environ.get('MASA_CUSTOM_DATA_DIR')
-if CUSTOM_DATA_DIR:
-    DATA_DIR = Path(CUSTOM_DATA_DIR).resolve()
+def get_data_directory() -> Path:
+    """
+    Get the data directory from the global settings.
+
+    :return: Path to the data directory.
+    :rtype: Path
+    """
+    from ...configs.config import global_settings
+    data_dir = global_settings.data_storage.DATA_DIRECTORY
+    return Path(data_dir)
+
+def get_data_path(filename: str) -> Path:
+    """
+    Get the path for a data file within the data directory.
+
+    :param filename: Name of the data file.
+    :type filename: str
+    :return: Full path to the data file.
+    :rtype: Path
+    """
+    data_dir = get_data_directory()
+    data_dir.mkdir(parents=True, exist_ok=True)
+    return data_dir / filename

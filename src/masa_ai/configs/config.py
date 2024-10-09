@@ -26,6 +26,7 @@ global_settings = Dynaconf(
     merge_enabled=True,
     env_switcher='ENV_FOR_DYNACONF',
     env=os.environ.get('ENV_FOR_DYNACONF', 'default'),
+    settings_file_for_write=settings_file,  # Specify the settings file for writing
     validators=[
         Validator('twitter.BASE_URL', must_exist=True, when=Validator('twitter.BASE_URL_LOCAL', must_exist=False)),
         Validator('twitter.BASE_URL_LOCAL', must_exist=True, when=Validator('twitter.BASE_URL', must_exist=False)),
@@ -40,13 +41,24 @@ def initialize_config():
     """
     Initialize the global settings using Dynaconf.
     
-    This function loads environment variables from the .env file and initializes
-    the Dynaconf settings using the specified configuration files and environment.
-    It also validates the presence of required settings.
-
+    This function loads environment variables and initializes the Dynaconf settings.
+    It sets the default data directory to the 'data' subdirectory of the current
+    working directory if not specified.
+    
     Returns:
         Dynaconf: The initialized and validated global settings object.
     """
+    if not global_settings.get('data_storage.DATA_DIRECTORY'):
+        global_settings.set(
+            'data_storage.DATA_DIRECTORY',
+            os.path.join(os.getcwd(), 'data')
+        )
+    else:
+        data_dir = global_settings.get('data_storage.DATA_DIRECTORY')
+        global_settings.set(
+            'data_storage.DATA_DIRECTORY',
+            os.path.abspath(data_dir)
+        )
     global_settings.validators.validate()
     return global_settings
 

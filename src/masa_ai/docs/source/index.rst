@@ -6,7 +6,6 @@ Welcome to Masa's Project documentation!
    :caption: Contents:
 
    readme
-   modules/modules
    usage
    xtwitter_advanced
 
