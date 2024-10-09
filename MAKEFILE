@@ -52,7 +52,7 @@ test-release: clean build sync-readme
 
 # Test validation
 test-validation:
-	pytest tests/test_validation.py::test_fetch_tweet -s --disable-warnings
+	pytest tests/test_validation.py -s --disable-warnings
 
 # Create a new full release
 release: clean build sync-readme

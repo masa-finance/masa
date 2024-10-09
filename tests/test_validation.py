@@ -9,6 +9,7 @@ def setup_logging():
     """Set up logging for the test module."""
     logger.remove()
     logger.add(sys.stdout, level="DEBUG")
+    # logger.add("log.json", serialize=True)
 
 @pytest.fixture
 def tweet_validator():
@@ -21,7 +22,7 @@ def tweet_data():
     return {
         "tweet_id": "1841569771898450238",
         "expected_username": "getmasafi",
-        "expected_created_at": "Wed Oct 02 20:03:42 +0000 2024"
+        "expected_timestamp": 1727899422
     }
 
 def test_fetch_tweet(tweet_validator, tweet_data):
@@ -29,7 +30,6 @@ def test_fetch_tweet(tweet_validator, tweet_data):
     logger.info(f"Testing fetch_tweet with tweet ID: {tweet_data['tweet_id']}")
 
     result = tweet_validator.fetch_tweet(tweet_data['tweet_id'])
-    logger.debug(f"Tweet: {result}")
 
     assert result is not None, "Failed to fetch tweet"
     assert 'data' in result, "Response doesn't contain 'data' key"
@@ -48,7 +48,7 @@ def test_fetch_tweet(tweet_validator, tweet_data):
     assert 'legacy' in tweet_data_result['core']['user_results']['result'], "User data doesn't contain 'legacy' key"
     assert 'screen_name' in tweet_data_result['core']['user_results']['result']['legacy'], "User data doesn't contain 'screen_name' key"
 
-    # logger.info(f"Tweet text: {tweet_data_result['legacy']['full_text']}")
+    logger.debug(f"Tweet: {tweet_data_result}")
     logger.info(f"Tweet created at: {tweet_data_result['legacy']['created_at']}")
     logger.info(f"Tweet author: {tweet_data_result['core']['user_results']['result']['legacy']['screen_name']}")
 
@@ -56,7 +56,7 @@ def test_validate_tweet(tweet_data):
     """Test the validate_tweet method of TweetValidator with correct username."""
     logger.info(f"Testing validate_tweet with tweet ID: {tweet_data['tweet_id']} and expected username: {tweet_data['expected_username']}")
 
-    is_valid = validate_main(tweet_data['tweet_id'], tweet_data['expected_username'], tweet_data['expected_created_at'])
+    is_valid = validate_main(tweet_data['tweet_id'], tweet_data['expected_username'], tweet_data['expected_timestamp'])
 
     assert is_valid, f"Tweet validation failed for tweet ID: {tweet_data['tweet_id']}"
     logger.info(f"Tweet validation successful for tweet ID: {tweet_data['tweet_id']}")
@@ -66,7 +66,7 @@ def test_validate_tweet_wrong_username(tweet_data):
     wrong_username = "wrongusername"
     logger.info(f"Testing validate_tweet with tweet ID: {tweet_data['tweet_id']} and wrong username: {wrong_username}")
 
-    is_valid = validate_main(tweet_data['tweet_id'], wrong_username, tweet_data['expected_created_at'])
+    is_valid = validate_main(tweet_data['tweet_id'], wrong_username, tweet_data['expected_timestamp'])
 
     assert not is_valid, f"Tweet validation unexpectedly passed for wrong username: {wrong_username}"
     logger.info(f"Tweet validation correctly failed for wrong username: {wrong_username}")
