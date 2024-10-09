@@ -161,14 +161,12 @@ class Masa:
             value = int(value)
         elif isinstance(current_value, float):
             value = float(value)
-        # Add additional type checks as needed
 
         self.qc_manager.log_debug(
             f"Setting configuration for key: {key} to value: {value}",
             context="Masa"
         )
         self.global_settings.set(key, value)
-        self.global_settings.save(filename=self.global_settings.settings_file)
 
     def list_requests(self, statuses: Optional[List[str]] = None) -> None:
         """

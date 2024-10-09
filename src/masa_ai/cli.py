@@ -87,7 +87,7 @@ def config_get(key):
     masa = Masa()
     value = masa.get_config(key)
     message = f"{key} = {value}"
-    click.echo(style(message, fg='green'))
+    # click.echo(style(message, fg='green'))
     masa.qc_manager.log_info(message, context="CLI")
 
 @config.command('set', help="""
