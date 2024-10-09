@@ -29,7 +29,7 @@ def test_fetch_tweet(tweet_validator, tweet_data):
     logger.info(f"Testing fetch_tweet with tweet ID: {tweet_data['tweet_id']}")
 
     result = tweet_validator.fetch_tweet(tweet_data['tweet_id'])
-    logger.debug(f"Raw response from fetch_tweet: {result}")
+    logger.debug(f"Tweet: {result}")
 
     assert result is not None, "Failed to fetch tweet"
     assert 'data' in result, "Response doesn't contain 'data' key"
@@ -48,7 +48,7 @@ def test_fetch_tweet(tweet_validator, tweet_data):
     assert 'legacy' in tweet_data_result['core']['user_results']['result'], "User data doesn't contain 'legacy' key"
     assert 'screen_name' in tweet_data_result['core']['user_results']['result']['legacy'], "User data doesn't contain 'screen_name' key"
 
-    logger.info(f"Tweet text: {tweet_data_result['legacy']['full_text']}")
+    # logger.info(f"Tweet text: {tweet_data_result['legacy']['full_text']}")
     logger.info(f"Tweet created at: {tweet_data_result['legacy']['created_at']}")
     logger.info(f"Tweet author: {tweet_data_result['core']['user_results']['result']['legacy']['screen_name']}")
 
@@ -71,6 +71,7 @@ def test_validate_tweet_wrong_username(tweet_data):
     assert not is_valid, f"Tweet validation unexpectedly passed for wrong username: {wrong_username}"
     logger.info(f"Tweet validation correctly failed for wrong username: {wrong_username}")
 
+# TODO we need a timestamp key in the scraped data to be able to compare!
 def test_validate_tweet_wrong_created_at(tweet_data):
     """Test the validate_tweet method of TweetValidator with incorrect username."""
     wrong_created_at = "Tue Oct 01 20:03:42 +0000 2024"

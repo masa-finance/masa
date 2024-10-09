@@ -90,7 +90,7 @@ class TweetValidator:
             full_url = f"{API_URLS['tweet_by_id']}?{urlencode(params)}"
             response = self.session.get(full_url, headers=headers)
             response.raise_for_status()
-            logger.debug(f"Raw response from Twitter API: {response.text}")
+            # logger.debug(f"Raw response from Twitter API: {response.text}")
             return response.json()
         except requests.RequestException as e:
             logger.error(f"Error fetching tweet: {e}")
@@ -119,6 +119,7 @@ class TweetValidator:
                 logger.error(f"Tweet data could not be fetched for tweet ID {tweet_id}")
                 return False
             
+            logger.info(f"Tweet data: {tweet_data}")
             actual_username = tweet_data.get('data', {}).get('tweetResult', {}).get('result', {}).get('core', {}).get('user_results', {}).get('result', {}).get('legacy', {}).get('screen_name')
             actual_created_at = tweet_data.get('data', {}).get('tweetResult', {}).get('result', {}).get('legacy', {}).get('created_at')
 
