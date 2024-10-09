@@ -121,7 +121,6 @@ class TweetValidator:
                 logger.error(f"Tweet data could not be fetched for tweet ID {tweet_id}")
                 return False
             
-            # logger.info(f"Tweet data: {tweet_data}")
             actual_username = tweet_data.get('data', {}).get('tweetResult', {}).get('result', {}).get('core', {}).get('user_results', {}).get('result', {}).get('legacy', {}).get('screen_name')
             actual_created_at_date_string = tweet_data.get('data', {}).get('tweetResult', {}).get('result', {}).get('legacy', {}).get('created_at')
 
@@ -137,16 +136,14 @@ class TweetValidator:
             dt = datetime.strptime(actual_created_at_date_string, date_format)
             actual_timestamp = int(dt.timestamp())
 
-            logger.info(f"Actual timestamp converted: {actual_timestamp}")
-
             if actual_username.lower() != expected_username.lower():
-                logger.info(f"Tweet {tweet_id} is not posted by the expected user: {expected_username}")
+                logger.warning(f"Tweet {tweet_id} is not posted by the expected user: {expected_username}")
                 return False
             if actual_timestamp != expected_timestamp:
-                logger.info(f"Tweet {tweet_id} is not posted at the expected time: {expected_timestamp}")
+                logger.warning(f"Tweet {tweet_id} is not posted at the expected time: {expected_timestamp}")
                 return False
             else:
-                logger.info(f"Tweet {tweet_id} is valid!")
+                logger.success(f"Tweet {tweet_id} is valid!  Posted by: {expected_username}, at time: {expected_timestamp}")
                 return True
         except Exception as e:
             logger.error(f"An error occurred during validation: {e}")
