@@ -10,6 +10,7 @@ Subpackages
    tools.qc
    tools.scrape
    tools.utils
+   tools.validator
 
 Module contents
 ---------------
