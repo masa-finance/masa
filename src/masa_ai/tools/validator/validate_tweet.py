@@ -158,7 +158,7 @@ class TweetValidator:
                 logger.warning(f"Tweet {tweet_id} has the wrong hashtags: {expected_hashtags}")
                 return False
             else:
-                logger.success(f"Tweet {tweet_id} is valid!  Posted by: {expected_username}, at time: {expected_timestamp}")
+                logger.success(f"Tweet {tweet_id} is valid!  Text: {expected_text}, Username: {expected_username}, Timestamp: {expected_timestamp}, Hashtags: {expected_hashtags}")
                 return True
         except Exception as e:
             logger.error(f"An error occurred during validation: {e}")
