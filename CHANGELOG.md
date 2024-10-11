@@ -45,6 +45,11 @@
 
 ### Chores
 
+* chore(release): release version 0.2.1
+
+- Updated `CHANGELOG.md` with recent changes, including features, fixes, chores, and documentation updates.
+- Bumped version to `0.2.1` in `pyproject.toml` and `src/masa_ai/__init__.py`. ([`e5dc6cf`](https://github.com/masa-finance/masa/commit/e5dc6cf3d3a401f5a38187b449a6a7a4f871cc7a))
+
 * chore: updated version, pyproject.toml, changelog ([`f00f51b`](https://github.com/masa-finance/masa/commit/f00f51b61b35bdbc339d70de103422d364ec1729))
 
 * chore(tests): ports validation to pytest ([`5a84d50`](https://github.com/masa-finance/masa/commit/5a84d50c86a089335fa23677e966748d207d118b))
@@ -73,6 +78,8 @@
 - Update `modules.rst` and `index.rst` to reflect new documentation structure ([`1441061`](https://github.com/masa-finance/masa/commit/144106181bfce00d1274379bc3b8422f9700aa03))
 
 ### Features
+
+* feat: adds text validation and additional testing ([`c113f43`](https://github.com/masa-finance/masa/commit/c113f4323f84563262aa071db7be9336f29bd1fa))
 
 * feat(tests): working validation tests ([`0986b96`](https://github.com/masa-finance/masa/commit/0986b9698cf9a3042eab3e5c6ee2355fa3d5d821))
 
@@ -183,6 +190,10 @@ This improves flexibility in specifying data storage locations and enhances file
 - Refactored methods to read requests from variables rather than files. ([`5f25d73`](https://github.com/masa-finance/masa/commit/5f25d738539a146942ec41c5360f940ef6cf6ed6))
 
 ### Unknown
+
+* Merge pull request #10 from masa-finance/fix--text-validation
+
+feat: adds text validation and additional testing ([`b664086`](https://github.com/masa-finance/masa/commit/b664086d9a5f184eb33ee1e441ae87885793e1b7))
 
 * Merge pull request #9 from masa-finance/fix--imports-for-validator
 
