@@ -101,12 +101,14 @@ class TweetValidator:
                 logger.error(f"Response content: {e.response.text}")
             return None
 
-    def validate_tweet(self, tweet_id: str, expected_username: str, expected_text: str, expected_timestamp: int, expected_hashtags: Optional[List[str]]) -> bool:
+    def validate_tweet(self, tweet_id: str, expected_name: str, expected_username: str, expected_text: str, expected_timestamp: int, expected_hashtags: Optional[List[str]]) -> bool:
         """Validate that the tweet with the given ID is made by the expected username, at the expected time.
 
         Args:
             tweet_id (str): The ID of the tweet to validate.
+            expected_name (str): The expected name of the tweet author.
             expected_username (str): The expected username of the tweet author.
+            expected_text (str): The expected text of the tweet.
             expected_timestamp (int): The expected timestamp of the tweet.
             expected_hashtags (Optional[List[str]]): The expected hashtags of the tweet.
 
@@ -123,6 +125,7 @@ class TweetValidator:
                 return False
             
             actual_username = tweet_data.get('data', {}).get('tweetResult', {}).get('result', {}).get('core', {}).get('user_results', {}).get('result', {}).get('legacy', {}).get('screen_name')
+            actual_name = tweet_data.get('data', {}).get('tweetResult', {}).get('result', {}).get('core', {}).get('user_results', {}).get('result', {}).get('legacy', {}).get('name')
             actual_text = tweet_data.get('data', {}).get('tweetResult', {}).get('result', {}).get('legacy', {}).get('full_text', "")
             actual_created_at_date_string = tweet_data.get('data', {}).get('tweetResult', {}).get('result', {}).get('legacy', {}).get('created_at')
             actual_hashtags = [hashtag['text'] for hashtag in tweet_data.get('data', {}).get('tweetResult', {}).get('result', {}).get('legacy', {}).get('entities', {}).get('hashtags', [])]
@@ -132,6 +135,9 @@ class TweetValidator:
 
             if actual_username is None:
                 logger.error(f"Could not extract username from tweet data for tweet ID: {tweet_id}")
+                return False
+            if actual_name is None:
+                logger.error(f"Could not extract name from tweet data for tweet ID: {tweet_id}")
                 return False
             if actual_text is None:
                 logger.error(f"Could not extract text from tweet data for tweet ID: {tweet_id}")
@@ -145,6 +151,9 @@ class TweetValidator:
             dt = datetime.strptime(actual_created_at_date_string, date_format)
             actual_timestamp = int(dt.timestamp())
 
+            if actual_name.lower() != expected_name.lower():
+                logger.warning(f"Tweet {tweet_id} has the wrong name: {expected_name}")
+                return False
             if actual_username.lower() != expected_username.lower():
                 logger.warning(f"Tweet {tweet_id} is not posted by the expected user: {expected_username}")
                 return False
@@ -158,7 +167,7 @@ class TweetValidator:
                 logger.warning(f"Tweet {tweet_id} has the wrong hashtags: {expected_hashtags}")
                 return False
             else:
-                logger.success(f"Tweet {tweet_id} is valid!  Text: {expected_text}, Username: {expected_username}, Timestamp: {expected_timestamp}, Hashtags: {expected_hashtags}")
+                logger.success(f"Tweet {tweet_id} is valid!  Name: {expected_name}, Username: {expected_username}, Text: {expected_text}, Timestamp: {expected_timestamp}, Hashtags: {expected_hashtags}")
                 return True
         except Exception as e:
             logger.error(f"An error occurred during validation: {e}")

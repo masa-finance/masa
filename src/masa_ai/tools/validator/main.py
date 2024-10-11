@@ -3,7 +3,7 @@ from loguru import logger
 from masa_ai.tools.validator.validate_tweet import TweetValidator
 from typing import List, Optional
 
-def main(tweet_id: str, expected_username: str, expected_text: str, expected_timestamp: int, expected_hashtags: Optional[List[str]] = None) -> bool:
+def main(tweet_id: str, expected_name: str, expected_username: str, expected_text: str, expected_timestamp: int, expected_hashtags: Optional[List[str]] = None) -> bool:
     """Validate a tweet and log the result.
 
     Creates a TweetValidator instance, validates a specific tweet,
@@ -19,12 +19,13 @@ def main(tweet_id: str, expected_username: str, expected_text: str, expected_tim
             False otherwise.
     """
     validator = TweetValidator()
-    is_valid = validator.validate_tweet(tweet_id, expected_username, expected_text, expected_timestamp, expected_hashtags)
+    is_valid = validator.validate_tweet(tweet_id, expected_name, expected_username, expected_text, expected_timestamp, expected_hashtags)
     return is_valid
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Validate a tweet")
     parser.add_argument("tweet_id", help="The ID of the tweet to validate")
+    parser.add_argument("expected_name", help="The expected name of the tweet author")
     parser.add_argument("expected_username", help="The expected username of the tweet author")
     parser.add_argument("expected_text", help="The expected text of the tweet")
     parser.add_argument("expected_timestamp", help="The expected timestamp of the tweet")
@@ -36,4 +37,4 @@ if __name__ == "__main__":
 
     logger.add(args.log_file, rotation=args.log_rotation)
     
-    result = main(args.tweet_id, args.expected_username, args.expected_text, args.expected_timestamp, args.expected_hashtags)
+    result = main(args.tweet_id, args.expected_name, args.expected_username, args.expected_text, args.expected_timestamp, args.expected_hashtags)

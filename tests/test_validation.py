@@ -23,7 +23,8 @@ def tweet_data():
         "expected_username": "getmasafi",
         "expected_text": '''WE ARE LIVE ✨ Tune in to the @NEARProtocol Hackathon #AI AMA with Masa  ⬇️ https://t.co/gfM7yNAo2e''',
         "expected_timestamp": 1727899422,
-        "expected_hashtags": ["AI"]
+        "expected_hashtags": ["AI"],
+        "expected_name": "Masa"
     }
 
 def test_fetch_tweet(tweet_validator, tweet_data):
@@ -47,6 +48,7 @@ def test_fetch_tweet(tweet_validator, tweet_data):
     assert 'result' in tweet_data_result['core']['user_results'], "User data doesn't contain 'result' key"
     assert 'legacy' in tweet_data_result['core']['user_results']['result'], "User data doesn't contain 'legacy' key"
     assert 'screen_name' in tweet_data_result['core']['user_results']['result']['legacy'], "User data doesn't contain 'screen_name' key"
+    assert 'name' in tweet_data_result['core']['user_results']['result']['legacy'], "User data doesn't contain 'name' key"
 
     logger.debug(f"Tweet: {tweet_data_result}")
     logger.debug(f"Tweet created at: {tweet_data_result['legacy']['created_at']}")
@@ -57,29 +59,35 @@ def test_fetch_tweet(tweet_validator, tweet_data):
 
 def test_validate_tweet(tweet_data):
     """Test the validate_tweet method of TweetValidator with correct username."""
-    is_valid = validate_main(tweet_data['tweet_id'], tweet_data['expected_username'], tweet_data['expected_text'], tweet_data['expected_timestamp'], tweet_data['expected_hashtags'])
+    is_valid = validate_main(tweet_data['tweet_id'], tweet_data['expected_name'], tweet_data['expected_username'], tweet_data['expected_text'], tweet_data['expected_timestamp'], tweet_data['expected_hashtags'])
     assert is_valid, f"Tweet validation failed for tweet ID: {tweet_data['tweet_id']}"
 
 def test_validate_tweet_wrong_username(tweet_data):
     """Test the validate_tweet method of TweetValidator with incorrect username."""
     wrong_username = "wrongusername"
-    is_valid = validate_main(tweet_data['tweet_id'], wrong_username, tweet_data['expected_text'], tweet_data['expected_timestamp'], tweet_data['expected_hashtags'])
+    is_valid = validate_main(tweet_data['tweet_id'], tweet_data['expected_name'], wrong_username, tweet_data['expected_text'], tweet_data['expected_timestamp'], tweet_data['expected_hashtags'])
     assert not is_valid, f"Tweet validation unexpectedly passed for wrong username: {wrong_username}"
 
 def test_validate_tweet_wrong_text(tweet_data):
     """Test the validate_tweet method of TweetValidator with incorrect username."""
     wrong_text = "hello"
-    is_valid = validate_main(tweet_data['tweet_id'], tweet_data['expected_username'], wrong_text, tweet_data['expected_timestamp'], tweet_data['expected_hashtags'])
+    is_valid = validate_main(tweet_data['tweet_id'], tweet_data['expected_name'], tweet_data['expected_username'], wrong_text, tweet_data['expected_timestamp'], tweet_data['expected_hashtags'])
     assert not is_valid, f"Tweet validation unexpectedly passed for wrong text: {wrong_text}"
 
 def test_validate_tweet_wrong_created_at(tweet_data):
     """Test the validate_tweet method of TweetValidator with incorrect username."""
     wrong_created_at = 1723829423
-    is_valid = validate_main(tweet_data['tweet_id'], tweet_data['expected_username'], tweet_data['expected_text'], wrong_created_at, tweet_data['expected_hashtags'])
+    is_valid = validate_main(tweet_data['tweet_id'], tweet_data['expected_name'], tweet_data['expected_username'], tweet_data['expected_text'], wrong_created_at, tweet_data['expected_hashtags'])
     assert not is_valid, f"Tweet validation unexpectedly passed for wrong created_at: {wrong_created_at}"
 
 def test_validate_tweet_wrong_hashtags(tweet_data):
     """Test the validate_tweet method of TweetValidator with incorrect username."""
     wrong_hashtags = ["crypto"]
-    is_valid = validate_main(tweet_data['tweet_id'], tweet_data['expected_username'], tweet_data['expected_text'], tweet_data['expected_timestamp'], wrong_hashtags)
+    is_valid = validate_main(tweet_data['tweet_id'], tweet_data['expected_name'], tweet_data['expected_username'], tweet_data['expected_text'], tweet_data['expected_timestamp'], wrong_hashtags)
     assert not is_valid, f"Tweet validation unexpectedly passed for wrong created_at: {wrong_hashtags}"
+
+def test_validate_tweet_wrong_name(tweet_data):
+    """Test the validate_tweet method of TweetValidator with incorrect username."""
+    wrong_name = "brendan"
+    is_valid = validate_main(tweet_data['tweet_id'], wrong_name, tweet_data['expected_username'], tweet_data['expected_text'], tweet_data['expected_timestamp'], tweet_data['expected_hashtags'])
+    assert not is_valid, f"Tweet validation unexpectedly passed for wrong created_at: {wrong_name}"
