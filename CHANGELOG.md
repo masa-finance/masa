@@ -1,6 +1,5 @@
 # CHANGELOG
 
-
 ## Unreleased
 
 ### Breaking
@@ -45,6 +44,30 @@
 
 ### Chores
 
+* chore(deps): update debugpy to 1.8.7, numpy to 2.1.2, and python-semantic-release to 9.10.1
+
+- **Dependencies:**
+  - Updated `debugpy` from `1.8.6` to `1.8.7`.
+  - Updated `numpy` from `1.26.4` to `2.1.2`.
+  - Updated `python-semantic-release` from `9.10.0` to `9.10.1`.
+  - Changed `numpy` dependency in `pyproject.toml` to `>=2.0.1`.
+
+- **Configuration:**
+  - Modified query parameters in `src/masa_ai/examples/request_list.json`:
+    - Changed `#EPL` to `#theoffice`.
+    - Changed `@elonmusk` to `@jakegyllenhaal`.
+    - Changed `#COYS` to `#football`.
+
+- **Code Enhancements:**
+  - In `src/masa_ai/masa.py`, updated the `Masa` class to include additional request statuses:
+    - Added `completed`, `failed`, and `cancelled` to the statuses list. ([`1d17a5b`](https://github.com/masa-finance/masa/commit/1d17a5b41b3472ee10e1339216e14eb6c11e7693))
+
+* chore(version): updates version ([`d62b649`](https://github.com/masa-finance/masa/commit/d62b64957e1421a29d6ab524c60df84ea4f83637))
+
+* chore(release): release version 0.2.2
+
+- Bumped version to `0.2.2` in `pyproject.toml` and `src/masa_ai/__init__.py` ([`e158984`](https://github.com/masa-finance/masa/commit/e158984a7c426c2894c3e2769debf0e35dad0933))
+
 * chore(release): release version 0.2.1
 
 - Updated `CHANGELOG.md` with recent changes, including features, fixes, chores, and documentation updates.
@@ -78,6 +101,8 @@
 - Update `modules.rst` and `index.rst` to reflect new documentation structure ([`1441061`](https://github.com/masa-finance/masa/commit/144106181bfce00d1274379bc3b8422f9700aa03))
 
 ### Features
+
+* feat: adds hashtags to validation ([`03e6a39`](https://github.com/masa-finance/masa/commit/03e6a396186886289d227bb84841fd3f96820e27))
 
 * feat: adds text validation and additional testing ([`c113f43`](https://github.com/masa-finance/masa/commit/c113f4323f84563262aa071db7be9336f29bd1fa))
 
@@ -163,6 +188,10 @@ This improves flexibility in specifying data storage locations and enhances file
 
 ### Fixes
 
+* fix: adds name ([`9e41174`](https://github.com/masa-finance/masa/commit/9e41174f78efd7bfc8bd22ae909275b4d6aa4d7f))
+
+* fix: success message ([`6197fdb`](https://github.com/masa-finance/masa/commit/6197fdbe3ac549d0266e2aa4a707796bcd3b255d))
+
 * fix: validator import ([`5b212c1`](https://github.com/masa-finance/masa/commit/5b212c14234a6a520e2dfd48b4b3ae961a9f6c1a))
 
 * fix: logging cleanup ([`71dc52c`](https://github.com/masa-finance/masa/commit/71dc52c0c4be63bff51e4924a4633e8d371c3783))
@@ -190,6 +219,12 @@ This improves flexibility in specifying data storage locations and enhances file
 - Refactored methods to read requests from variables rather than files. ([`5f25d73`](https://github.com/masa-finance/masa/commit/5f25d738539a146942ec41c5360f940ef6cf6ed6))
 
 ### Unknown
+
+* Merge pull request #11 from masa-finance/feat--hashtags-validation
+
+feat: hashtag validation ([`84b8565`](https://github.com/masa-finance/masa/commit/84b85657d2a24a2a6a1334918801bbc01bba371b))
+
+* Merge branch 'main' into feat--hashtags-validation ([`4a4f2bd`](https://github.com/masa-finance/masa/commit/4a4f2bda309b24de7db5359fd516a37be81e21a9))
 
 * Merge pull request #10 from masa-finance/fix--text-validation
 
