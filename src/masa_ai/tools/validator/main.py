@@ -24,6 +24,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Validate a tweet")
     parser.add_argument("tweet_id", help="The ID of the tweet to validate")
     parser.add_argument("expected_username", help="The expected username of the tweet author")
+    parser.add_argument("expected_timestamp", help="The expected timestamp of the tweet")
     parser.add_argument("--log-file", default="tweet_scraper.log", help="Path to the log file")
     parser.add_argument("--log-rotation", default="10 MB", help="Log rotation size")
     
@@ -31,4 +32,4 @@ if __name__ == "__main__":
 
     logger.add(args.log_file, rotation=args.log_rotation)
     
-    result = main(args.tweet_id, args.expected_username)
+    result = main(args.tweet_id, args.expected_username, args.expected_timestamp)

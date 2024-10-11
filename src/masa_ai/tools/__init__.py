@@ -16,10 +16,12 @@ Modules:
 from . import utils
 from . import qc
 from . import scrape
+from . import validator
 
 __all__ = [
     'utils',
     'qc', 
-    'scrape'
+    'scrape',
+    'validator'
 ]
 
