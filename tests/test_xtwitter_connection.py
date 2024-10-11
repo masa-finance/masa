@@ -1,14 +1,14 @@
 import unittest
 from unittest.mock import Mock, patch
-from src.connections.xtwitter_connection import XTwitterConnection
-from src.tools.qc.exceptions import RateLimitException, NoWorkersAvailableException, APIException, AuthenticationException
-from src.tools.qc.qc_manager import QCManager
+from masa_ai.connections.xtwitter_connection import XTwitterConnection
+from masa_ai.tools.qc.exceptions import RateLimitException, NoWorkersAvailableException, APIException, AuthenticationException
+from masa_ai.tools.qc.qc_manager import QCManager
 
 class TestXTwitterConnection(unittest.TestCase):
     def setUp(self):
         self.connection = XTwitterConnection()
 
-    @patch('src.connections.xtwitter_connection.XTwitterConnection._make_request')
+    @patch('masa_ai.connections.xtwitter_connection.XTwitterConnection._make_request')
     def test_get_tweets_success(self, mock_make_request):
         mock_response = Mock()
         mock_response.status_code = 200
@@ -20,7 +20,7 @@ class TestXTwitterConnection(unittest.TestCase):
         self.assertEqual(result, {"data": [{"id": "1", "text": "Test tweet"}]})
         mock_make_request.assert_called_once_with('POST', 'https://api.twitter.com/2/endpoint', data={'query': 'query', 'count': 10})
 
-    @patch('src.connections.xtwitter_connection.XTwitterConnection._make_request')
+    @patch('masa_ai.connections.xtwitter_connection.XTwitterConnection._make_request')
     def test_rate_limit_exception(self, mock_make_request):
         mock_response = Mock()
         mock_response.status_code = 429
@@ -29,7 +29,7 @@ class TestXTwitterConnection(unittest.TestCase):
         with self.assertRaises(RateLimitException):
             self.connection.get_tweets('endpoint', 'query', 10)
 
-    @patch('src.connections.xtwitter_connection.XTwitterConnection._make_request')
+    @patch('masa_ai.connections.xtwitter_connection.XTwitterConnection._make_request')
     def test_no_workers_available_exception(self, mock_make_request):
         mock_response = Mock()
         mock_response.status_code = 417
@@ -38,7 +38,7 @@ class TestXTwitterConnection(unittest.TestCase):
         with self.assertRaises(NoWorkersAvailableException):
             self.connection.get_tweets('endpoint', 'query', 10)
 
-    @patch('src.connections.xtwitter_connection.XTwitterConnection._make_request')
+    @patch('masa_ai.connections.xtwitter_connection.XTwitterConnection._make_request')
     def test_gateway_timeout_exception(self, mock_make_request):
         mock_response = Mock()
         mock_response.status_code = 504
@@ -47,7 +47,7 @@ class TestXTwitterConnection(unittest.TestCase):
         with self.assertRaises(APIException):
             self.connection.get_tweets('endpoint', 'query', 10)
 
-    @patch('src.connections.xtwitter_connection.XTwitterConnection._make_request')
+    @patch('masa_ai.connections.xtwitter_connection.XTwitterConnection._make_request')
     def test_authentication_exception(self, mock_make_request):
         mock_response = Mock()
         mock_response.status_code = 401
@@ -56,8 +56,8 @@ class TestXTwitterConnection(unittest.TestCase):
         with self.assertRaises(AuthenticationException):
             self.connection.get_tweets('endpoint', 'query', 10)
 
-    @patch('src.connections.xtwitter_connection.XTwitterConnection._make_request')
-    @patch('tools.qc.retry_manager.RetryPolicy.wait_time')
+    @patch('masa_ai.connections.xtwitter_connection.XTwitterConnection._make_request')
+    @patch('masa_ai.tools.qc.retry_manager.RetryPolicy.wait_time')
     def test_retry_logic(self, mock_wait_time, mock_make_request):
         mock_response_fail = Mock()
         mock_response_fail.status_code = 429
