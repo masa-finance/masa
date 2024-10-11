@@ -101,7 +101,7 @@ class TweetValidator:
                 logger.error(f"Response content: {e.response.text}")
             return None
 
-    def validate_tweet(self, tweet_id: str, expected_username: str, expected_timestamp: int) -> bool:
+    def validate_tweet(self, tweet_id: str, expected_username: str, expected_text: str, expected_timestamp: int) -> bool:
         """Validate that the tweet with the given ID is made by the expected username, at the expected time.
 
         Args:
@@ -122,10 +122,14 @@ class TweetValidator:
                 return False
             
             actual_username = tweet_data.get('data', {}).get('tweetResult', {}).get('result', {}).get('core', {}).get('user_results', {}).get('result', {}).get('legacy', {}).get('screen_name')
+            actual_text = tweet_data.get('data', {}).get('tweetResult', {}).get('result', {}).get('legacy', {}).get('full_text', "")
             actual_created_at_date_string = tweet_data.get('data', {}).get('tweetResult', {}).get('result', {}).get('legacy', {}).get('created_at')
 
             if actual_username is None:
                 logger.error(f"Could not extract username from tweet data for tweet ID: {tweet_id}")
+                return False
+            if actual_text is None:
+                logger.error(f"Could not extract text from tweet data for tweet ID: {tweet_id}")
                 return False
             if actual_created_at_date_string is None:
                 logger.error(f"Could not extract created_at from tweet data for tweet ID: {tweet_id}")
@@ -138,6 +142,9 @@ class TweetValidator:
 
             if actual_username.lower() != expected_username.lower():
                 logger.warning(f"Tweet {tweet_id} is not posted by the expected user: {expected_username}")
+                return False
+            if " ".join(actual_text.split()) != " ".join(expected_text.split()):
+                logger.warning(f"Tweet {tweet_id} has the wrong text: {expected_text}")
                 return False
             if actual_timestamp != expected_timestamp:
                 logger.warning(f"Tweet {tweet_id} is not posted at the expected time: {expected_timestamp}")
