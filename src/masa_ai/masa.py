@@ -179,7 +179,7 @@ class Masa:
         if statuses is None:
             statuses = ['queued', 'in_progress']
         elif statuses == ['all']:
-            statuses = None  # Passing None will retrieve all statuses
+            statuses = ['queued', 'in_progress', 'completed', 'failed', 'cancelled']
 
         self.qc_manager.log_debug("Delegating request listing to RequestManager", context="Masa")
         self.request_manager.list_requests(statuses)
