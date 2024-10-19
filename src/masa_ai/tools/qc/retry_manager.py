@@ -21,9 +21,14 @@ class RetryConfiguration:
         self.max_wait_time = config.get('MAX_WAIT_TIME', 960)
         self.initial_wait_times = config.get('INITIAL_WAIT_TIMES', {})
         self.success_wait_time = config.get('SUCCESS_WAIT_TIME', 10)
+        
+        # Ensure only valid exception classes are included
         self.retryable_exceptions = [
-            globals().get(exc_name) for exc_name in config.get('RETRYABLE_EXCEPTIONS', 
-            ['NetworkException', 'RateLimitException', 'APIException', 'NoWorkersAvailableException', 'GatewayTimeoutException'])
+            globals()[exc_name] for exc_name in config.get(
+                'RETRYABLE_EXCEPTIONS', 
+                ['NetworkException', 'RateLimitException', 'APIException', 
+                 'NoWorkersAvailableException', 'GatewayTimeoutException']
+            ) if exc_name in globals()
         ]
 
 
@@ -47,20 +52,20 @@ class RetryPolicy:
 
     def wait_time(self, config, attempt, exception):
         """Calculate the wait time based on the retry configuration and attempt.
-        
+
         :param config: The retry configuration
         :param attempt: The current attempt number
         :param exception: The exception that caused the retry
         :return: The calculated wait time in seconds
         """
-        if isinstance(exception, RateLimitException):
+        if isinstance(exception, APIException) and exception.status_code and attempt == 1:
+            wait = config.initial_wait_times.get(str(exception.status_code), config.base_wait_time)
+        elif isinstance(exception, RateLimitException):
             wait = config.initial_wait_times.get('429')
         elif isinstance(exception, NoWorkersAvailableException):
             wait = config.initial_wait_times.get('417')
         elif isinstance(exception, GatewayTimeoutException):
-            wait = config.initial_wait_times.get('504') or config.base_wait_time
-        elif attempt == 1 and isinstance(exception, APIException) and exception.status_code:
-            wait = config.initial_wait_times.get(str(exception.status_code), config.base_wait_time)
+            wait = config.initial_wait_times.get('504')
         else:
             wait = min(config.base_wait_time * (config.backoff_factor ** (attempt - 1)), config.max_wait_time)
         self.qc_manager.log_debug(f"Waiting for {wait} seconds before retry", context="RetryPolicy")

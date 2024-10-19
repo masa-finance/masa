@@ -71,7 +71,7 @@ class Masa:
 
         self.qc_manager.log_debug(f"Processing {len(requests)} new requests", context="Masa")
         self.request_manager.process_requests(requests)
-        self.qc_manager.log_info("Processing all requests", context="Masa")
+        self.qc_manager.log_info("Processed all requests", context="Masa")
 
     def view_docs(self, page: Optional[str] = None) -> None:
         """

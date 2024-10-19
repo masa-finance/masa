@@ -202,3 +202,4 @@ src/masa_ai.egg-info/PKG-INFO
 
 Dockerfile
 .DS_Store
+/data
