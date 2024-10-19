@@ -7,7 +7,7 @@ default:
     TWEETS_PER_REQUEST: 150  # Number of tweets to fetch per request
     START_DATE: '2024-08-15'  # Start date for fetching tweets
     END_DATE: '2024-08-17'  # End date for fetching tweets
-    DAYS_PER_ITERATION: 1  # Number of days to fetch tweets for in each iteration
+    DAYS_PER_ITERATION: 1 
     MAX_RETRIES: 3
     BASE_WAIT_TIME: 10
     BACKOFF_FACTOR: 2
@@ -20,10 +20,10 @@ default:
       - NoWorkersAvailableException
       - GatewayTimeoutException
     INITIAL_WAIT_TIMES:
-      '429': 900  # 15 minutes for rate limit
-      '417': 3600  # 1 hour for no workers available
-      '504': 60   # 1 minute for gateway timeout
-    DEFAULT_TIMEFRAME_MONTHS: 1  # Default timeframe of 3 months
+      '429': 120
+      '417': 960  
+      '504': 60   
+    DEFAULT_TIMEFRAME_MONTHS: 1 
 
   request_manager:
     STATE_FILE: "src/masa_ai/orchestration/request_manager_state.json"
@@ -33,7 +33,7 @@ default:
     DATA_DIRECTORY: null
 
   logging:
-    LOG_LEVEL: INFO
+    LOG_LEVEL: DEBUG
     LOG_FORMAT: "%(asctime)s - %(levelname)s - %(message)s"
     LOG_DATE_FORMAT: "%Y-%m-%d %H:%M:%S"
     CONSOLE_LOG_LEVEL: INFO
