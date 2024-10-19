@@ -1,5 +1,6 @@
 # CHANGELOG
 
+
 ## Unreleased
 
 ### Breaking
@@ -14,6 +15,30 @@
 - Modified documentation and examples to reflect the changes
 
 **BREAKING CHANGE**: The term 'retriever' has been replaced with 'scraper', and CLI commands have been updated. Users must update their configurations and scripts to use the new class names and command syntax. ([`1c0913f`](https://github.com/masa-finance/masa/commit/1c0913fbb3f0311bb48f1f0ddb264069e7c2cd03))
+
+### Bug Fixes
+
+* fix: adds name ([`9e41174`](https://github.com/masa-finance/masa/commit/9e41174f78efd7bfc8bd22ae909275b4d6aa4d7f))
+
+* fix: success message ([`6197fdb`](https://github.com/masa-finance/masa/commit/6197fdbe3ac549d0266e2aa4a707796bcd3b255d))
+
+* fix: validator import ([`5b212c1`](https://github.com/masa-finance/masa/commit/5b212c14234a6a520e2dfd48b4b3ae961a9f6c1a))
+
+* fix: logging cleanup ([`71dc52c`](https://github.com/masa-finance/masa/commit/71dc52c0c4be63bff51e4924a4633e8d371c3783))
+
+* fix: logging and cleanup! ([`e50161a`](https://github.com/masa-finance/masa/commit/e50161ac12e10b3b0a2d468399afa5c2a1a11793))
+
+* fix: formats created at correctly, from date string to timestamp in seconds ([`d4feb50`](https://github.com/masa-finance/masa/commit/d4feb50f75c5f4b34b99d94b93a669f0a4941264))
+
+* fix: adds make test-validation command for ease and simplifies logs ([`39c0205`](https://github.com/masa-finance/masa/commit/39c0205ff8b83573c8960b34d5bd30b0de991896))
+
+* fix(test): adds correct args ([`dcbb185`](https://github.com/masa-finance/masa/commit/dcbb185599a586c4c2b5cc41c159d0107d4a9283))
+
+* fix(dependencies): Downgrade Sphinx and NumPy versions for compatibility
+
+- Set `sphinx` version to `<8.0.0` in `pyproject.toml`
+- Set `numpy` version to `<2.0.0` in `pyproject.toml`
+- Update `poetry.lock` to reflect the version changes ([`8638427`](https://github.com/masa-finance/masa/commit/8638427e510a466b2c8f644e44e37b3877cad365))
 
 ### Build System
 
@@ -43,6 +68,10 @@
 - Update `README.md` and documentation with new usage instructions ([`7ce400b`](https://github.com/masa-finance/masa/commit/7ce400bdbf550c01e769540ef11f06ca1e7c0cc2))
 
 ### Chores
+
+* chore(makefile): add 'update-dev' target for dev branch synchronization ([`0d6b576`](https://github.com/masa-finance/masa/commit/0d6b5764336254aee92e2738a3f8345557c1b722))
+
+* chore: update changelog ([`d8aa0cc`](https://github.com/masa-finance/masa/commit/d8aa0cc70e662cfcccdf61234a743fa19fd155c6))
 
 * chore(deps): update debugpy to 1.8.7, numpy to 2.1.2, and python-semantic-release to 9.10.1
 
@@ -186,31 +215,14 @@ which will be useful for various tweet-related operations in the project. ([`b77
 
 This improves flexibility in specifying data storage locations and enhances file safety when saving data. ([`8bb838e`](https://github.com/masa-finance/masa/commit/8bb838e10630f70811e8b00b4eb4cb1bb493e9ae))
 
-### Fixes
-
-* fix: adds name ([`9e41174`](https://github.com/masa-finance/masa/commit/9e41174f78efd7bfc8bd22ae909275b4d6aa4d7f))
-
-* fix: success message ([`6197fdb`](https://github.com/masa-finance/masa/commit/6197fdbe3ac549d0266e2aa4a707796bcd3b255d))
-
-* fix: validator import ([`5b212c1`](https://github.com/masa-finance/masa/commit/5b212c14234a6a520e2dfd48b4b3ae961a9f6c1a))
-
-* fix: logging cleanup ([`71dc52c`](https://github.com/masa-finance/masa/commit/71dc52c0c4be63bff51e4924a4633e8d371c3783))
-
-* fix: logging and cleanup! ([`e50161a`](https://github.com/masa-finance/masa/commit/e50161ac12e10b3b0a2d468399afa5c2a1a11793))
-
-* fix: formats created at correctly, from date string to timestamp in seconds ([`d4feb50`](https://github.com/masa-finance/masa/commit/d4feb50f75c5f4b34b99d94b93a669f0a4941264))
-
-* fix: adds make test-validation command for ease and simplifies logs ([`39c0205`](https://github.com/masa-finance/masa/commit/39c0205ff8b83573c8960b34d5bd30b0de991896))
-
-* fix(test): adds correct args ([`dcbb185`](https://github.com/masa-finance/masa/commit/dcbb185599a586c4c2b5cc41c159d0107d4a9283))
-
-* fix(dependencies): Downgrade Sphinx and NumPy versions for compatibility
-
-- Set `sphinx` version to `<8.0.0` in `pyproject.toml`
-- Set `numpy` version to `<2.0.0` in `pyproject.toml`
-- Update `poetry.lock` to reflect the version changes ([`8638427`](https://github.com/masa-finance/masa/commit/8638427e510a466b2c8f644e44e37b3877cad365))
-
 ### Refactoring
+
+* refactor: update settings, request parameters, and enhance retry logic
+
+Updated settings.yaml with revised retry configurations and logging levels.
+Changed logging in masa.py to provide clearer status messages.
+Improved exception handling in retry_manager.py to ensure only valid exceptions are processed.
+Enhanced wait_time calculations in RetryPolicy for accurate retry delays. ([`605e967`](https://github.com/masa-finance/masa/commit/605e967872785dfc9f65293f5c7d806b226edd36))
 
 * refactor(core): update 'process_requests' methods to handle diverse inputs
 
@@ -219,6 +231,10 @@ This improves flexibility in specifying data storage locations and enhances file
 - Refactored methods to read requests from variables rather than files. ([`5f25d73`](https://github.com/masa-finance/masa/commit/5f25d738539a146942ec41c5360f940ef6cf6ed6))
 
 ### Unknown
+
+* Merge pull request #12 from masa-finance/dev
+
+Update retry timings and associated tests ([`406990a`](https://github.com/masa-finance/masa/commit/406990a60d7f4621a81646c88de9bdb0afd07d10))
 
 * Merge pull request #11 from masa-finance/feat--hashtags-validation
 
