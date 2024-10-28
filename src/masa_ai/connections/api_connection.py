@@ -10,7 +10,12 @@ import requests
 from abc import ABC, abstractmethod
 from masa_ai.configs.config import global_settings
 from masa_ai.tools.qc.qc_manager import QCManager
-from masa_ai.tools.qc.exceptions import APIException, NetworkException, ConfigurationException, RateLimitException
+from masa_ai.tools.qc.exceptions import (
+    APIException,
+    NetworkException,
+    ConfigurationException,
+    RateLimitException,
+)
 
 class APIConnection(ABC):
     """
@@ -19,10 +24,6 @@ class APIConnection(ABC):
     This class defines the interface for making API requests and handling responses.
     Subclasses should implement the abstract methods to provide specific behavior
     for different APIs.
-
-    Attributes:
-        base_url (str): The base URL for the API.
-        qc_manager (tools.qc.qc_manager.QCManager): Quality control manager for logging and error handling.
     """
 
     def __init__(self):
@@ -71,7 +72,6 @@ class APIConnection(ABC):
         """
         pass
 
-    @QCManager().handle_error_with_retry('twitter')
     def _make_request(self, method, url, data=None, params=None):
         """
         Make an API request.
@@ -93,19 +93,24 @@ class APIConnection(ABC):
         headers = self.get_headers()
         try:
             response = requests.request(
-                method, 
-                url, 
+                method,
+                url,
                 json=data,
                 params=params,
                 headers=headers
             )
-            if response.status_code == 429:
-                raise RateLimitException(f"Rate limit exceeded. Status code: {response.status_code}", status_code=response.status_code)
             response.raise_for_status()
             return response
         except requests.exceptions.ConnectionError as e:
             raise NetworkException(f"Connection error: {str(e)}")
         except requests.exceptions.Timeout as e:
             raise NetworkException(f"Request timed out: {str(e)}")
+        except requests.exceptions.HTTPError as e:
+            if response.status_code == 429:
+                raise RateLimitException(
+                    f"Rate limit exceeded. Status code: {response.status_code}",
+                    status_code=response.status_code
+                )
+            raise APIException(f"HTTP error: {str(e)}", status_code=response.status_code)
         except requests.exceptions.RequestException as e:
             raise APIException(f"Request failed: {str(e)}")

@@ -50,6 +50,7 @@ pytest = "*"
 flake8 = "*"
 black = "*"
 python-semantic-release = "^9.9.0"
+pytest-cov = "^5.0.0"
 
 
 [tool.poetry.scripts]

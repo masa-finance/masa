@@ -5,7 +5,7 @@
     "priority": 1,
     "params": {
       "query": "#elonmusk since:2024-08-08 until:2024-08-13",
-      "count": 100
+      "count": 20
     }
   },
   {
@@ -14,7 +14,7 @@
     "priority": 2,
     "params": {
       "query": "#memes since:2024-08-15 until:2024-08-20",
-      "count": 100
+      "count": 20
     }
   },
   {
@@ -23,7 +23,7 @@
     "priority": 3,
     "params": {
       "query": "#AI since:2024-08-01 until:2024-08-31",
-      "count": 100
+      "count": 20
     }
   },
   {
@@ -31,7 +31,7 @@
     "endpoint": "data/twitter/tweets/recent",
     "params": {
       "query": "#LoveIsland since:2024-08-01 until:2024-08-31",
-      "count": 100
+      "count": 20
     }
   },
   {
@@ -40,7 +40,7 @@
     "priority": 1,
     "params": {
       "query": "#football since:2024-08-01 until:2024-08-31",
-      "count": 100
+      "count": 125
     }
   }
 ]
