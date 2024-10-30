@@ -54,6 +54,10 @@ test-release: clean build sync-readme
 test-validation:
 	pytest tests/test_validation.py -s --disable-warnings
 
+# Test trending topics
+test-trending-topics:
+	pytest tests/test_trending_tweets.py -s --disable-warnings
+
 # Create a new full release
 release: clean build sync-readme
 	PYPI_TOKEN=$(PYPI_TOKEN) poetry run semantic-release publish
