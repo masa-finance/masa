@@ -71,7 +71,7 @@ class Masa:
 
         self.qc_manager.log_debug(f"Processing {len(requests)} new requests", context="Masa")
         self.request_manager.process_requests(requests)
-        self.qc_manager.log_info("Processing all requests", context="Masa")
+        self.qc_manager.log_info("Processed all requests", context="Masa")
 
     def view_docs(self, page: Optional[str] = None) -> None:
         """
@@ -179,7 +179,7 @@ class Masa:
         if statuses is None:
             statuses = ['queued', 'in_progress']
         elif statuses == ['all']:
-            statuses = None  # Passing None will retrieve all statuses
+            statuses = ['queued', 'in_progress', 'completed', 'failed', 'cancelled']
 
         self.qc_manager.log_debug("Delegating request listing to RequestManager", context="Masa")
         self.request_manager.list_requests(statuses)

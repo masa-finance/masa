@@ -1,4 +1,4 @@
-.PHONY: install dev-install test lint format clean docs build release test-release setup-hooks update-deps run sync-readme
+.PHONY: install dev-install test lint format clean docs build release test-release setup-hooks update-deps run sync-readme update-dev
 
 # Define repository names
 PYPI_REPOSITORY = pypi
@@ -73,3 +73,9 @@ update-deps:
 # Generate changelog (if using semantic-release)
 changelog:
 	poetry run semantic-release changelog
+
+# Update dev branch after main release
+update-dev:
+	git switch dev
+	git pull origin main --force
+	git push --force origin dev
