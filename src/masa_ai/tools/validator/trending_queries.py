@@ -2,7 +2,7 @@ import requests
 from loguru import logger
 from masa_ai.tools.validator.config import BEARER_TOKEN, USER_AGENT, API_URLS, HEADERS
 
-class TrendingTweets:
+class TrendingQueries:
     """Fetch trending topics from the Twitter API.
 
     This class provides methods to obtain a guest token and fetch the highest trending topic.
