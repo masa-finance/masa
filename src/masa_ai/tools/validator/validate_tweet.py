@@ -3,7 +3,6 @@ import json
 import uuid
 from urllib.parse import urlencode
 from datetime import datetime
-import time
 from loguru import logger
 from masa_ai.tools.validator.config import BEARER_TOKEN, USER_AGENT, API_URLS, FEATURES, FIELD_TOGGLES, HEADERS
 
@@ -26,7 +25,6 @@ class TweetValidator:
             "User-Agent": USER_AGENT,
             "Authorization": f"Bearer {BEARER_TOKEN}",
         })
-        logger.add("validate_tweet.log", level="DEBUG")
 
     def get_guest_token(self):
         """Obtain a guest token from the Twitter API.
