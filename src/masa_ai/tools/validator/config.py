@@ -21,7 +21,8 @@ USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36
 
 API_URLS = {
     "guest_token": "https://api.twitter.com/1.1/guest/activate.json",
-    "tweet_by_id": "https://api.x.com/graphql/sCU6ckfHY0CyJ4HFjPhjtg/TweetResultByRestId"
+    "tweet_by_id": "https://api.x.com/graphql/sCU6ckfHY0CyJ4HFjPhjtg/TweetResultByRestId",
+    "trending_topics": "https://api.x.com/1.1/trends/place.json?id=23424977"
 }
 
 FEATURES = {

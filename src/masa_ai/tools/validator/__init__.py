@@ -16,4 +16,5 @@ Attributes:
 """
 
 from .validate_tweet import TweetValidator
+from .trending_queries import TrendingQueries
 from .config import BEARER_TOKEN, USER_AGENT, API_URLS, FEATURES, FIELD_TOGGLES, HEADERS

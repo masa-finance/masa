@@ -51,8 +51,12 @@ test-release: clean build sync-readme
 	PYPI_TOKEN=$(TEST_PYPI_TOKEN) poetry run semantic-release publish --repository-url https://test.pypi.org/legacy/
 
 # Test validation
-test-validation:
-	pytest tests/test_validation.py -s --disable-warnings
+test-validate-tweet:
+	pytest tests/test_validate_tweet.py -s --disable-warnings
+
+# Test trending topics
+test-trending-queries:
+	pytest tests/test_trending_queries.py -s --disable-warnings
 
 # Create a new full release
 release: clean build sync-readme

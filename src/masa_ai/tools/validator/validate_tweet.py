@@ -26,7 +26,6 @@ class TweetValidator:
             "User-Agent": USER_AGENT,
             "Authorization": f"Bearer {BEARER_TOKEN}",
         })
-        logger.add("validate_tweet.log", level="DEBUG")
 
     def get_guest_token(self):
         """Obtain a guest token from the Twitter API.
