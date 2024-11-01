@@ -4,9 +4,9 @@ default:
     HEADERS:
       accept: 'application/json'
       Content-Type: 'application/json'
-    TWEETS_PER_REQUEST: 150  # Number of tweets to fetch per request
-    START_DATE: '2024-08-15'  # Start date for fetching tweets
-    END_DATE: '2024-08-17'  # End date for fetching tweets
+    TWEETS_PER_REQUEST: 150 
+    START_DATE: '2024-08-15'
+    END_DATE: '2024-08-17' 
     DAYS_PER_ITERATION: 1 
     MAX_RETRIES: 5
     BASE_WAIT_TIME: 10

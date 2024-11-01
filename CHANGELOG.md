@@ -18,9 +18,19 @@
 
 ### Bug Fixes
 
+* fix: bump version to 0.2.5 ([`8407b96`](https://github.com/masa-finance/masa/commit/8407b96c3e2a23824b361ec9fdbd79148821bfab))
+
 * fix: adds name ([`9e41174`](https://github.com/masa-finance/masa/commit/9e41174f78efd7bfc8bd22ae909275b4d6aa4d7f))
 
 * fix: success message ([`6197fdb`](https://github.com/masa-finance/masa/commit/6197fdbe3ac549d0266e2aa4a707796bcd3b255d))
+
+* fix: updates pyproject version ([`f95bccd`](https://github.com/masa-finance/masa/commit/f95bccdd5c1b2baedd874ed382af20a83e79832c))
+
+* fix: remove unecessary log files ([`185acac`](https://github.com/masa-finance/masa/commit/185acac13774f48b3646c9ee5a45fffc0cdb141e))
+
+* fix: rename files ([`5a1ba2e`](https://github.com/masa-finance/masa/commit/5a1ba2e0271b3eff03a7bb982f9383aa60df8428))
+
+* fix: imports ([`7caf3a7`](https://github.com/masa-finance/masa/commit/7caf3a79cb1ead49f5969b2fd59b506857225e5e))
 
 * fix: validator import ([`5b212c1`](https://github.com/masa-finance/masa/commit/5b212c14234a6a520e2dfd48b4b3ae961a9f6c1a))
 
@@ -69,6 +79,10 @@
 
 ### Chores
 
+* chore: modified default wait times ([`3b8b234`](https://github.com/masa-finance/masa/commit/3b8b2348d5f38cf159d9bbfacf9da47be4a5bf68))
+
+* chore: bumped versions and updated lock file ([`11f9263`](https://github.com/masa-finance/masa/commit/11f9263eb9405a842d6cb7db6ab33d9382ff3dec))
+
 * chore(makefile): add 'update-dev' target for dev branch synchronization ([`0d6b576`](https://github.com/masa-finance/masa/commit/0d6b5764336254aee92e2738a3f8345557c1b722))
 
 * chore: update changelog ([`d8aa0cc`](https://github.com/masa-finance/masa/commit/d8aa0cc70e662cfcccdf61234a743fa19fd155c6))
@@ -92,6 +106,8 @@
     - Added `completed`, `failed`, and `cancelled` to the statuses list. ([`1d17a5b`](https://github.com/masa-finance/masa/commit/1d17a5b41b3472ee10e1339216e14eb6c11e7693))
 
 * chore(version): updates version ([`d62b649`](https://github.com/masa-finance/masa/commit/d62b64957e1421a29d6ab524c60df84ea4f83637))
+
+* chore: bumps version ([`4af53d7`](https://github.com/masa-finance/masa/commit/4af53d792ef1405bf220ac02f8c1daa5224a94f5))
 
 * chore(release): release version 0.2.2
 
@@ -118,6 +134,8 @@
 
 ### Documentation
 
+* docs: fixed how docs are created and rendered ([`266c9ba`](https://github.com/masa-finance/masa/commit/266c9ba15491a567e9a0810c947e6a913182f96a))
+
 * docs: updated validator docs ([`58725f2`](https://github.com/masa-finance/masa/commit/58725f25543961aed792da565a02245d569b3df0))
 
 * docs: updated docs to reflect new validator module ([`3828aff`](https://github.com/masa-finance/masa/commit/3828aff4408ed188cba510f745c8c454aa9f1901))
@@ -131,7 +149,18 @@
 
 ### Features
 
+* feat: Add TweetStats for enhanced scraping metrics and improve error handling & retry logic
+
+- Introduce `TweetStats` to track and log scraping statistics.
+- Enhance `ErrorHandler` with better exception logging and handling mechanisms.
+- Update retry logic in `RetryManager` for more robust API interactions.
+- Modify CLI options for better user guidance.
+- Adjust configuration settings to accommodate new features and improved performance.
+- Increase tweet counts in example requests for more comprehensive data collection. ([`41d6fc0`](https://github.com/masa-finance/masa/commit/41d6fc0063ab27efa833206d514d9a96767f1df6))
+
 * feat: adds hashtags to validation ([`03e6a39`](https://github.com/masa-finance/masa/commit/03e6a396186886289d227bb84841fd3f96820e27))
+
+* feat: adds trending tweets ([`164ed83`](https://github.com/masa-finance/masa/commit/164ed83b8130d6484194ac740fa9764c42fd0717))
 
 * feat: adds text validation and additional testing ([`c113f43`](https://github.com/masa-finance/masa/commit/c113f4323f84563262aa071db7be9336f29bd1fa))
 
@@ -231,6 +260,25 @@ Enhanced wait_time calculations in RetryPolicy for accurate retry delays. ([`605
 - Refactored methods to read requests from variables rather than files. ([`5f25d73`](https://github.com/masa-finance/masa/commit/5f25d738539a146942ec41c5360f940ef6cf6ed6))
 
 ### Unknown
+
+* Merge pull request #15 from masa-finance/dev
+
+Merge dev to main for release of 0.2.5 ([`6b2c7a3`](https://github.com/masa-finance/masa/commit/6b2c7a376270859951abb36d757a1aa1e501953c))
+
+* Merge pull request #14 from masa-finance/feat/tweet_stats
+
+Feat/tweet stats ([`d0b32b3`](https://github.com/masa-finance/masa/commit/d0b32b3c1bdad20454f5e09ad3318bf1437960ea))
+
+* bug: modified qc_manager decorators
+
+Modified decorator positioning to remove looping issues.
+Added pytest-cov to detail codebase test coverage ([`64ec447`](https://github.com/masa-finance/masa/commit/64ec447be4a765087d8623fa374f5646df0ec0f0))
+
+* Merge pull request #13 from masa-finance/feat--trending-tweets
+
+feat: trending tweets ([`da1ee06`](https://github.com/masa-finance/masa/commit/da1ee06f688c104d1c2c2c7443ef6db3fcc6f4c8))
+
+* Merge remote-tracking branch 'origin/main' into feat--trending-tweets ([`e91cda3`](https://github.com/masa-finance/masa/commit/e91cda389a67f7bf886d42198ced40cad7d307f4))
 
 * Merge pull request #12 from masa-finance/dev
 
