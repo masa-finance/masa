@@ -186,17 +186,20 @@ class XTwitterScraper:
         """
         self.qc_manager.log_debug(f"Handling API response for request ID: {request_id}, query: {query}, date: {current_date}", context="XTwitterScraper")
         if response is None:
+            
             self.qc_manager.log_error("Received empty response from API.", context="XTwitterScraper._handle_response")
             raise APIException("Empty response from API.")
+        
         if 'data' in response and response['data'] is not None:
+
             tweets = response['data']
             all_tweets.extend(tweets)
             num_tweets = len(tweets)
             self._save_tweets(tweets, request_id, query, current_date)
+
             self.qc_manager.log_debug(f"Scraped and saved {num_tweets} tweets for {query} on {current_date.strftime('%Y-%m-%d')}.", context="XTwitterScraper")
             self.qc_manager.log_debug(f"Processed {num_tweets} tweets from the API response", context="XTwitterScraper")
 
-            # Update tweet statistics
             self.tweet_stats.update(num_tweets, response.get('response_time', 0), response.get('worker_id', 'Unknown'))
 
             return num_tweets

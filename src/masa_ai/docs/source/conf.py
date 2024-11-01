@@ -3,10 +3,10 @@ import sys
 import os
 
 # Get the project root directory (three levels up from conf.py)
-project_root = Path(__file__).resolve().parent.parent.parent
+project_root = Path(__file__).resolve().parents[3]
 
-# Add the src/masa_ai directory to the Python path
-sys.path.insert(0, str(project_root / 'src' / 'masa_ai'))
+# Add the 'src' directory to the Python path
+sys.path.insert(0, str(project_root / 'src'))
 
 # Configuration file for the Sphinx documentation builder.
 #
@@ -20,7 +20,7 @@ project = 'Masa AI'
 copyright = '2024, Masa AI'
 author = 'Masa AI Team'
 version = '0.1'
-release = '0.1.2'
+release = '0.2.4'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
@@ -93,3 +93,12 @@ autodoc_mock_imports = ['numpy', 'pandas', 'matplotlib', 'seaborn', 'plotly']
 
 # AutoAPI settings
 autoapi_dirs = [str(project_root / 'src' / 'masa_ai')]
+
+# Enable both HTML and Latex outputs
+html_sidebars = {
+    '**': [
+        'localtoc.html',
+        'relations.html',
+        'searchbox.html',
+    ]
+}

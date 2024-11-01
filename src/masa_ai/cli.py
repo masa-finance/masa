@@ -4,24 +4,27 @@ import json
 from masa_ai.masa import Masa
 from click import style
 
+
 @click.group()
 def main():
-    """
-    The main entry point for the masa-ai-cli command.
+    """The main entry point for the masa-ai-cli command.
     """
     pass
+
 
 @main.command()
 @click.argument('input', required=False)
 def process(input):
-    """
-    Process requests from a JSON file, a JSON string, a list of requests, or a single request.
+    """Process requests from a JSON file, a JSON string, a list of requests, or a single request.
 
-    \b
     INPUT can be:
     - A path to a JSON file containing requests.
     - A JSON string representing a single request or a list of requests.
     - Omitted to process existing or default requests.
+
+    Args:
+        input (str, optional): The input specifying the source of requests.
+
     """
     masa = Masa()
 
@@ -44,31 +47,36 @@ def process(input):
         # No input provided, process default or existing requests
         masa.process_requests()
 
+
 @main.command()
 @click.argument('page', required=False)
 def docs(page):
-    """
-    Rebuild and view the documentation.
+    """Rebuild and view the documentation.
 
     Optionally, specify a PAGE to view a specific documentation page.
+
+    Args:
+        page (str, optional): The specific documentation page to view.
+
     """
     masa = Masa()
     masa.view_docs(page)
 
+
 @main.command()
 def data():
-    """
-    List the scraped data files based on the configured data directory.
+    """List the scraped data files based on the configured data directory.
     """
     masa = Masa()
     masa.list_scraped_data()
 
+
 @main.group()
 def config():
-    """
-    Manage configurations in settings.yaml.
+    """Manage configurations in settings.yaml.
     """
     pass
+
 
 @config.command('get', help="""
 Get the value of a configuration KEY.
@@ -81,14 +89,18 @@ This command retrieves the value of the specified configuration key from setting
 """)
 @click.argument('key')
 def config_get(key):
-    """
-    Get the value of a configuration KEY.
+    """Get the value of a configuration KEY.
+
+    Args:
+        key (str): The configuration key to retrieve.
+
     """
     masa = Masa()
     value = masa.get_config(key)
     message = f"{key} = {value}"
     # click.echo(style(message, fg='green'))
     masa.qc_manager.log_info(message, context="CLI")
+
 
 @config.command('set', help="""
 Set the VALUE of a configuration KEY.
@@ -102,8 +114,12 @@ This command sets the specified configuration key to the provided value in setti
 @click.argument('key')
 @click.argument('value')
 def config_set(key, value):
-    """
-    Set the VALUE of a configuration KEY.
+    """Set the VALUE of a configuration KEY.
+
+    Args:
+        key (str): The configuration key to set.
+        value (str): The value to assign to the configuration key.
+
     """
     masa = Masa()
     masa.set_config(key, value)
@@ -111,13 +127,12 @@ def config_set(key, value):
     click.echo(style(message, fg='green'))
     masa.qc_manager.log_info(message, context="CLI")
 
+
 @main.command()
 @click.option('--statuses', default='queued,in_progress', help='Comma-separated list of statuses to filter requests. Use --statuses flag to specify followed by a comma-separated list of the desired statuses.')
 def list_requests(statuses):
-    """
-    List requests filtered by statuses.
+    """List requests filtered by statuses.
 
-    \b
     Use the --statuses flag to specify the statuses to filter by.
 
     STATUS can be:
@@ -129,25 +144,33 @@ def list_requests(statuses):
     - all
 
     By default, it lists requests with statuses 'queued' and 'in_progress'.
+
+    Args:
+        statuses (str, optional): Comma-separated list of statuses to filter requests.
+
     """
     masa = Masa()
     statuses_list = statuses.split(',') if statuses != 'all' else None
     masa.list_requests(statuses_list)
 
+
 @main.command()
 @click.argument('request_ids', required=False)
 def clear_requests(request_ids):
-    """
-    Clear queued or in-progress requests.
+    """Clear queued or in-progress requests.
 
-    \b
     REQUEST_IDS can be:
     - A comma-separated list of request IDs to clear.
     - Omitted to clear all queued and in-progress requests.
+
+    Args:
+        request_ids (str, optional): Comma-separated list of request IDs to clear.
+
     """
     masa = Masa()
     request_ids_list = request_ids.split(',') if request_ids else None
     masa.clear_requests(request_ids_list)
+
 
 if __name__ == '__main__':
     main()
