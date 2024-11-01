@@ -14,6 +14,7 @@ Attributes:
 import functools
 from .exceptions import MASAException, APIException
 
+
 class ErrorHandler:
     """
     Class for handling errors and exceptions in the MASA system.
@@ -29,8 +30,8 @@ class ErrorHandler:
         """
         Initialize the ErrorHandler.
 
-        :param qc_manager: Quality control manager for logging and error handling.
-        :type qc_manager: tools.qc.qc_manager.QCManager
+        Args:
+            qc_manager (tools.qc.qc_manager.QCManager): Quality control manager for logging and error handling.
         """
         self.qc_manager = qc_manager
 
@@ -38,10 +39,11 @@ class ErrorHandler:
         """
         Decorator for handling errors in a function.
 
-        :param custom_handlers: Dictionary of custom error handlers for specific exception types.
-        :type custom_handlers: dict
-        :return: Decorated function.
-        :rtype: function
+        Args:
+            custom_handlers (dict, optional): Dictionary of custom error handlers for specific exception types.
+
+        Returns:
+            function: Decorated function.
         """
         def decorator(func):
             @functools.wraps(func)
@@ -59,30 +61,45 @@ class ErrorHandler:
         """
         Default error handler for exceptions.
 
-        :param e: The exception object.
-        :type e: Exception
-        :param func_name: Name of the function where the exception occurred.
-        :type func_name: str
-        :raises: The original exception after logging the error.
+        Args:
+            e (Exception): The exception object.
+            func_name (str): Name of the function where the exception occurred.
+
+        Raises:
+            Exception: The original exception after logging the error.
         """
         if isinstance(e, MASAException):
-            self.qc_manager.log_error(f"{type(e).__name__} in {func_name}: {str(e)}", error_info=e)
+            self.qc_manager.log_error(
+                f"{type(e).__name__} in {func_name}: {str(e)}",
+                error_info=e
+            )
         else:
-            self.qc_manager.log_error(f"Unexpected error in {func_name}: {str(e)}", error_info=e)
+            self.qc_manager.log_error(
+                f"Unexpected error in {func_name}: {str(e)}",
+                error_info=e
+            )
         raise
 
     def handle_error_with_retry(self, config_key):
         """
         Decorator for handling errors and retrying failed operations based on configuration settings.
 
-        :param config_key: Key in the configuration for the retry settings.
-        :type config_key: str
-        :return: Decorated function.
-        :rtype: function
+        Args:
+            config_key (str): Key in the configuration for the retry settings.
+
+        Returns:
+            function: Decorated function.
         """
         def decorator(func):
             @functools.wraps(func)
             def wrapper(*args, **kwargs):
-                return self.qc_manager.execute_with_retry(func, config_key, *args, **kwargs)
+                try:
+                    return self.qc_manager.execute_with_retry(func, config_key, *args, **kwargs)
+                except Exception as e:
+                    self.qc_manager.log_error(
+                        f"Function {func.__qualname__} failed after retries. Error: {str(e)}",
+                        context="ErrorHandler.handle_error_with_retry"
+                    )
+                    raise
             return wrapper
         return decorator

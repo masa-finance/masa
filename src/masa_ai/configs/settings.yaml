@@ -8,11 +8,11 @@ default:
     START_DATE: '2024-08-15'  # Start date for fetching tweets
     END_DATE: '2024-08-17'  # End date for fetching tweets
     DAYS_PER_ITERATION: 1 
-    MAX_RETRIES: 3
+    MAX_RETRIES: 5
     BASE_WAIT_TIME: 10
     BACKOFF_FACTOR: 2
     MAX_WAIT_TIME: 960
-    SUCCESS_WAIT_TIME: 10
+    SUCCESS_WAIT_TIME: 5
     RETRYABLE_EXCEPTIONS:
       - NetworkException
       - RateLimitException
@@ -22,7 +22,8 @@ default:
     INITIAL_WAIT_TIMES:
       '429': 120
       '417': 960  
-      '504': 60   
+      '504': 10
+      '502': 10
     DEFAULT_TIMEFRAME_MONTHS: 1 
 
   request_manager:
