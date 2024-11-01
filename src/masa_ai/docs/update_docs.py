@@ -73,25 +73,24 @@ def generate_api_docs(src_masa_path, modules_dir):
         src_masa_path (Path): Path to the source directory of the MASA project.
         modules_dir (Path): Path to the directory where the generated documentation will be stored.
     """
-    for module_path in src_masa_path.iterdir():
-        if module_path.is_dir() and not module_path.name.startswith("__") and module_path.name != "docs":
-            relative_path = module_path.relative_to(src_masa_path)
-            output_path = modules_dir / relative_path
-            output_path.mkdir(parents=True, exist_ok=True)
+    module_path = src_masa_path
+    if module_path.exists():
+        output_path = modules_dir
+        output_path.mkdir(parents=True, exist_ok=True)
 
-            logger.info(f"Generating API documentation for '{relative_path}'...")
+        logger.info(f"Generating API documentation for '{module_path}'...")
 
-            # Run sphinx-apidoc command with `--tocfile index` to generate `index.rst`
-            subprocess.run([
-                "sphinx-apidoc",
-                "-f",
-                "-o", str(output_path),
-                str(module_path),
-                "--separate",
-                "-H", "Masa AI" if relative_path.name == "masa_ai" else relative_path.name.capitalize(),
-                "-e",
-                "--tocfile", "index"  # Ensures that `index.rst` is used instead of `modules.rst`
-            ], check=True, capture_output=True)
+        subprocess.run([
+            "sphinx-apidoc",
+            "-f",
+            "-o", str(output_path),
+            str(module_path),
+            "--separate",
+            "--module-first",
+            "--tocfile", "index"
+        ], check=True)
+    else:
+        logger.error(f"Module path '{module_path}' does not exist.")
 
 def update_docs():
     """

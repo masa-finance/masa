@@ -53,44 +53,69 @@ class RetryPolicy:
     def wait_time(self, config, attempt, exception):
         """Calculate the wait time based on the retry configuration and attempt.
 
-        :param config: The retry configuration
-        :param attempt: The current attempt number
-        :param exception: The exception that caused the retry
-        :return: The calculated wait time in seconds
+        Args:
+            config (RetryConfiguration): The retry configuration.
+            attempt (int): The current attempt number.
+            exception (Exception): The exception that caused the retry.
+
+        Returns:
+            float: The calculated wait time in seconds.
         """
-        if isinstance(exception, APIException) and exception.status_code and attempt == 1:
-            wait = config.initial_wait_times.get(str(exception.status_code), config.base_wait_time)
+        # Determine the initial wait time based on the exception type
+        if isinstance(exception, APIException) and hasattr(exception, 'status_code'):
+            status_code = str(exception.status_code)
+            initial_wait = config.initial_wait_times.get(status_code, config.base_wait_time)
         elif isinstance(exception, RateLimitException):
-            wait = config.initial_wait_times.get('429')
+            initial_wait = config.initial_wait_times.get('429', config.base_wait_time)
         elif isinstance(exception, NoWorkersAvailableException):
-            wait = config.initial_wait_times.get('417')
+            initial_wait = config.initial_wait_times.get('417', config.base_wait_time)
         elif isinstance(exception, GatewayTimeoutException):
-            wait = config.initial_wait_times.get('504')
+            initial_wait = config.initial_wait_times.get('504', config.base_wait_time)
         else:
-            wait = min(config.base_wait_time * (config.backoff_factor ** (attempt - 1)), config.max_wait_time)
-        self.qc_manager.log_debug(f"Waiting for {wait} seconds before retry", context="RetryPolicy")
+            initial_wait = config.base_wait_time
+
+        # Calculate the wait time using exponential backoff
+        if attempt == 1:
+            wait = initial_wait
+        else:
+            wait = min(initial_wait * (config.backoff_factor ** (attempt - 1)), config.max_wait_time)
+
+        # Log the calculated wait time
+        self.qc_manager.log_debug(
+            f"Calculated wait time: {wait} seconds before retrying (Attempt {attempt})",
+            context="RetryPolicy.wait_time"
+        )
         return wait
 
     def should_retry(self, config, exception, attempt):
         """Check if the exception should be retried based on the configuration.
         
-        :param config: The retry configuration 
-        :param exception: The exception to check
-        :param attempt: The current attempt number
-        :return: True if the exception should be retried, False otherwise
+        Args:
+            config (RetryConfiguration): The retry configuration.
+            exception (Exception): The exception to check.
+            attempt (int): The current attempt number.
+
+        Returns:
+            bool: True if the exception should be retried, False otherwise.
         """
+        # Determine if the exception is retryable and if the max retries have not been exceeded
         return attempt < config.max_retries and isinstance(exception, tuple(config.retryable_exceptions))
 
     def execute_with_retry(self, func, config_key, *args, **kwargs):
         """
         Execute the given function with retry logic based on the configuration.
 
-        :param func: The function to execute
-        :param config_key: The key of the retry configuration to use
-        :param args: Positional arguments to pass to the function
-        :param kwargs: Keyword arguments to pass to the function
-        :return: The result of the function
-        :raises: The last exception if all retries fail
+        Args:
+            func (callable): The function to execute.
+            config_key (str): The key of the retry configuration to use.
+            args: Positional arguments to pass to the function.
+            kwargs: Keyword arguments to pass to the function.
+
+        Returns:
+            Any: The result of the function.
+
+        Raises:
+            Exception: The last exception if all retries fail.
         """
         config = self.get_configuration(config_key)
         attempt = 1
