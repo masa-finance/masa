@@ -12,8 +12,9 @@ import re
 from ...connections.xtwitter_connection import XTwitterConnection
 from masa_ai.tools.utils.data_storage import DataStorage
 from masa_ai.tools.qc.qc_manager import QCManager
-from masa_ai.tools.qc.exceptions import ConfigurationException, DataProcessingException
+from masa_ai.tools.qc.exceptions import ConfigurationException, DataProcessingException, APIException
 from masa_ai.configs.config import global_settings
+from masa_ai.tools.utils.tweet_stats import TweetStats
 
 class XTwitterScraper:
     """
@@ -28,21 +29,24 @@ class XTwitterScraper:
         request (dict): The request configuration for tweet scraping.
         twitter_connection (masa_ai.connections.xtwitter_connection.XTwitterConnection): The connection to the XTwitter API.
         data_storage (masa_ai.tools.utils.data_storage.DataStorage): The data storage for saving scraped tweets.
+        tweet_stats (masa_ai.tools.stats.tweet_stats.TweetStats): The TweetStats instance for tracking statistics.
     """
 
-    def __init__(self, state_manager, request):
+    def __init__(self, state_manager, request, tweet_stats: TweetStats = None):
         """
         Initialize the masa_ai.tools.scrape.XTwitterScraper.
 
         Args:
             state_manager (masa_ai.orchestration.state_manager.StateManager): The state manager to track scraping progress.
             request (dict): The request configuration for tweet scraping.
+            tweet_stats (masa_ai.tools.stats.tweet_stats.TweetStats, optional): The TweetStats instance for tracking statistics.
         """
         self.qc_manager = QCManager()
         self.state_manager = state_manager
         self.request = request
         self.twitter_connection = XTwitterConnection()
         self.data_storage = DataStorage()
+        self.tweet_stats = tweet_stats or TweetStats(self.qc_manager)
 
     @QCManager().handle_error()
     def scrape_tweets(self, request_id, query, count):
@@ -101,6 +105,7 @@ class XTwitterScraper:
         current_date = min(current_date, end_date)
 
         total_days = (end_date - start_date).days
+
         self.qc_manager.log_info(f"Starting tweet scraping for query: {query} over {total_days} days", context="XTwitterScraper")
 
         all_tweets = []
@@ -109,22 +114,30 @@ class XTwitterScraper:
         days_processed = 0
 
         while current_date >= start_date:
-            self.qc_manager.log_debug(f"Processing date: {current_date}", context="XTwitterScraper")
+            
             iteration_end_date = current_date
             iteration_start_date = current_date
 
-            # For the query, we need to use the day after current_date as the "until" date
             query_until_date = (iteration_end_date + timedelta(days=1)).strftime('%Y-%m-%d')
             date_range_query = f"{cleaned_query} since:{iteration_start_date.strftime('%Y-%m-%d')} until:{query_until_date}"
             
             self.qc_manager.log_debug(f"Processing date: {iteration_start_date}", context="XTwitterScraper")
-            
             self.qc_manager.log_debug(f"Calling twitter_connection.get_tweets with query: {date_range_query}, count: {count}, start_time: {current_date}, end_time: {current_date + timedelta(days=1)}", context="XTwitterScraper")
+            
             try:
+                time_start = time.time()
                 response = self.twitter_connection.get_tweets(api_endpoint, date_range_query, count)
+                time_end = time.time()
+                elapsed_time = time_end - time_start
+
+                self.tweet_stats.update_response_time(elapsed_time)
+                self.qc_manager.log_debug(f"API response time: {elapsed_time:.2f} seconds", context="XTwitterScraper")
+                
                 self.qc_manager.log_debug(f"Received response from API", context="XTwitterScraper")
+            
             except Exception as e:
                 self.qc_manager.log_error(f"API call failed: {str(e)}", context="XTwitterScraper")
+                raise
             
             api_calls_count += 1
             new_records = self._handle_response(response, request_id, query, iteration_end_date, all_tweets, records_fetched)
@@ -140,8 +153,13 @@ class XTwitterScraper:
 
             # Pause for the configured success wait time before the next iteration
             success_wait_time = global_settings.get('twitter.SUCCESS_WAIT_TIME', 5)
+
             self.qc_manager.log_debug(f"Pausing for {success_wait_time} seconds before the next iteration", context="XTwitterScraper")
+
             time.sleep(success_wait_time)
+
+            # Update and log scraping statistics
+            self.qc_manager.log_info(self.tweet_stats.get_colored_stats(), context="TweetStats")
 
        
 
@@ -167,6 +185,9 @@ class XTwitterScraper:
             int: The number of new tweets processed from the API response.
         """
         self.qc_manager.log_debug(f"Handling API response for request ID: {request_id}, query: {query}, date: {current_date}", context="XTwitterScraper")
+        if response is None:
+            self.qc_manager.log_error("Received empty response from API.", context="XTwitterScraper._handle_response")
+            raise APIException("Empty response from API.")
         if 'data' in response and response['data'] is not None:
             tweets = response['data']
             all_tweets.extend(tweets)
@@ -174,6 +195,10 @@ class XTwitterScraper:
             self._save_tweets(tweets, request_id, query, current_date)
             self.qc_manager.log_debug(f"Scraped and saved {num_tweets} tweets for {query} on {current_date.strftime('%Y-%m-%d')}.", context="XTwitterScraper")
             self.qc_manager.log_debug(f"Processed {num_tweets} tweets from the API response", context="XTwitterScraper")
+
+            # Update tweet statistics
+            self.tweet_stats.update(num_tweets, response.get('response_time', 0), response.get('worker_id', 'Unknown'))
+
             return num_tweets
         else:
             self.qc_manager.log_debug(f"No tweets fetched for {query} on {current_date.strftime('%Y-%m-%d')}. Likely no results.", context="XTwitterScraper")

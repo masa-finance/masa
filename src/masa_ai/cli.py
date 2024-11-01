@@ -112,12 +112,14 @@ def config_set(key, value):
     masa.qc_manager.log_info(message, context="CLI")
 
 @main.command()
-@click.option('--statuses', default='queued,in_progress', help='Comma-separated list of statuses to filter requests.')
+@click.option('--statuses', default='queued,in_progress', help='Comma-separated list of statuses to filter requests. Use --statuses flag to specify followed by a comma-separated list of the desired statuses.')
 def list_requests(statuses):
     """
     List requests filtered by statuses.
 
     \b
+    Use the --statuses flag to specify the statuses to filter by.
+
     STATUS can be:
     - queued
     - in_progress
