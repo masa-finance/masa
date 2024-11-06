@@ -6,12 +6,28 @@ class AbstractDatabaseHandler(ABC):
     
     This class provides the contract that all concrete database handlers must implement.
     It defines methods for basic CRUD operations and specialized operations for managing
-    requests, tweets, stats and logs.
+    requests, tweets, and stats using SQLAlchemy ORM patterns.
+
+    Attributes:
+        database_path (str): Path to the database file
+        engine: SQLAlchemy engine instance
+        Session: SQLAlchemy session factory
+        qc_manager (QCManager): Quality control manager for logging
     """
 
     @abstractmethod
+    def __init__(self, database_path: str, qc_manager: 'QCManager'):
+        """Initialize database handler with path and QC manager.
+
+        Args:
+            database_path (str): Path to the database file
+            qc_manager (QCManager): Quality control manager for logging
+        """
+        pass
+
+    @abstractmethod
     def connect(self) -> None:
-        """Establish a synchronous connection to the database."""
+        """Establish a synchronous connection to the database and initialize SQLAlchemy."""
         pass
 
     @abstractmethod 
@@ -21,12 +37,12 @@ class AbstractDatabaseHandler(ABC):
 
     @abstractmethod
     def disconnect(self) -> None:
-        """Close the synchronous connection to the database."""
+        """Close the synchronous database connection and dispose SQLAlchemy engine."""
         pass
 
     @abstractmethod
     async def disconnect_async(self) -> None:
-        """Close the asynchronous connection to the database."""
+        """Close the asynchronous database connection."""
         pass
 
     @abstractmethod
@@ -34,7 +50,7 @@ class AbstractDatabaseHandler(ABC):
         """Add a new request to the database synchronously.
 
         Args:
-            request (Dict[str, Any]): The request data to add.
+            request (Dict[str, Any]): The request data containing request_id, status, and params.
         """
         pass
 
@@ -43,13 +59,13 @@ class AbstractDatabaseHandler(ABC):
         """Add a new request to the database asynchronously.
 
         Args:
-            request (Dict[str, Any]): The request data to add.
+            request (Dict[str, Any]): The request data containing request_id, status, and params.
         """
         pass
 
     @abstractmethod
     def update_request_status(self, request_id: str, status: str, progress: Dict[str, Any]) -> None:
-        """Update the status and progress of an existing request synchronously.
+        """Update the status of an existing request synchronously.
 
         Args:
             request_id (str): The ID of the request to update.
@@ -60,7 +76,7 @@ class AbstractDatabaseHandler(ABC):
 
     @abstractmethod
     async def update_request_status_async(self, request_id: str, status: str, progress: Dict[str, Any]) -> None:
-        """Update the status and progress of an existing request asynchronously.
+        """Update the status of an existing request asynchronously.
 
         Args:
             request_id (str): The ID of the request to update.
@@ -77,7 +93,7 @@ class AbstractDatabaseHandler(ABC):
             request_id (str): The ID of the request.
 
         Returns:
-            Dict[str, Any]: The request data.
+            Dict[str, Any]: The request data or empty dict if not found.
         """
         pass
 
@@ -89,7 +105,7 @@ class AbstractDatabaseHandler(ABC):
             request_id (str): The ID of the request.
 
         Returns:
-            Dict[str, Any]: The request data.
+            Dict[str, Any]: The request data or empty dict if not found.
         """
         pass
 
@@ -131,7 +147,7 @@ class AbstractDatabaseHandler(ABC):
 
     @abstractmethod
     def enqueue_request(self, request_id: str, priority: int = 1) -> None:
-        """Add a request to the queue synchronously.
+        """Update request status to 'queued' synchronously.
 
         Args:
             request_id (str): The ID of the request to enqueue.
@@ -141,7 +157,7 @@ class AbstractDatabaseHandler(ABC):
 
     @abstractmethod
     async def enqueue_request_async(self, request_id: str, priority: int = 1) -> None:
-        """Add a request to the queue asynchronously.
+        """Update request status to 'queued' asynchronously.
 
         Args:
             request_id (str): The ID of the request to enqueue.
@@ -154,7 +170,7 @@ class AbstractDatabaseHandler(ABC):
         """Store tweets in the database synchronously.
 
         Args:
-            tweets (List[Dict[str, Any]]): List of tweet data to store.
+            tweets (List[Dict[str, Any]]): List of tweet data containing id, created_at, text, user info.
             request_id (str): The ID of the associated request.
         """
         pass
@@ -164,14 +180,14 @@ class AbstractDatabaseHandler(ABC):
         """Store tweets in the database asynchronously.
 
         Args:
-            tweets (List[Dict[str, Any]]): List of tweet data to store.
+            tweets (List[Dict[str, Any]]): List of tweet data containing id, created_at, text, user info.
             request_id (str): The ID of the associated request.
         """
         pass
 
     @abstractmethod
     def update_stats(self, request_id: str, new_tweets: int, response_time: float, worker_id: str) -> None:
-        """Update tweet statistics for a request synchronously.
+        """Update or create tweet statistics for a request synchronously.
 
         Args:
             request_id (str): The ID of the request.
@@ -183,7 +199,7 @@ class AbstractDatabaseHandler(ABC):
 
     @abstractmethod
     async def update_stats_async(self, request_id: str, new_tweets: int, response_time: float, worker_id: str) -> None:
-        """Update tweet statistics for a request asynchronously.
+        """Update or create tweet statistics for a request asynchronously.
 
         Args:
             request_id (str): The ID of the request.
@@ -201,7 +217,7 @@ class AbstractDatabaseHandler(ABC):
             request_id (str): The ID of the request.
 
         Returns:
-            Dict[str, Any]: Statistics for the request.
+            Dict[str, Any]: Statistics for the request or empty dict if not found.
         """
         pass
 
@@ -213,58 +229,6 @@ class AbstractDatabaseHandler(ABC):
             request_id (str): The ID of the request.
 
         Returns:
-            Dict[str, Any]: Statistics for the request.
+            Dict[str, Any]: Statistics for the request or empty dict if not found.
         """
         pass
-
-    @abstractmethod
-    def log_message(self, level: str, message: str, context: str = "", error_info: Any = None) -> None:
-        """Log a message to the database synchronously.
-
-        Args:
-            level (str): Log level.
-            message (str): Log message.
-            context (str, optional): Context of the log. Defaults to "".
-            error_info (Any, optional): Additional error information. Defaults to None.
-        """
-        pass
-
-    @abstractmethod
-    async def log_message_async(self, level: str, message: str, context: str = "", error_info: Any = None) -> None:
-        """Log a message to the database asynchronously.
-
-        Args:
-            level (str): Log level.
-            message (str): Log message.
-            context (str, optional): Context of the log. Defaults to "".
-            error_info (Any, optional): Additional error information. Defaults to None.
-        """
-        pass
-
-    @abstractmethod
-    def get_logs(self, limit: int = 100, level: Optional[str] = None) -> List[Dict[str, Any]]:
-        """Retrieve logs from the database synchronously.
-
-        Args:
-            limit (int, optional): Maximum number of logs to return. Defaults to 100.
-            level (Optional[str], optional): Filter by log level. Defaults to None.
-
-        Returns:
-            List[Dict[str, Any]]: List of log entries.
-        """
-        pass
-
-    @abstractmethod
-    async def get_logs_async(self, limit: int = 100, level: Optional[str] = None) -> List[Dict[str, Any]]:
-        """Retrieve logs from the database asynchronously.
-
-        Args:
-            limit (int, optional): Maximum number of logs to return. Defaults to 100.
-            level (Optional[str], optional): Filter by log level. Defaults to None.
-
-        Returns:
-            List[Dict[str, Any]]: List of log entries.
-        """
-        pass
-
-
