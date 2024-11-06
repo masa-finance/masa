@@ -203,3 +203,5 @@ src/masa_ai.egg-info/PKG-INFO
 Dockerfile
 .DS_Store
 /data
+DB_REFACTOR.md
+/db_refactor

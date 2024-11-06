@@ -1,6 +1,7 @@
 default:
   twitter:
-    BASE_URL: "http://localhost:8080/api/v1/"
+    BASE_URL : "https://test.api.masa.ai/api/v1/"
+    BASE_URL_LOCAL: "http://localhost:8080/api/v1/"
     HEADERS:
       accept: 'application/json'
       Content-Type: 'application/json'
@@ -32,6 +33,7 @@ default:
 
   data_storage:
     DATA_DIRECTORY: null
+    DATABASE_NAME: "ddb.db"
 
   logging:
     LOG_LEVEL: INFO

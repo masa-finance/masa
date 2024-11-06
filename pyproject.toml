@@ -44,6 +44,7 @@ click = "^8.1.7"
 argparse = "^1.4.0"
 loguru = "^0.7.2"
 uuid = "^1.30"
+appdirs = "^1.4.4"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "*"

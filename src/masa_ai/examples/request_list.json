@@ -1,46 +1,46 @@
 [
-  {
-    "scraper": "XTwitterScraper",
-    "endpoint": "data/twitter/tweets/recent",
-    "priority": 1,
-    "params": {
-      "query": "#elonmusk since:2024-08-08 until:2024-08-13",
-      "count": 230
-    }
-  },
-  {
-    "scraper": "XTwitterScraper", 
-    "endpoint": "data/twitter/tweets/recent",
-    "priority": 2,
-    "params": {
-      "query": "#memes since:2024-08-15 until:2024-08-20",
-      "count": 40
-    }
-  },
-  {
-    "scraper": "XTwitterScraper",
-    "endpoint": "data/twitter/tweets/recent", 
-    "priority": 3,
-    "params": {
-      "query": "#AI since:2024-08-01 until:2024-08-31",
-      "count": 37
-    }
-  },
-  {
-    "scraper": "XTwitterScraper",
-    "endpoint": "data/twitter/tweets/recent",
-    "params": {
-      "query": "#LoveIsland since:2024-08-01 until:2024-08-31",
-      "count": 30
-    }
-  },
-  {
-    "scraper": "XTwitterScraper",
-    "endpoint": "data/twitter/tweets/recent",
-    "priority": 1,
-    "params": {
-      "query": "#football since:2024-08-01 until:2024-08-31",
-      "count": 30
-    }
-  }
+	{
+		"scraper": "XTwitterScraper",
+		"endpoint": "data/twitter/tweets/recent",
+		"priority": 1,
+		"params": {
+			"query": "#elonmusk since:2024-10-01 until:2024-10-31",
+			"count": 50
+		}
+	},
+	{
+		"scraper": "XTwitterScraper",
+		"endpoint": "data/twitter/tweets/recent",
+		"priority": 2,
+		"params": {
+			"query": "#memes since:2024-10-01 until:2024-10-31",
+			"count": 100
+		}
+	},
+	{
+		"scraper": "XTwitterScraper",
+		"endpoint": "data/twitter/tweets/recent",
+		"priority": 3,
+		"params": {
+			"query": "#AI since:2024-10-01 until:2024-10-31",
+			"count": 100
+		}
+	},
+	{
+		"scraper": "XTwitterScraper",
+		"endpoint": "data/twitter/tweets/recent",
+		"params": {
+			"query": "#LoveIsland since:2024-10-01 until:2024-10-31",
+			"count": 100
+		}
+	},
+	{
+		"scraper": "XTwitterScraper",
+		"endpoint": "data/twitter/tweets/recent",
+		"priority": 1,
+		"params": {
+			"query": "#football since:2024-10-01 until:2024-10-31",
+			"count": 100
+		}
+	}
 ]
