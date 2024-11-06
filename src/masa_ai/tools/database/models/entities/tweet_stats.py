@@ -1,7 +1,8 @@
 
 from dataclasses import dataclass, field
 from typing import List, Dict, Any
-from sqlalchemy import Column, String, Integer, Float, JSON
+from datetime import datetime
+from sqlalchemy import Column, String, Integer, Float, JSON, DateTime
 from masa_ai.tools.database.models.base import Base
 
 @dataclass
@@ -33,6 +34,7 @@ class TweetStats(Base):
     api_call_count = Column(Integer, nullable=False, default=0)
     total_response_time = Column(Float, nullable=False, default=0.0)
     unique_workers = Column(JSON, nullable=False, default=list)
+    updated_at = Column(DateTime, nullable=False, default=lambda: datetime.now(datetime.UTC))
 
     # Dataclass fields
     request_id: str = field(init=False)
@@ -40,6 +42,7 @@ class TweetStats(Base):
     api_call_count: int = field(default=0) 
     total_response_time: float = field(default=0.0)
     unique_workers: List[str] = field(default_factory=list)
+    updated_at: datetime = field(default_factory=datetime.now)
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert tweet stats to dictionary.
@@ -56,5 +59,6 @@ class TweetStats(Base):
             'avg_response_time': (self.total_response_time / self.api_call_count 
                                 if self.api_call_count else 0),
             'tweets_per_minute': (self.total_tweets / self.total_response_time * 60 
-                                if self.total_response_time else 0)
+                                if self.total_response_time else 0),
+            'updated_at': self.updated_at
         }

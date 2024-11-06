@@ -23,7 +23,7 @@ class Tweet(Base):
 
     tweet_id: str = field(init=False, default='')
     request_id: str = field(default='')
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(datetime.UTC))
     text: str = field(default='')
     user_id: str = field(default='')
     user_name: str = field(default='')

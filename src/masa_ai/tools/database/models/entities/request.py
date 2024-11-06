@@ -3,6 +3,7 @@ from typing import Optional, Dict, Any, List
 from datetime import datetime
 from sqlalchemy import Column, String, Integer, DateTime, JSON
 from sqlalchemy.orm import relationship
+from .tweet import Tweet
 
 from ..base import Base
 
@@ -28,8 +29,8 @@ class Request(Base):
 
     request_id: str = field(init=False, default='')
     status: str = field(default='')
-    created_at: datetime = field(default_factory=datetime.utcnow)
-    last_updated: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(datetime.UTC))
+    last_updated: datetime = field(default_factory=lambda: datetime.now(datetime.UTC))
     scraper: str = field(default='')
     endpoint: str = field(default='')
     priority: int = field(default=1)

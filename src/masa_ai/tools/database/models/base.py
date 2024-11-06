@@ -13,5 +13,5 @@ class Base(MappedAsDataclass, DeclarativeBase):
         updated_at (datetime): Timestamp when record was last updated
     """
     
-    created_at: datetime = datetime.utcnow()
-    updated_at: datetime = datetime.utcnow()
+    created_at: datetime = datetime.now(datetime.UTC)
+    updated_at: datetime = datetime.now(datetime.UTC)
