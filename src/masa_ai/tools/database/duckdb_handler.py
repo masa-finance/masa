@@ -8,6 +8,7 @@ from masa_ai.tools.database.abstract_database_handler import AbstractDatabaseHan
 from masa_ai.tools.database.models.base import Base
 from masa_ai.tools.database.models.entities.request import Request
 from masa_ai.tools.database.models.entities.tweet import Tweet
+from masa_ai.tools.database.models.entities.tweet_stats import TweetStats
 
 
 class DuckDBHandler(AbstractDatabaseHandler):
@@ -220,40 +221,42 @@ class DuckDBHandler(AbstractDatabaseHandler):
     async def get_stats_async(self, request_id: str) -> Dict[str, Any]:
         """Get tweet statistics asynchronously."""
         return await asyncio.to_thread(self.get_stats, request_id)
+    
+    # TODO: Logging functionality if we want to keep it in a table ever.
 
-    def log_message(self, level: str, message: str, context: str = "", error_info: Any = None) -> None:
-        """Log message synchronously."""
-        try:
-            with self.Session() as session:
-                log = Log(
-                    level=level,
-                    message=message,
-                    context=context,
-                    error_info=error_info
-                )
-                session.add(log)
-                session.commit()
-        except Exception as e:
-            self.qc_manager.log_error(f"Failed to log message: {e}", context="DuckDBHandler")
-            raise
+    # def log_message(self, level: str, message: str, context: str = "", error_info: Any = None) -> None:
+    #     """Log message synchronously."""
+    #     try:
+    #         with self.Session() as session:
+    #             log = Log(
+    #                 level=level,
+    #                 message=message,
+    #                 context=context,
+    #                 error_info=error_info
+    #             )
+    #             session.add(log)
+    #             session.commit()
+    #     except Exception as e:
+    #         self.qc_manager.log_error(f"Failed to log message: {e}", context="DuckDBHandler")
+    #         raise
 
-    async def log_message_async(self, level: str, message: str, context: str = "", error_info: Any = None) -> None:
-        """Log message asynchronously."""
-        await asyncio.to_thread(self.log_message, level, message, context, error_info)
+    # async def log_message_async(self, level: str, message: str, context: str = "", error_info: Any = None) -> None:
+    #     """Log message asynchronously."""
+    #     await asyncio.to_thread(self.log_message, level, message, context, error_info)
 
-    def get_logs(self, limit: int = 100, level: Optional[str] = None) -> List[Dict[str, Any]]:
-        """Get logs synchronously."""
-        try:
-            with self.Session() as session:
-                query = session.query(Log)
-                if level:
-                    query = query.filter(Log.level == level)
-                logs = query.order_by(Log.timestamp.desc()).limit(limit).all()
-                return [log.to_dict() for log in logs]
-        except Exception as e:
-            self.qc_manager.log_error(f"Failed to get logs: {e}", context="DuckDBHandler")
-            raise
+    # def get_logs(self, limit: int = 100, level: Optional[str] = None) -> List[Dict[str, Any]]:
+    #     """Get logs synchronously."""
+    #     try:
+    #         with self.Session() as session:
+    #             query = session.query(Log)
+    #             if level:
+    #                 query = query.filter(Log.level == level)
+    #             logs = query.order_by(Log.timestamp.desc()).limit(limit).all()
+    #             return [log.to_dict() for log in logs]
+    #     except Exception as e:
+    #         self.qc_manager.log_error(f"Failed to get logs: {e}", context="DuckDBHandler")
+    #         raise
 
-    async def get_logs_async(self, limit: int = 100, level: Optional[str] = None) -> List[Dict[str, Any]]:
-        """Get logs asynchronously."""
-        return await asyncio.to_thread(self.get_logs, limit, level)
+    # async def get_logs_async(self, limit: int = 100, level: Optional[str] = None) -> List[Dict[str, Any]]:
+    #     """Get logs asynchronously."""
+    #     return await asyncio.to_thread(self.get_logs, limit, level)
