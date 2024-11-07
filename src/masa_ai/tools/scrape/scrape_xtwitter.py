@@ -10,11 +10,13 @@ import time
 from datetime import datetime, timedelta
 import re
 from ...connections.xtwitter_connection import XTwitterConnection
-from masa_ai.tools.utils.data_storage import DataStorage
 from masa_ai.tools.qc.qc_manager import QCManager
 from masa_ai.tools.qc.exceptions import ConfigurationException, DataProcessingException, APIException
 from masa_ai.configs.config import global_settings
 from masa_ai.tools.utils.tweet_stats import TweetStats
+from masa_ai.tools.database.duckdb_handler import DuckDBHandler
+from masa_ai.tools.database.abstract_database_handler import AbstractDatabaseHandler
+from typing import Optional
 
 class XTwitterScraper:
     """
@@ -28,25 +30,29 @@ class XTwitterScraper:
         state_manager (masa_ai.orchestration.state_manager.StateManager): The state manager to track scraping progress.
         request (dict): The request configuration for tweet scraping.
         twitter_connection (masa_ai.connections.xtwitter_connection.XTwitterConnection): The connection to the XTwitter API.
-        data_storage (masa_ai.tools.utils.data_storage.DataStorage): The data storage for saving scraped tweets.
+        db_handler (masa_ai.tools.database.duckdb_handler.DuckDBHandler): The database handler for storing tweets.
         tweet_stats (masa_ai.tools.stats.tweet_stats.TweetStats): The TweetStats instance for tracking statistics.
     """
 
-    def __init__(self, state_manager, request, tweet_stats: TweetStats = None):
+    def __init__(self, state_manager, request, db_handler: Optional[AbstractDatabaseHandler] = None, tweet_stats: TweetStats = None):
         """
-        Initialize the masa_ai.tools.scrape.XTwitterScraper.
+        Initialize the XTwitterScraper.
 
         Args:
-            state_manager (masa_ai.orchestration.state_manager.StateManager): The state manager to track scraping progress.
-            request (dict): The request configuration for tweet scraping.
-            tweet_stats (masa_ai.tools.stats.tweet_stats.TweetStats, optional): The TweetStats instance for tracking statistics.
+            state_manager: The state manager to track scraping progress.
+            request: The request configuration for tweet scraping.
+            db_handler (AbstractDatabaseHandler, optional): Database handler for storing tweets.
+            tweet_stats (TweetStats, optional): The TweetStats instance for tracking statistics.
         """
         self.qc_manager = QCManager()
         self.state_manager = state_manager
         self.request = request
         self.twitter_connection = XTwitterConnection()
-        self.data_storage = DataStorage()
+        self.db_handler = db_handler
         self.tweet_stats = tweet_stats or TweetStats(self.qc_manager)
+        
+        if not self.db_handler:
+            self.qc_manager.log_warning("No database handler provided. Tweets will not be stored.", context="XTwitterScraper")
 
     @QCManager().handle_error()
     def scrape_tweets(self, request_id, query, count):
@@ -209,10 +215,7 @@ class XTwitterScraper:
 
     def _save_tweets(self, tweets, request_id, query, current_date):
         """
-        Save the scraped tweets to storage.
-
-        This method saves the scraped tweets to the configured data storage
-        and updates the request state.
+        Save the scraped tweets to the database.
 
         Args:
             tweets (list): The list of tweets to save.
@@ -224,7 +227,10 @@ class XTwitterScraper:
             DataProcessingException: If there's an error saving the tweets.
         """
         try:
-            self.data_storage.save_data(tweets, 'xtwitter', query, file_format='json')
+            if self.db_handler:
+                self.db_handler.store_tweets(tweets, request_id)
+            else:
+                self.qc_manager.log_warning("No database handler available. Tweets not stored.", context="XTwitterScraper")
         except Exception as e:
             raise DataProcessingException(f"Failed to save tweets: {str(e)}")
         

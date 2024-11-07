@@ -23,6 +23,8 @@ from typing import Optional, Union, List
 from pathlib import Path
 import json
 
+from .tools.database.duckdb_handler import DuckDBHandler
+
 class Masa:
     def __init__(self):
         from .configs.config import initialize_config, global_settings
@@ -32,11 +34,11 @@ class Masa:
         initialize_config()
         self.global_settings = global_settings
         self.qc_manager = QCManager()
-        self.qc_manager.log_debug("Initialized QCManager", context="Masa")
         
         try:
+            # Database initialization is now handled by RequestManager
             self.request_manager = RequestManager()
-            self.qc_manager.log_debug("Initialized RequestManager", context="Masa")
+            self.qc_manager.log_debug("Initialized RequestManager with database", context="Masa")
         except Exception as e:
             self.qc_manager.log_error(f"Error initializing RequestManager: {str(e)}", error_info=e, context="Masa")
             raise

@@ -18,14 +18,18 @@ Attributes:
 
 import hashlib
 import json
+from datetime import datetime
+from typing import Optional, List, Dict, Any
 from pathlib import Path
-from typing import Optional, List
+
+from masa_ai.tools.database.models.entities.request import Request
+from masa_ai.tools.database.models.entities.tweet import Tweet
 from masa_ai.orchestration.request_router import RequestRouter
 from masa_ai.orchestration.queue import Queue
-from masa_ai.orchestration.state_manager import StateManager
-from ..tools.qc.qc_manager import QCManager
-from ..configs.config import global_settings
-from ..tools.utils.paths import ensure_dir, ORCHESTRATION_DIR
+from masa_ai.tools.qc.qc_manager import QCManager
+from masa_ai.configs.config import global_settings
+from masa_ai.tools.database.abstract_database_handler import AbstractDatabaseHandler
+from masa_ai.tools.database.duckdb_handler import DuckDBHandler
 
 class RequestManager:
     """
@@ -37,82 +41,100 @@ class RequestManager:
         """
         self.qc_manager = QCManager()
         self.config = global_settings
-        self.state_file = ORCHESTRATION_DIR / "request_manager_state.json"
-        self.queue_file = ORCHESTRATION_DIR / "request_queue.json"
         
-        # Ensure directories exist
-        ensure_dir(self.state_file.parent)
-        ensure_dir(self.queue_file.parent)
+        # Initialize database handler
+        db_path = self.config.get('database.PATH', 'masa.db')
+        self.db_handler: AbstractDatabaseHandler = DuckDBHandler(db_path, self.qc_manager)
         
-        self.state_manager = StateManager(self.state_file)
-        self.request_router = RequestRouter(self.qc_manager, self.state_manager)
+        self.request_router = RequestRouter(
+            self.qc_manager, 
+            self.db_handler
+        )
         self.queue = None
 
-    def process_requests(self, requests: Optional[list] = None):
+    def process_requests(self, requests: Optional[List[Dict[str, Any]]] = None):
         """
-        Process requests from a file or the existing queue.
+        Process requests from input or existing queue.
 
         This method is the main entry point for request processing. It loads
         requests from a file if provided, otherwise processes requests from
         the existing queue.
 
         Args:
-            requests (list, optional): List of requests to process. If None, process the existing queue.
+            requests (List[Dict[str, Any]], optional): List of requests to process. If None, process the existing queue.
         """
         
-        self.state_manager.load_state()
-
+        # Initialize queue if not already done
+        if self.queue is None:
+            self.queue = Queue(self.db_handler)
+        
         if requests:
             self._update_state_with_requests(requests)
-
-        self.queue = Queue(self.state_manager, self.queue_file)
+        else:
+            # Only resync if we're not adding new requests
+            self.queue._sync_with_database()
 
         # Process the requests
         self._process_queue()
 
-    def _update_state_with_requests(self, requests: list):
+    def _update_state_with_requests(self, requests: List[Dict[str, Any]]):
         """
         Update the state manager with new requests.
 
         Args:
-            requests (list): List of requests.
+            requests (List[Dict[str, Any]]): List of requests.
         """
-        self.qc_manager.log_debug("Updating state with new requests", context="RequestManager")
-        for request in requests:
-            request_id = self._generate_request_id(request)
-            if not self.state_manager.request_exists(request_id):
-                self.state_manager.update_request_state(request_id, 'queued', request_details=request)
-        self.qc_manager.log_info("Updated state with new requests")
+        self.qc_manager.log_debug("Adding new requests to database and queue", context="RequestManager")
+        for request_data in requests:
+            request_id = self._generate_request_id(request_data)
+            request_data['request_id'] = request_id
+            
+            # Check if request exists
+            existing_request = self.db_handler.get_request_by_id(request_id)
+            if not existing_request:
+                # Create new Request instance
+                request = Request(
+                    request_id=request_id,
+                    status='queued',
+                    created_at=datetime.utcnow(),
+                    last_updated=datetime.utcnow(),
+                    scraper=request_data.get('scraper', ''),
+                    endpoint=request_data.get('endpoint', ''),
+                    priority=request_data.get('priority', 1),
+                    params=request_data.get('params', {}),
+                    progress={},
+                    result={},
+                    error=None
+                )
+                # Add to database
+                self.db_handler.add_request(request)
+                
+                # Add to queue directly
+                self.queue.add({
+                    'request_id': request_id,
+                    'priority': request_data.get('priority', 1),
+                    **request_data
+                })
+                
+                self.qc_manager.log_info(f"Added new request {request_id} to database and queue")
 
     def _process_queue(self):
         """
         Process requests from the queue.
         """
-        queue_summary = self.queue.get_queue_summary()
-        self.qc_manager.log_info("Queue Summary:")
-        for item in queue_summary:
-            self.qc_manager.log_info(f"ID: {item['id']}, Priority: {item['priority']}, Query: {item['query']}")
-
-        total_requests = len(queue_summary)
+        requests = self.db_handler.get_all_requests()
+        queued_requests = [r for r in requests if r['status'] == 'queued']
+        
+        total_requests = len(queued_requests)
         self.qc_manager.log_info(f"Starting to process {total_requests} requests")
 
-        processed_requests = 0
-        while True:
-            request_id, request = self.queue.get()
-            if request_id is None:
-                break
-
-            processed_requests += 1
-            self.qc_manager.log_info(f"Processing request {processed_requests} of {total_requests}", context="RequestManager")
-
+        for request in queued_requests:
             try:
-                self._process_single_request(request_id, request)
+                self._process_single_request(request['request_id'], request)
             except Exception as e:
                 self.qc_manager.log_error(f"Error processing request: {str(e)}", context="RequestManager")
 
-        self.qc_manager.log_info(f"Completed processing all {total_requests} requests")
-
-    def _process_single_request(self, request_id, request):
+    def _process_single_request(self, request_id: str, request: Dict[str, Any]):
         """
         Process a single request.
 
@@ -124,23 +146,26 @@ class RequestManager:
             Exception: If an error occurs during request processing.
         """
         try:
-            current_state = self.state_manager.get_request_state(request_id)
-        except KeyError:
-            self.qc_manager.log_error(f"Request {request_id} not found in the state manager", context="RequestManager")
-            return
-
-        self.qc_manager.log_debug(f"Processing request {request_id}, Current status: {current_state['status']}", context="RequestManager")
-
-        if current_state['status'] != 'in_progress':
-            self.state_manager.update_request_state(request_id, 'in_progress', request_details=request)
-
-        try:
+            # Update request status to in_progress
+            self.db_handler.update_request_status(request_id, 'in_progress', {})
+            
             result = self.request_router.route_request(request_id, request)
-            self.state_manager.update_request_state(request_id, 'completed', result=result, request_details=request)
+            
+            # Update request with completed status and result
+            self.db_handler.update_request_status(
+                request_id, 
+                'completed',
+                {'result': result}
+            )
+            
             self.qc_manager.log_info(f"Request completed: {request_id}")
         except Exception as e:
             self.qc_manager.log_error(f"Error in request {request_id}: {str(e)}")
-            self.state_manager.update_request_state(request_id, 'failed', error=str(e), request_details=request)
+            self.db_handler.update_request_status(
+                request_id,
+                'failed',
+                {'error': str(e)}
+            )
             raise
 
     def _generate_request_id(self, request):
@@ -245,42 +270,13 @@ class RequestManager:
         self.state_manager.update_request_state(request_id, 'queued', request_details=request)
         self.qc_manager.log_debug(f"Request {request_id} added to queue and state updated", context="RequestManager")
 
-    def get_request_status(self, request_id):
-        """
-        Get the status of a request.
+    def get_request_status(self, request_id: str) -> Dict[str, Any]:
+        """Get the status of a request."""
+        return self.db_handler.get_request_by_id(request_id)
 
-        Args:
-            request_id (str): The ID of the request.
-
-        Returns:
-            dict: The status of the request.
-        """
-        return self.state_manager.get_request_state(request_id)
-
-    def get_all_requests_status(self):
-        """
-        Get the status of all requests.
-
-        Returns:
-            list: A list of dictionaries containing the status of all requests.
-        """
-        all_requests_status = []
-        all_requests = self.state_manager.get_all_requests_state()
-        for request_id, request_state in all_requests.items():
-            request_details = request_state.get('request_details', {})
-            params = request_details.get('params', {})
-            status_entry = {
-                'request_id': request_id,
-                'status': request_state.get('status', 'Unknown'),
-                'scraper': request_details.get('scraper', 'N/A'),
-                'endpoint': request_details.get('endpoint', 'N/A'),
-                'query': params.get('query', 'N/A'),
-                'count': params.get('count', 'N/A'),
-                'created_at': request_state.get('created_at', 'N/A'),
-                'completed_at': request_state.get('completed_at', 'N/A')
-            }
-            all_requests_status.append(status_entry)
-        return all_requests_status
+    def get_all_requests_status(self) -> List[Dict[str, Any]]:
+        """Get the status of all requests."""
+        return self.db_handler.get_all_requests()
 
     def resume_incomplete_requests(self):
         """
@@ -314,67 +310,45 @@ class RequestManager:
             request_id = request['id']
             self.cancel_request(request_id)
 
-    def cancel_request(self, request_id):
-        """
-        Cancel a specific request.
-
-        Args:
-            request_id (str): The ID of the request to cancel.
-        """
-        request_state = self.state_manager.get_request_state(request_id)
-        if request_state:
-            self.state_manager.update_request_state(request_id, 'cancelled')
+    def cancel_request(self, request_id: str):
+        """Cancel a specific request."""
+        try:
+            self.db_handler.update_request_status(
+                request_id,
+                'cancelled',
+                {'cancelled_at': datetime.utcnow().isoformat()}
+            )
             self.qc_manager.log_info(f"Cancelled request {request_id}", context="RequestManager")
-        else:
-            self.qc_manager.log_warning(f"Request {request_id} not found in the state manager", context="RequestManager")
+        except Exception as e:
+            self.qc_manager.log_warning(f"Failed to cancel request {request_id}: {str(e)}", context="RequestManager")
 
     def list_requests(self, statuses: Optional[List[str]] = None):
-        """
-        List requests with their ID, status, query, and last updated time.
-
-        Args:
-            statuses (List[str], optional): List of statuses to filter requests.
-                                            If None, lists all requests.
-        """
-        self.qc_manager.log_debug("Listing requests", context="RequestManager")
-        self.state_manager.load_state()
-        requests = self.state_manager.get_requests_by_status(statuses)
+        """List requests with their details."""
+        requests = self.db_handler.get_all_requests()
+        
+        if statuses:
+            requests = [r for r in requests if r['status'] in statuses]
         
         if not requests:
             self.qc_manager.log_info("No requests found.", context="RequestManager")
             return
 
-        # Collect all request details in a single message
-        messages = []
-        for request_id, request_state in requests.items():
-            status = request_state.get('status', 'Unknown')
-            last_updated = request_state.get('last_updated', 'N/A')
-            query = request_state.get('request_details', {}).get('params', {}).get('query', 'N/A')
+        for request in requests:
             message = (
-                f"\n"
-                f"Request ID: {request_id}\n"
-                f"  Status: {status}\n"
-                f"  Query: {query}\n"
-                f"  Last Updated: {last_updated}\n"
+                f"\nRequest ID: {request['request_id']}\n"
+                f"  Status: {request['status']}\n"
+                f"  Query: {request['params'].get('query', 'N/A')}\n"
+                f"  Last Updated: {request['last_updated']}\n"
             )
-            messages.append(message)
-        
-        if messages:
-            self.qc_manager.log_info("".join(messages), context="RequestManager")
-        
+            self.qc_manager.log_info(message, context="RequestManager")
 
-    def clear_requests(self, request_ids: Optional[List[str]] = None) -> None:
-        """
-        Clear queued or in-progress requests by changing their status to 'cancelled'.
-
-        Args:
-            request_ids (List[str], optional): List of request IDs to clear.
-                                               If None, clears all queued or in-progress requests.
-        """
-        self.qc_manager.log_debug("Clearing requests", context="RequestManager")
-        self.state_manager.load_state()
-        self.state_manager.clear_requests(request_ids)
+    def clear_requests(self, request_ids: Optional[List[str]] = None):
+        """Clear requests by marking them as cancelled."""
         if request_ids:
-            self.qc_manager.log_info(f"Cleared requests with IDs: {', '.join(request_ids)}", context="RequestManager")
+            for request_id in request_ids:
+                self.cancel_request(request_id)
         else:
-            self.qc_manager.log_info("Cleared all queued and in-progress requests.", context="RequestManager")
+            requests = self.db_handler.get_all_requests()
+            for request in requests:
+                if request['status'] in ['queued', 'in_progress']:
+                    self.cancel_request(request['request_id'])

@@ -9,6 +9,7 @@ from ..tools.scrape.scrape_xtwitter import XTwitterScraper
 from ..tools.qc.qc_manager import QCManager
 import traceback
 from ..configs.config import global_settings
+from ..tools.database.abstract_database_handler import AbstractDatabaseHandler
 
 class RequestRouter:
     """
@@ -21,10 +22,11 @@ class RequestRouter:
         qc_manager (tools.qc.qc_manager.QCManager): Quality control manager for logging and error handling.
         config (dict): Configuration settings for the request router.
         state_manager (orchestration.state_manager.StateManager): Manager for handling request states.
+        db_handler (tools.database.abstract_database_handler.AbstractDatabaseHandler): Database handler for storing data.
         scrapers (dict): Dictionary to store initialized scraper objects.
     """
 
-    def __init__(self, qc_manager: QCManager, state_manager):
+    def __init__(self, qc_manager: QCManager, state_manager, db_handler: AbstractDatabaseHandler):
         """
         Initialize the RequestRouter.
 
@@ -32,10 +34,13 @@ class RequestRouter:
         :type qc_manager: tools.qc.qc_manager.QCManager
         :param state_manager: Manager for handling request states.
         :type state_manager: orchestration.state_manager.StateManager
+        :param db_handler: Database handler for storing data.
+        :type db_handler: tools.database.abstract_database_handler.AbstractDatabaseHandler
         """
         self.qc_manager = qc_manager
         self.config = global_settings
         self.state_manager = state_manager
+        self.db_handler = db_handler
         self.scrapers = {}
     
     def route_request(self, request_id, request):
@@ -97,7 +102,11 @@ class RequestRouter:
         """
         if scraper_name not in self.scrapers:
             if scraper_name == 'XTwitterScraper':
-                self.scrapers[scraper_name] = XTwitterScraper(self.state_manager, request)
+                self.scrapers[scraper_name] = XTwitterScraper(
+                    self.state_manager, 
+                    request,
+                    db_handler=self.db_handler
+                )
             else:
                 raise ValueError(f"Unknown scraper: {scraper_name}")
         return self.scrapers[scraper_name]
