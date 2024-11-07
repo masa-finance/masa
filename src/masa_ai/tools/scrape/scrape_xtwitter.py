@@ -49,7 +49,7 @@ class XTwitterScraper:
         self.request = request
         self.twitter_connection = XTwitterConnection()
         self.db_handler = db_handler
-        self.tweet_stats = tweet_stats or TweetStats(self.qc_manager)
+        self.tweet_stats = None
         
         if not self.db_handler:
             self.qc_manager.log_warning("No database handler provided. Tweets will not be stored.", context="XTwitterScraper")
@@ -73,6 +73,9 @@ class XTwitterScraper:
             RateLimitException: If the API rate limit is exceeded.
         """
         self.qc_manager.log_debug(f"Starting scrape_tweets for request: {request_id}", context="XTwitterScraper")
+        
+        self.tweet_stats = TweetStats(request_id, self.db_handler, self.qc_manager)
+        
         request = self.state_manager.get_request_state(request_id)
         params = request.get('params', {})
         api_endpoint = self.request.get('endpoint')
@@ -177,8 +180,6 @@ class XTwitterScraper:
         """
         Handle the response from the XTwitter API.
 
-        This method processes the API response, saves the scraped tweets, and updates the request state.
-
         Args:
             response (dict): The response from the XTwitter API.
             request_id (str): The ID of the current request.
@@ -191,13 +192,12 @@ class XTwitterScraper:
             int: The number of new tweets processed from the API response.
         """
         self.qc_manager.log_debug(f"Handling API response for request ID: {request_id}, query: {query}, date: {current_date}", context="XTwitterScraper")
+        
         if response is None:
-            
             self.qc_manager.log_error("Received empty response from API.", context="XTwitterScraper._handle_response")
             raise APIException("Empty response from API.")
         
         if 'data' in response and response['data'] is not None:
-
             tweets = response['data']
             all_tweets.extend(tweets)
             num_tweets = len(tweets)
@@ -206,7 +206,9 @@ class XTwitterScraper:
             self.qc_manager.log_debug(f"Scraped and saved {num_tweets} tweets for {query} on {current_date.strftime('%Y-%m-%d')}.", context="XTwitterScraper")
             self.qc_manager.log_debug(f"Processed {num_tweets} tweets from the API response", context="XTwitterScraper")
 
-            self.tweet_stats.update(num_tweets, response.get('response_time', 0), response.get('worker_id', 'Unknown'))
+            # Update stats with worker ID from response or use a default
+            worker_id = response.get('worker_id', f'worker_{current_thread().name}')
+            self.tweet_stats.update(num_tweets, response.get('response_time', 0), worker_id)
 
             return num_tweets
         else:
