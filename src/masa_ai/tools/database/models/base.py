@@ -1,17 +1,13 @@
 """Base models and mixins for SQLAlchemy dataclass integration."""
 
-from dataclasses import dataclass
-from datetime import datetime
-from sqlalchemy.orm import DeclarativeBase, MappedAsDataclass
+from sqlalchemy.orm import DeclarativeBase, MappedAsDataclass, registry
 
-@dataclass
+mapper_registry = registry()
+
 class Base(MappedAsDataclass, DeclarativeBase):
-    """Base class for all SQLAlchemy models using dataclass integration.
+    """Base class for all SQLAlchemy models in the application.
     
-    Attributes:
-        created_at (datetime): Timestamp when record was created
-        updated_at (datetime): Timestamp when record was last updated
+    This class combines SQLAlchemy's DeclarativeBase with MappedAsDataclass to provide
+    both ORM functionality and dataclass features.
     """
-    
-    created_at: datetime = datetime.now(datetime.UTC)
-    updated_at: datetime = datetime.now(datetime.UTC)
+    registry = mapper_registry

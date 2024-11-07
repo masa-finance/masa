@@ -1,57 +1,86 @@
-from dataclasses import dataclass, field
-from typing import Optional, Dict, Any, List
 from datetime import datetime
-from sqlalchemy import Column, String, Integer, DateTime, JSON
-from sqlalchemy.orm import relationship
-from .tweet import Tweet
+from typing import Dict, Any, Optional, List
+from sqlalchemy import JSON, String, Integer, TIMESTAMP, Sequence
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from ..base import Base
+from masa_ai.tools.database.models.base import Base
 
-@dataclass
 class Request(Base):
-    """Represents a scraping request in the MASA project.
+    """Request entity for storing API request information.
     
     Args:
-        request_id (str): Unique identifier for the request.
-        status (str): Current status of the request.
-        created_at (datetime): Timestamp when the request was created.
-        last_updated (datetime): Timestamp of the last update to the request.
-        scraper (str): The scraper to be used (e.g., 'xtwitter').
-        endpoint (str): API endpoint for the scraper.
-        priority (int): Priority level of the request.
-        params (Dict[str, Any]): Parameters for the scraping request.
-        progress (Dict[str, Any]): Progress information of the request.
-        result (Dict[str, Any]): Result data from the request.
-        error (Optional[str]): Error message, if any.
-        tweets (List['Tweet']): List of associated tweets.
+        request_id: Unique identifier for the request
+        scraper: Name of the scraper being used
+        endpoint: API endpoint for the request
+        params: Additional parameters for the request
+        priority: Priority level of the request
+        status: Current status of the request
+        result: Result data from the request
+        error: Error message if request failed
+        created_at: Timestamp when request was created
+        updated_at: Timestamp when request was last updated
     """
-    __tablename__: str = "requests"
+    __tablename__ = 'requests'
 
-    request_id: str = field(init=False, default='')
-    status: str = field(default='')
-    created_at: datetime = field(default_factory=lambda: datetime.now(datetime.UTC))
-    last_updated: datetime = field(default_factory=lambda: datetime.now(datetime.UTC))
-    scraper: str = field(default='')
-    endpoint: str = field(default='')
-    priority: int = field(default=1)
-    params: Dict[str, Any] = field(default_factory=dict)
-    progress: Dict[str, Any] = field(default_factory=dict)
-    result: Dict[str, Any] = field(default_factory=dict)
-    error: Optional[str] = field(default=None)
-    tweets: List['Tweet'] = field(default_factory=list, compare=False)
+    id: Mapped[int] = mapped_column(
+        Integer,
+        Sequence('request_id_seq'),
+        primary_key=True,
+        nullable=False,
+        init=False
+    )
+    request_id: Mapped[str] = mapped_column(String, nullable=False)
+    scraper: Mapped[str] = mapped_column(String, nullable=False)
+    endpoint: Mapped[str] = mapped_column(String, nullable=False)
+    params: Mapped[Dict[str, Any]] = mapped_column(JSON, nullable=False)
+    priority: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    status: Mapped[str] = mapped_column(String, nullable=False, default='pending')
+    result: Mapped[Dict[str, Any]] = mapped_column(
+        JSON,
+        nullable=False,
+        default_factory=dict
+    )
+    error: Mapped[Optional[str]] = mapped_column(
+        String,
+        nullable=True,
+        default=None
+    )
+    created_at: Mapped[datetime] = mapped_column(
+        TIMESTAMP(timezone=False),
+        nullable=False,
+        default_factory=datetime.utcnow,
+        init=False
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        TIMESTAMP(timezone=False),
+        nullable=False,
+        default_factory=datetime.utcnow,
+        onupdate=datetime.utcnow,
+        init=False
+    )
 
-    # SQLAlchemy Columns
-    request_id = Column(String, primary_key=True)
-    status = Column(String, nullable=False)
-    created_at = Column(DateTime, nullable=False)
-    last_updated = Column(DateTime, nullable=False)
-    scraper = Column(String, nullable=False)
-    endpoint = Column(String, nullable=False)
-    priority = Column(Integer, nullable=False)
-    params = Column(JSON, nullable=False)
-    progress = Column(JSON, nullable=False)
-    result = Column(JSON, nullable=False)
-    error = Column(String, nullable=True)
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert request object to dictionary.
+        
+        Returns:
+            Dict containing all request attributes
+        """
+        return {
+            'id': self.id,
+            'request_id': self.request_id,
+            'scraper': self.scraper,
+            'endpoint': self.endpoint,
+            'params': self.params,
+            'priority': self.priority,
+            'status': self.status,
+            'result': self.result,
+            'error': self.error,
+            'created_at': self.created_at,
+            'updated_at': self.updated_at
+        }
 
-    # Relationships
-    tweets = relationship("Tweet", back_populates="request")
+    tweets: Mapped[List["Tweet"]] = relationship(
+        "Tweet",
+        back_populates="request",
+        init=False
+    )

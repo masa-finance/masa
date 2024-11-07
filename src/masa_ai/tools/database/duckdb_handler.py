@@ -3,6 +3,9 @@ import asyncio
 from typing import Any, Dict, List, Optional
 from sqlalchemy import create_engine, select, update, delete, insert
 from sqlalchemy.orm import sessionmaker, Session
+from sqlalchemy import inspect
+from sqlalchemy.exc import OperationalError
+from datetime import datetime, UTC
 
 from masa_ai.tools.database.abstract_database_handler import AbstractDatabaseHandler
 from masa_ai.tools.database.models.base import Base
@@ -32,13 +35,38 @@ class DuckDBHandler(AbstractDatabaseHandler):
         self.qc_manager = qc_manager
 
     def connect(self) -> None:
-        """Establish synchronous connection to DuckDB database."""
+        """Connect to the database and create tables if they don't exist.
+        
+        This method establishes a connection to the DuckDB database and creates
+        all necessary tables in the correct order to respect foreign key constraints.
+        """
         self.engine = create_engine(f"duckdb:///{self.database_path}")
-        self.Session = sessionmaker(bind=self.engine)
-        Base.metadata.create_all(self.engine)
+        
+        # Create tables in order to respect foreign key constraints
+        inspector = inspect(self.engine)
+        
+        with self.engine.begin() as conn:
+            # Create base tables first
+            if not inspector.has_table("requests"):
+                Request.__table__.create(conn)
+                
+            # Then create dependent tables
+            if not inspector.has_table("tweets"):
+                Tweet.__table__.create(conn)
+                
+            if not inspector.has_table("tweet_stats"):
+                TweetStats.__table__.create(conn)
+
+        # Initialize the Session factory
+        self.Session = sessionmaker(
+            bind=self.engine,
+            class_=Session,
+            expire_on_commit=False
+        )
+
 
     async def connect_async(self) -> None:
-        """Establish asynchronous connection to DuckDB database."""
+        """Asynchronously connect to the database."""
         await asyncio.to_thread(self.connect)
 
     def disconnect(self) -> None:
@@ -54,40 +82,113 @@ class DuckDBHandler(AbstractDatabaseHandler):
             await asyncio.to_thread(self.disconnect)
 
     def add_request(self, request: Dict[str, Any]) -> None:
-        """Add new request to database synchronously."""
+        """
+        Add a new request to the database.
+        
+        Args:
+            request: Request data dictionary
+        
+        Raises:
+            Exception: If there's an error adding the request
+        """
         try:
             with self.Session() as session:
                 new_request = Request(
                     request_id=request['request_id'],
-                    status=request['status'],
-                    params=request['params']
+                    scraper=request.get('scraper', 'default'),
+                    endpoint=request['endpoint'],
+                    params=request['params'],
+                    priority=request.get('priority', 1),
+                    status=request.get('status', 'pending'),
+                    result={},
+                    error=None
                 )
                 session.add(new_request)
+                
+                # Initialize stats
+                stats = TweetStats(
+                    request_id=request['request_id'],
+                    total_tweets=0,
+                    api_call_count=0,
+                    total_response_time=0.0,
+                    unique_workers=[]
+                )
+                session.add(stats)
+                
                 session.commit()
-            self.qc_manager.log_info(f"Added request {request['request_id']}", context="DuckDBHandler")
         except Exception as e:
-            self.qc_manager.log_error(f"Failed to add request: {e}", context="DuckDBHandler")
+            self.qc_manager.log_error(f"Error adding request: {str(e)}")
             raise
 
     async def add_request_async(self, request: Dict[str, Any]) -> None:
         """Add new request to database asynchronously."""
         await asyncio.to_thread(self.add_request, request)
 
-    def update_request_status(self, request_id: str, status: str, progress: Dict[str, Any]) -> None:
-        """Update request status synchronously."""
-        try:
-            with self.Session() as session:
-                stmt = update(Request).where(Request.request_id == request_id).values(status=status)
+    async def update_request_status_async(
+        self,
+        request_id: str,
+        status: str,
+        progress: Optional[Dict[str, Any]] = None,
+        max_retries: int = 3,
+        retry_delay: float = 0.1
+    ) -> None:
+        """
+        Asynchronously update request status with retry logic for concurrent updates.
+        
+        Args:
+            request_id: Unique identifier for the request
+            status: New status to set
+            progress: Optional progress information
+            max_retries: Maximum number of retry attempts
+            retry_delay: Delay between retries in seconds
+        
+        Raises:
+            OperationalError: If update fails after all retries
+        """
+        for attempt in range(max_retries):
+            try:
+                await asyncio.to_thread(
+                    self.update_request_status,
+                    request_id,
+                    status,
+                    progress
+                )
+                return
+            except OperationalError as e:
+                if "Conflict on update" in str(e) and attempt < max_retries - 1:
+                    await asyncio.sleep(retry_delay * (attempt + 1))
+                    continue
+                raise
+
+    def update_request_status(
+        self,
+        request_id: str,
+        status: str,
+        progress: Optional[Dict[str, Any]] = None
+    ) -> None:
+        """
+        Update request status with transaction handling.
+        
+        Args:
+            request_id: Unique identifier for the request
+            status: New status to set
+            progress: Optional progress information
+        """
+        with self.Session() as session:
+            try:
+                stmt = (
+                    update(Request)
+                    .where(Request.request_id == request_id)
+                    .values(
+                        status=status,
+                        updated_at=datetime.now(UTC)
+                    )
+                )
                 session.execute(stmt)
                 session.commit()
-            self.qc_manager.log_info(f"Updated status of request {request_id} to {status}", context="DuckDBHandler")
-        except Exception as e:
-            self.qc_manager.log_error(f"Failed to update request status: {e}", context="DuckDBHandler")
-            raise
-
-    async def update_request_status_async(self, request_id: str, status: str, progress: Dict[str, Any]) -> None:
-        """Update request status asynchronously."""
-        await asyncio.to_thread(self.update_request_status, request_id, status, progress)
+            except:
+                session.rollback()
+                raise
 
     def get_request_by_id(self, request_id: str) -> Dict[str, Any]:
         """Get request by ID synchronously."""
@@ -207,16 +308,30 @@ class DuckDBHandler(AbstractDatabaseHandler):
         await asyncio.to_thread(self.update_stats, request_id, new_tweets, response_time, worker_id)
 
     def get_stats(self, request_id: str) -> Dict[str, Any]:
-        """Get tweet statistics synchronously."""
-        try:
-            with self.Session() as session:
-                stats = session.query(TweetStats).filter(TweetStats.request_id == request_id).first()
-                if stats:
-                    return stats.to_dict()
-                return {}
-        except Exception as e:
-            self.qc_manager.log_error(f"Failed to get stats: {e}", context="DuckDBHandler")
-            raise
+        """
+        Get tweet statistics for a request.
+        
+        Args:
+            request_id: ID of the request to get stats for
+        
+        Returns:
+            Dict containing tweet statistics
+        """
+        with self.Session() as session:
+            stats = session.query(TweetStats).filter_by(
+                request_id=request_id
+            ).first()
+            if stats:
+                return stats.to_dict()
+            return {
+                'request_id': request_id,
+                'total_tweets': 0,
+                'api_call_count': 0,
+                'total_response_time': 0.0,
+                'unique_workers': [],
+                'avg_response_time': 0.0,
+                'tweets_per_minute': 0.0
+            }
 
     async def get_stats_async(self, request_id: str) -> Dict[str, Any]:
         """Get tweet statistics asynchronously."""
