@@ -24,7 +24,7 @@ MASA is a project for data retrieval, quality control, and orchestration. It cur
            "priority": 1,
            "params": {
                "query": "#example",
-               "max_results": 100
+               "count": 100
            }
        },
        {
@@ -33,13 +33,11 @@ MASA is a project for data retrieval, quality control, and orchestration. It cur
            "priority": 2,
            "params": {
                "query": "from:example_user",
-               "max_results": 50
+               "count": 50
            }
        }
    ]
    ```
-
-   > **Note:** `max_results` can be no greater than 450. To be safe, set it slightly lower than this limit to avoid exceeding the rate limit.
 
    An example `request_list.json` file is included in the package. You can find it in the examples folder at the following path:
 
