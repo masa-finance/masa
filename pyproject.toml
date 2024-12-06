@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "masa-ai"
-version = "0.2.6"
+version = "0.2.7"
 description = "MASA SDK - Masa's AI Software Architecture"
 authors = ["Masa AI <engineering@masa.ai>"]
 readme = "README.md"

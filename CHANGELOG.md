@@ -79,6 +79,8 @@
 
 ### Chores
 
+* chore: update version ([`a9960b2`](https://github.com/masa-finance/masa/commit/a9960b2b2231ade513fe04eb1918e3d376f9a13b))
+
 * chore: modified default wait times ([`3b8b234`](https://github.com/masa-finance/masa/commit/3b8b2348d5f38cf159d9bbfacf9da47be4a5bf68))
 
 * chore: bumped versions and updated lock file ([`11f9263`](https://github.com/masa-finance/masa/commit/11f9263eb9405a842d6cb7db6ab33d9382ff3dec))
@@ -133,6 +135,8 @@
 * chore(deps): bump `rich` from 13.9.1 to 13.9.2 ([`a7e4d6a`](https://github.com/masa-finance/masa/commit/a7e4d6a1b25a6a5344f83049dd97861bf2242a43))
 
 ### Documentation
+
+* docs: fixed documentation error ([`5c24ed0`](https://github.com/masa-finance/masa/commit/5c24ed0813de847bc16c163f94546ee5810fe741))
 
 * docs: fixed how docs are created and rendered ([`266c9ba`](https://github.com/masa-finance/masa/commit/266c9ba15491a567e9a0810c947e6a913182f96a))
 
@@ -260,6 +264,22 @@ Enhanced wait_time calculations in RetryPolicy for accurate retry delays. ([`605
 - Refactored methods to read requests from variables rather than files. ([`5f25d73`](https://github.com/masa-finance/masa/commit/5f25d738539a146942ec41c5360f940ef6cf6ed6))
 
 ### Unknown
+
+* Merge pull request #19 from masa-finance/dev
+
+docs: fixed documentation error ([`8e703ed`](https://github.com/masa-finance/masa/commit/8e703edb74abcfaea960222bcf22c22248929f6b))
+
+* Merge pull request #17 from masa-finance/dev
+
+chore: update version ([`7df15b1`](https://github.com/masa-finance/masa/commit/7df15b185934ef4fd455ad23867dc82d2b92432a))
+
+* Merge pull request #16 from masa-finance/dev
+
+Modified Changelog, default logging level, upgraded poetry ([`b15b601`](https://github.com/masa-finance/masa/commit/b15b60160749ce1cd3724c5af5e59929143a1e23))
+
+* Modified Changelog, default logging level, upgraded poetry ([`b2161c4`](https://github.com/masa-finance/masa/commit/b2161c4aa9a8a81442a72f193fde0880d7b957c0))
+
+* Update settings.yaml to default to INFO ([`1538aa1`](https://github.com/masa-finance/masa/commit/1538aa1c70f70d56f9158a05cdd70e2d60cf4259))
 
 * Merge pull request #15 from masa-finance/dev
 
